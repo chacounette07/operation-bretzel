@@ -1,0 +1,18 @@
+rules_version = '2';
+
+// Règles de sécurité d'Opération Bretzel.
+// À coller dans la console Firebase : Firestore Database > onglet « Règles » > Publier.
+//
+// Chaque joueur ne peut lire, modifier et supprimer QUE sa propre progression.
+// Tout le reste de la base est fermé.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /joueurs/{uid} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null
+                            && request.auth.uid == uid
+                            && request.resource.data.keys().hasOnly(['pseudo', 'progress', 'updatedAt'])
+                            && request.resource.data.progress is map;
+    }
+  }
+}

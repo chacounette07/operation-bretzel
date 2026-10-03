@@ -1,0 +1,1502 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Opération Bretzel</title>
+<meta name="description" content="Jeu de révision d'allemand : la famille, les nombres jusqu'à 99, Wie geht's ? Chaque erreur devient un fantôme à chasser.">
+<meta name="theme-color" content="#FFCC00">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%A5%A8%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800;900&display=swap">
+<style>
+/* Layout : une colonne format téléphone (34rem max) de cases de BD, contour encre et ombre dure ; QG sur fond or tramé, missions sur papier blanc tramé. Univers unique, clair et assumé. */
+:root{
+  color-scheme: light;
+  --ink:#000;
+  --paper:#fff;
+  --gold:#FFCC00;
+  --gold-soft:#FFF3BF;
+  --red:#E4312B;
+  --good:#128A4C;
+  --good-bg:#D8F5E4;
+  --bad-bg:#FFE0DC;
+  --muted:#4E4639;
+  --der:#1E5FD0;
+  --die:#D8261F;
+  --pl:#8436CC;
+  --t-cast:#FFCC00;
+  --t-fam:#2BB464;
+  --t-num:#19BFB0;
+  --t-wg:#FF8A1F;
+  --t-pr:#FF8CC0;
+  --t-blitz:#E4312B;
+  --t-mem:#9B7BFF;
+  --f-display:'Lilita One','Arial Rounded MT Bold','Trebuchet MS',sans-serif;
+  --f-body:'Nunito','Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
+  --outline:3px 0 0 var(--ink),-3px 0 0 var(--ink),0 3px 0 var(--ink),0 -3px 0 var(--ink),2px 2px 0 var(--ink),-2px -2px 0 var(--ink),2px -2px 0 var(--ink),-2px 2px 0 var(--ink);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--gold)}
+body{margin:0;font-family:var(--f-body);font-size:16px;line-height:1.45;color:var(--ink);
+  background-color:var(--gold);background-image:radial-gradient(circle,rgba(0,0,0,.13) 1.3px,transparent 1.7px);background-size:16px 16px}
+body.paper{background-color:var(--paper);background-image:radial-gradient(circle,rgba(0,0,0,.07) 1.2px,transparent 1.6px)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px dashed var(--der);outline-offset:3px}
+.app{max-width:34rem;margin:0 auto;padding-inline:16px;padding-block:calc(12px + env(safe-area-inset-top,0px)) calc(56px + env(safe-area-inset-bottom,0px))}
+.emo{font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-weight:400;line-height:1}
+.g-der{color:var(--der)}.g-die{color:var(--die)}.g-pl{color:var(--pl)}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.05;text-wrap:balance}
+
+/* ---------- boutons ---------- */
+.btn{appearance:none;border:3px solid var(--ink);border-radius:14px;background:var(--gold);box-shadow:0 5px 0 var(--ink);padding:11px 18px 12px;font-family:var(--f-display);font-size:20px;letter-spacing:.3px;cursor:pointer;transition:transform .06s,box-shadow .06s;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;color:var(--ink)}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.btn.dark{background:var(--ink);color:var(--gold)}
+.btn.white{background:var(--paper)}
+.btn.full{width:100%}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none;box-shadow:0 5px 0 var(--ink)}
+.icon-btn{appearance:none;border:3px solid var(--ink);border-radius:12px;background:var(--paper);box-shadow:0 3px 0 var(--ink);width:44px;height:44px;display:grid;place-items:center;font-size:20px;cursor:pointer;flex:none;padding:0}
+.icon-btn:active{transform:translateY(3px);box-shadow:none}
+
+/* ---------- QG ---------- */
+.logo{padding-top:6px}
+.logo-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tag{display:inline-block;background:var(--ink);color:var(--paper);font-weight:900;font-size:13px;border-radius:8px;padding:3px 10px;transform:rotate(-2deg)}
+.title{font-size:clamp(46px,14vw,66px);line-height:.92;color:var(--paper);margin:12px 0 0;letter-spacing:.5px;text-shadow:var(--outline),8px 8px 0 var(--red)}
+.title .pretzel{display:inline-block;transform:rotate(-12deg);animation:wobble 2.4s ease-in-out 1}
+@keyframes wobble{0%{transform:rotate(-12deg) scale(.4)}25%{transform:rotate(12deg) scale(1.15)}45%{transform:rotate(-8deg)}65%{transform:rotate(4deg)}100%{transform:rotate(-12deg)}}
+.pitch{font-weight:800;font-size:16.5px;margin:14px 0 0;max-width:30rem}
+.panel{background:var(--paper);border:3px solid var(--ink);border-radius:20px;box-shadow:6px 6px 0 var(--ink);padding:14px 16px}
+.stack{display:flex;flex-direction:column;gap:18px;margin-top:18px}
+.player{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center}
+.rank-emo{width:68px;height:68px;border-radius:50%;border:3px solid var(--ink);background:var(--gold-soft);display:grid;place-items:center;font-size:38px;grid-row:span 2}
+.rank-name{font-family:var(--f-display);font-size:26px;line-height:1}
+.rank-fr{font-weight:700;color:var(--muted);font-size:14px}
+.xpbar{grid-column:1/-1;margin-top:10px;height:22px;border:3px solid var(--ink);border-radius:999px;background:var(--paper);overflow:hidden;position:relative}
+.xpbar i{position:absolute;inset:0 auto 0 0;background:repeating-linear-gradient(-45deg,var(--gold) 0 10px,#FFD83D 10px 20px);border-right:3px solid var(--ink)}
+.xpline{grid-column:1/-1;display:flex;justify-content:space-between;font-weight:800;font-size:13.5px;margin-top:4px;font-variant-numeric:tabular-nums}
+.pstats{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pill{border:2.5px solid var(--ink);border-radius:999px;padding:2px 10px;font-weight:800;font-size:13.5px;background:var(--paper);font-variant-numeric:tabular-nums}
+.ghostcard{background:var(--ink);color:var(--paper);border-color:var(--ink);box-shadow:6px 6px 0 var(--red)}
+.ghostcard h2{font-size:24px;color:var(--gold)}
+.ghostcard p{margin:6px 0 12px;font-weight:700;font-size:15px;color:#EDE6D6}
+.ghostrow{display:flex;gap:4px;font-size:28px;margin-bottom:6px;flex-wrap:wrap}
+.ghostrow span{animation:float 2.6s ease-in-out infinite}
+.ghostrow span:nth-child(2n){animation-delay:.4s}
+.ghostrow span:nth-child(3n){animation-delay:.9s}
+@keyframes float{50%{transform:translateY(-5px)}}
+.empty{background:var(--paper)}
+.empty h2{font-size:22px}
+.empty p{margin:6px 0 0;font-weight:700;color:var(--muted)}
+.intro ol{margin:10px 0 12px;padding:0;list-style:none;display:grid;gap:8px}
+.intro li{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;font-weight:700}
+.intro li b.n{width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--gold);display:grid;place-items:center;font-family:var(--f-display);font-weight:400;font-size:17px}
+.h2{font-size:26px;margin:26px 0 12px;color:var(--ink)}
+.worlds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.worlds>.wt:last-child:nth-child(odd){grid-column:1/-1}
+.wt{appearance:none;position:relative;text-align:left;border:3px solid var(--ink);border-radius:18px;background:var(--paper);box-shadow:5px 5px 0 var(--ink);padding:0;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;transition:transform .06s,box-shadow .06s}
+.wt:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--ink)}
+.wt .band{background:var(--c);border-bottom:3px solid var(--ink);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:56px}
+.wt .band .emo{font-size:30px}
+.wt .body{padding:9px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.wt .h{font-family:var(--f-display);font-size:20px;line-height:1.05}
+.wt .d{font-size:13.5px;color:var(--muted);font-weight:700;line-height:1.3;flex:1}
+.gh{font-size:13px;font-weight:900;background:var(--ink);color:var(--paper);border-radius:999px;padding:2px 8px;white-space:nowrap}
+.stars{font-size:21px;letter-spacing:2px;line-height:1;white-space:nowrap}
+.stars .on{color:var(--gold);text-shadow:1.5px 0 0 var(--ink),-1.5px 0 0 var(--ink),0 1.5px 0 var(--ink),0 -1.5px 0 var(--ink)}
+.stars .off{color:#fff;text-shadow:1.5px 0 0 var(--ink),-1.5px 0 0 var(--ink),0 1.5px 0 var(--ink),0 -1.5px 0 var(--ink)}
+.best{font-size:13.5px;font-weight:900}
+.foot{margin-top:28px;display:flex;flex-direction:column;gap:12px}
+.toggles{display:flex;flex-wrap:wrap;gap:8px}
+.tog{appearance:none;border:2.5px solid var(--ink);border-radius:999px;background:var(--paper);padding:6px 12px;font-weight:800;font-size:14px;cursor:pointer}
+.tog[aria-pressed="false"]{background:transparent;text-decoration:line-through;opacity:.75}
+.savenote{font-weight:700;font-size:13.5px}
+.reset{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:800;font-size:14px}
+.link{appearance:none;background:none;border:none;padding:0;font-weight:800;text-decoration:underline;cursor:pointer;font-size:14px}
+
+/* ---------- mission ---------- */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;align-items:center;gap:10px;padding:10px 0;background:var(--paper);border-bottom:3px solid var(--ink);margin-inline:-16px;padding-inline:16px}
+.prog{flex:1;display:flex;gap:3px;min-width:0}
+.seg{flex:1;height:14px;border:2.5px solid var(--ink);border-radius:5px;background:var(--paper);min-width:0}
+.seg.ok{background:var(--good)}.seg.ko{background:var(--red)}.seg.cur{background:var(--gold)}
+.combo{font-family:var(--f-display);font-size:18px;background:var(--red);color:var(--paper);border:2.5px solid var(--ink);border-radius:10px;padding:2px 8px;white-space:nowrap}
+.combo.pop{animation:pop .35s}
+@keyframes pop{50%{transform:scale(1.3) rotate(-6deg)}}
+.timer{font-family:var(--f-display);font-size:20px;min-width:52px;text-align:center;font-variant-numeric:tabular-nums}
+.quitask{display:flex;align-items:center;gap:8px;margin-top:10px;background:var(--ink);color:var(--paper);border-radius:14px;padding:8px 12px;font-weight:800;flex-wrap:wrap}
+.quitask .btn{font-size:16px;padding:6px 12px}
+.qcard{margin-top:14px;background:var(--paper);border:3px solid var(--ink);border-radius:22px;box-shadow:6px 6px 0 var(--ink);padding:14px 16px 18px}
+.qtop{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.wchip{border:2.5px solid var(--ink);border-radius:999px;padding:2px 10px;font-weight:900;font-size:13px;background:var(--c)}
+.gbadge{background:var(--ink);color:var(--paper);border-radius:999px;padding:3px 10px;font-weight:900;font-size:13px}
+.ask{margin:14px 0 6px;font-weight:800;color:var(--muted);font-size:16px}
+.bigrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.big{font-family:var(--f-display);font-size:clamp(28px,8.4vw,40px);line-height:1.12;margin:0;min-width:0;overflow-wrap:anywhere}
+.big.num{font-size:clamp(64px,22vw,100px);line-height:1}
+.big.emoji{font-size:74px;line-height:1.1}
+.big.long{font-size:clamp(22px,6.2vw,29px)}
+.blank{display:inline-block;min-width:1.8em;border-bottom:4px solid var(--ink);margin-right:.2em}
+.say{appearance:none;border:2.5px solid var(--ink);border-radius:50%;width:42px;height:42px;background:var(--gold);box-shadow:0 3px 0 var(--ink);display:grid;place-items:center;font-size:19px;cursor:pointer;flex:none;padding:0}
+.say:active{transform:translateY(3px);box-shadow:none}
+.opts{display:grid;gap:10px;margin-top:16px}
+.opts.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.opt{appearance:none;display:flex;align-items:center;gap:10px;text-align:left;border:3px solid var(--ink);border-radius:16px;background:var(--paper);box-shadow:0 4px 0 var(--ink);padding:11px 12px;font-weight:800;font-size:18px;line-height:1.25;cursor:pointer;min-height:58px;min-width:0;transition:transform .06s,box-shadow .06s}
+.opt .k{flex:none;width:26px;height:26px;border:2px solid var(--ink);border-radius:8px;display:grid;place-items:center;font-size:13px;font-weight:900;background:var(--gold-soft)}
+.opt .t{min-width:0;overflow-wrap:anywhere}
+.opt.num .t{font-family:var(--f-display);font-weight:400;font-size:28px}
+.opt:hover{background:var(--gold-soft)}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.opts.locked .opt{pointer-events:none}
+.opt.right{background:var(--good-bg);border-color:var(--good);box-shadow:0 4px 0 var(--good)}
+.opt.right .k{background:var(--good);color:var(--paper);border-color:var(--good)}
+.opt.wrong{background:var(--bad-bg);border-color:var(--red);box-shadow:0 4px 0 var(--red);animation:shake .35s}
+.opt.dim{opacity:.4}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.tf .opt{justify-content:center;font-family:var(--f-display);font-weight:400;font-size:24px}
+.typer{margin-top:16px;display:flex;flex-direction:column;gap:10px}
+.typer input{width:100%;font:inherit;font-size:22px;font-weight:800;border:3px solid var(--ink);border-radius:14px;padding:12px 14px;background:var(--paper);color:var(--ink)}
+.typer input.ok{border-color:var(--good);background:var(--good-bg)}
+.typer input.ko{border-color:var(--red);background:var(--bad-bg);animation:shake .35s}
+.keys{display:flex;gap:8px}
+.key{appearance:none;flex:1;border:2.5px solid var(--ink);border-radius:12px;background:var(--gold-soft);box-shadow:0 3px 0 var(--ink);font-weight:900;font-size:20px;padding:6px 0;cursor:pointer}
+.key:active{transform:translateY(3px);box-shadow:none}
+.line{min-height:62px;border:3px dashed var(--ink);border-radius:16px;padding:8px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;margin-top:16px;background:#FFFCEB}
+.line:empty::before{content:"Touche les étiquettes dans l'ordre…";font-weight:700;color:var(--muted);padding:8px 6px}
+.bank{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.line.stack,.bank.stack{flex-direction:column;align-items:stretch}
+.tile{appearance:none;border:2.5px solid var(--ink);border-radius:12px;background:var(--paper);box-shadow:0 3px 0 var(--ink);padding:8px 12px;font-weight:900;font-size:17px;cursor:pointer;text-align:left}
+.tile:active{transform:translateY(3px);box-shadow:none}
+.line .tile{background:var(--gold-soft)}
+.bank .tile.used{visibility:hidden}
+.preview{min-height:22px;margin-top:8px;font-weight:800;color:var(--muted);overflow-wrap:anywhere}
+.go{margin-top:14px}
+.listen{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.listen .btn{font-size:19px}
+.flash{margin-top:12px;border:3px solid var(--ink);border-radius:14px;padding:8px 12px;font-weight:800}
+.flash.good{background:var(--good-bg)}.flash.bad{background:var(--bad-bg)}
+
+/* ---------- feuille de correction ---------- */
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:20;transform:translateY(105%);transition:transform .22s ease-out}
+.sheet.on{transform:none}
+.sheet-in{max-width:34rem;margin:0 auto;border:3px solid var(--ink);border-bottom:none;border-radius:22px 22px 0 0;padding:14px 18px calc(16px + env(safe-area-inset-bottom,0px));max-height:78vh;overflow:auto}
+.sheet-in.good{background:var(--good-bg)}.sheet-in.bad{background:var(--bad-bg)}
+.fb-head{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px}
+.fb-head h3{font-size:28px}
+.fb-tr{font-weight:800;font-size:14px;color:var(--muted)}
+.xp-chip{margin-left:auto;font-family:var(--f-display);font-size:18px;background:var(--gold);border:2.5px solid var(--ink);border-radius:10px;padding:1px 9px;white-space:nowrap}
+.sheet p{margin:8px 0 0}
+.fb-ans{font-size:18px;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fb-why{font-weight:600}
+.fb-tip{font-weight:700}
+.fb-extra{font-weight:900;background:var(--paper);border:2.5px solid var(--ink);border-radius:12px;padding:6px 10px}
+.sheet .btn{margin-top:14px}
+
+/* ---------- résultats ---------- */
+.res{display:flex;flex-direction:column;gap:18px;padding-top:10px}
+.res-hero{text-align:center}
+.res-hero h2{font-size:clamp(44px,13vw,60px);color:var(--paper);text-shadow:var(--outline),7px 7px 0 var(--red)}
+.res-hero .tr{font-weight:800;margin-top:8px}
+.res-hero .quip{font-weight:700;margin-top:4px}
+.bigstars{font-size:54px;letter-spacing:8px;margin-top:6px}
+.bigstars span{display:inline-block;animation:starin .5s both}
+.bigstars .on{color:var(--red)}.bigstars .off{color:rgba(255,255,255,.6)}
+.bigstars span:nth-child(2){animation-delay:.25s}.bigstars span:nth-child(3){animation-delay:.5s}
+@keyframes starin{0%{transform:scale(0) rotate(-90deg)}70%{transform:scale(1.3)}100%{transform:none}}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stat{background:var(--paper);border:3px solid var(--ink);border-radius:16px;padding:10px 6px;text-align:center;box-shadow:4px 4px 0 var(--ink)}
+.stat b{display:block;font-family:var(--f-display);font-weight:400;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:12.5px;font-weight:800}
+.rankup{text-align:center;background:var(--red);color:var(--paper);box-shadow:6px 6px 0 var(--ink)}
+.rankup .emo{font-size:52px;display:block}
+.rankup h3{font-size:26px;margin-top:6px}
+.review h3{font-size:22px}
+.review ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
+.review li{border:2.5px solid var(--ink);border-radius:12px;padding:8px 10px;background:var(--paper);display:grid;gap:2px}
+.review li .q{font-weight:700;color:var(--muted);font-size:14px}
+.review li .a{font-weight:900;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.review li .a .say{width:34px;height:34px;font-size:15px}
+.actions{display:grid;gap:12px}
+
+/* ---------- memory ---------- */
+.mhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px}
+.mhead h2{font-size:30px}
+.mgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+@media (min-width:480px){.mgrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.mcard{appearance:none;aspect-ratio:3/4;max-width:100%;perspective:700px;border:none;background:none;padding:0;cursor:pointer}
+.mcard .in{position:relative;display:block;width:100%;height:100%;transition:transform .35s;transform-style:preserve-3d}
+.mcard.up .in{transform:rotateY(180deg)}
+.mcard .f,.mcard .b{position:absolute;inset:0;border:3px solid var(--ink);border-radius:14px;display:grid;place-items:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;padding:6px;text-align:center;box-shadow:0 4px 0 var(--ink)}
+.mcard .f{background:var(--red);font-size:34px;background-image:radial-gradient(circle,rgba(0,0,0,.18) 1.3px,transparent 1.7px);background-size:10px 10px}
+.mcard .b{background:var(--paper);transform:rotateY(180deg);font-weight:900;font-size:15px;line-height:1.2;overflow-wrap:anywhere}
+.mcard .b.de{background:var(--gold-soft)}
+.mcard.done .b{background:var(--good-bg);border-color:var(--good)}
+
+/* ---------- confettis ---------- */
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+.confetti i{position:absolute;top:-16px;width:10px;height:14px;border:2px solid var(--ink);border-radius:2px;animation:fall 1.9s ease-in forwards}
+@keyframes fall{to{transform:translate(var(--dx),108vh) rotate(var(--rot))}}
+/* ---------- comptes ---------- */
+.logo-top{flex-wrap:wrap;row-gap:8px;column-gap:6px}
+.logo-top .tag{white-space:nowrap;padding:3px 8px}
+.logo-top .tr{display:flex;align-items:center;gap:6px;min-width:0;margin-left:auto}
+.chip-acc{appearance:none;display:inline-flex;align-items:center;gap:5px;min-height:44px;max-width:11.5rem;border:3px solid var(--ink);border-radius:999px;background:var(--paper);box-shadow:0 3px 0 var(--ink);padding:4px 10px;font-weight:900;font-size:14px;cursor:pointer;color:var(--ink)}
+.chip-acc .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.chip-acc:active{transform:translateY(3px);box-shadow:none}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--gold-soft);border:3px solid var(--ink);border-radius:16px;padding:4px;margin-bottom:4px}
+.tab{appearance:none;border:none;border-radius:11px;background:transparent;padding:10px 6px;font-weight:900;font-size:14.5px;line-height:1.2;cursor:pointer;color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--gold)}
+.lbl{display:block;font-weight:900;font-size:15.5px;margin:14px 0 6px}
+.field{width:100%;font:inherit;font-size:19px;font-weight:800;border:3px solid var(--ink);border-radius:14px;padding:11px 14px;background:var(--paper);color:var(--ink)}
+.pw{position:relative}
+.pw .field{padding-right:60px}
+.eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);appearance:none;border:none;background:transparent;width:46px;height:46px;border-radius:10px;font-size:20px;cursor:pointer;display:grid;place-items:center;padding:0}
+.eye[aria-pressed="true"]{background:var(--gold-soft)}
+.hint{margin:6px 0 0;font-size:13.5px;font-weight:700;color:var(--muted)}
+.hint.bad{color:#B4201A}
+.hint:empty,.err:empty{display:none}
+.err{margin:12px 0 0;font-weight:800;color:#B4201A;background:var(--bad-bg);border:2.5px solid #B4201A;border-radius:12px;padding:8px 12px}
+#auth-go{margin-top:16px}
+.guestlink{text-align:center;margin-top:20px}
+.guestlink .link{font-size:16px}
+.small{font-size:13.5px;font-weight:700;margin:6px 0 0}
+.center{text-align:center}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.row .btn{flex:1 1 11rem;font-size:18px}
+.guestbar h2,.merge h2{font-size:22px}
+.guestbar p,.merge p{margin:6px 0 0;font-weight:700}
+.notice{background:var(--good-bg);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.notice p{flex:1 1 14rem;margin:0;font-weight:800}
+.notice .btn{font-size:16px;padding:6px 16px}
+.acc-head{display:flex;align-items:center;gap:14px}
+.acc-head .rank-emo{grid-row:auto}
+.acc-help{margin-top:12px;border:2.5px dashed var(--ink);border-radius:14px;padding:10px 12px;background:var(--gold-soft);font-weight:700}
+.acc-help p{margin:0}
+.acc-help .idline{margin-top:6px;font-size:18px;overflow-wrap:anywhere}
+#logout{margin-top:14px}
+.danger{box-shadow:6px 6px 0 var(--red)}
+.danger h2{font-size:22px}
+.danger p{font-weight:700;margin:6px 0 0}
+.topbar h2{font-size:24px}
+@media (max-width:380px){.opts.two{grid-template-columns:1fr}.worlds{gap:10px}.wt .h{font-size:18px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<main class="app" id="app">
+  <section id="scr-home" aria-label="QG"></section>
+  <section id="scr-play" hidden aria-label="Mission"></section>
+  <section id="scr-result" hidden aria-label="Résultats"></section>
+  <section id="scr-memory" hidden aria-label="Memory"></section>
+  <section id="scr-auth" hidden aria-label="Connexion"></section>
+  <section id="scr-account" hidden aria-label="Mon compte"></section>
+</main>
+<div id="sheet" class="sheet" hidden role="dialog" aria-live="polite" aria-label="Correction"></div>
+
+<script>window.addEventListener('error',function(e){if(e&&e.filename&&/firebase-config\.js/.test(e.filename))window.__cfgErr=String(e.message||'erreur');},true);</script>
+<script src="firebase-config.js" onerror="window.__cfgMissing=true"></script>
+<script>
+'use strict';
+/* =========================================================
+   Outils
+   ========================================================= */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rnd=n=>Math.floor(Math.random()*n);
+const pick=a=>a[rnd(a.length)];
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const sample=(a,n)=>shuffle(a).slice(0,n);
+const nb=s=>String(s).replace(/ ([?!:;»])/g,' $1').replace(/« /g,'« ');
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+
+/* =========================================================
+   Données du cours
+   ========================================================= */
+const WORLDS={
+  cast:{name:'Qui est qui ?',sub:'Kurt, Sandra et leurs trois enfants',emo:'🎬',col:'var(--t-cast)'},
+  fam:{name:'Die Familie',sub:'Les membres de la famille, der ou die',emo:'🌳',col:'var(--t-fam)'},
+  num:{name:'Die Zahlen',sub:'Les nombres jusqu\'à 99',emo:'🔢',col:'var(--t-num)'},
+  wg:{name:'Wie geht\'s ?',sub:'Demander et dire comment ça va',emo:'🗣️',col:'var(--t-wg)'},
+  pr:{name:'Prononciation',sub:'W = v, ei = aï… entraîne ton oreille',emo:'🎧',col:'var(--t-pr)'}
+};
+const FAM=[
+  {k:'Vater',art:'der',fr:'le père',emo:'👨',hook:'Pense à Dark Vador : « Ich bin dein Vater ! » Et le V se dit « f » : fâ-teur.'},
+  {k:'Mutter',art:'die',fr:'la mère',emo:'👩',hook:'Mutter ressemble à l\'anglais « mother ». Le u se dit « ou » : mou-teur.'},
+  {k:'Eltern',art:'die',fr:'les parents',emo:'👫',pl:true,hook:'Eltern vient de « älter » (= plus vieux). C\'est un pluriel, donc die.'},
+  {k:'Sohn',art:'der',fr:'le fils',emo:'👦',hook:'Sohn ressemble à l\'anglais « son ». Le S se dit « z » : zône.'},
+  {k:'Tochter',art:'die',fr:'la fille (de ses parents)',emo:'👧',hook:'Tochter ressemble à l\'anglais « daughter ». Le ch se racle : toH-teur.'},
+  {k:'Bruder',art:'der',fr:'le frère',emo:'👦',hook:'Bruder ressemble à l\'anglais « brother ».'},
+  {k:'Schwester',art:'die',fr:'la sœur',emo:'👧',hook:'Schwester ressemble à l\'anglais « sister ». « sch » se dit « ch » : chvès-teur.'},
+  {k:'Kinder',art:'die',fr:'les enfants',emo:'🧒',pl:true,hook:'Comme les chocolats Kinder, faits pour les enfants ! On dit « kinn-deur ».'},
+  {k:'Großvater',art:'der',fr:'le grand-père',emo:'👴',hook:'Groß (grand) + Vater (père) = grand-père. Pareil qu\'en français !'},
+  {k:'Großmutter',art:'die',fr:'la grand-mère',emo:'👵',hook:'Groß (grand) + Mutter (mère) = grand-mère.'},
+  {k:'Großeltern',art:'die',fr:'les grands-parents',emo:'👴👵',pl:true,hook:'Groß + Eltern = grands-parents. Pluriel, donc die.'},
+  {k:'Familie',art:'die',fr:'la famille',emo:'👨‍👩‍👧‍👦',hook:'Familie ressemble à « famille ». Elle est féminine : die Familie.'}
+];
+const FAMK=Object.fromEntries(FAM.map(f=>[f.k,f]));
+const gname=f=>f.pl?'pluriel':(f.art==='der'?'masculin':'féminin');
+const U=['null','eins','zwei','drei','vier','fünf','sechs','sieben','acht','neun'];
+const TEEN={10:'zehn',11:'elf',12:'zwölf',13:'dreizehn',14:'vierzehn',15:'fünfzehn',16:'sechzehn',17:'siebzehn',18:'achtzehn',19:'neunzehn'};
+const TENS={2:'zwanzig',3:'dreißig',4:'vierzig',5:'fünfzig',6:'sechzig',7:'siebzig',8:'achtzig',9:'neunzig'};
+const FRU=['zéro','un','deux','trois','quatre','cinq','six','sept','huit','neuf'];
+const FRT={2:'vingt',3:'trente',4:'quarante',5:'cinquante',6:'soixante',7:'septante',8:'huitante',9:'nonante'};
+function de(n){if(n<10)return U[n];if(n<20)return TEEN[n];const t=Math.floor(n/10),u=n%10;return u?(u===1?'ein':U[u])+'und'+TENS[t]:TENS[t];}
+function numWhy(n){
+  const t=Math.floor(n/10),u=n%10;let s;
+  if(n<13)s=`${n} = <b>${de(n)}</b>.`;
+  else if(n<20){s=`${n} = ${U[u]} + zehn → <b>${de(n)}</b> (comme trei<b>ze</b>, quator<b>ze</b>…).`;if(n===16)s+=' ⚠️ sechs perd son s : <b>sechzehn</b>.';if(n===17)s+=' ⚠️ sieben perd son -en : <b>siebzehn</b>.';}
+  else if(!u){s=`${n} = ${U[t]} + zig → <b>${de(n)}</b>.`;if(n===20)s='20 = <b>zwanzig</b>. ⚠️ Exception : jamais « zweizig » !';if(n===30)s='30 = <b>dreißig</b>. ⚠️ Exception : avec un ß, et pas de « zig » !';if(n===60)s+=' ⚠️ sechs perd son s.';if(n===70)s+=' ⚠️ sieben perd son -en.';}
+  else{s=`${n} = <b>${u===1?'ein':U[u]}</b> + und + <b>${TENS[t]}</b> → <b>${de(n)}</b>. À l'envers : « ${FRU[u]}-et-${FRT[t]} ».`;if(u===1)s+=' ⚠️ eins perd son s devant und.';if(t===2)s+=' (20 = zwanzig, jamais « zweizig ».)';if(t===3)s+=' (30 = dreißig, avec ß.)';if(t===6)s+=' (60 = sechzig, sans s.)';if(t===7)s+=' (70 = siebzig, sans -en.)';}
+  return s;
+}
+const LW=['Vater','Mutter','Bruder','Schwester','Tochter','Sohn','Kinder','Eltern','Großvater','Großmutter','müde','krank','gestresst','Warum','verliebt','zwanzig','dreißig','sechzig','siebzig','dreizehn','Familie'];
+const MEAN={Vater:'le père',Mutter:'la mère',Bruder:'le frère',Schwester:'la sœur',Tochter:'la fille',Sohn:'le fils',Kinder:'les enfants',Eltern:'les parents',Großvater:'le grand-père',Großmutter:'la grand-mère',müde:'fatigué(e)',krank:'malade',gestresst:'stressé(e)',Warum:'pourquoi ?',verliebt:'amoureux, amoureuse',zwanzig:'20',dreißig:'30',sechzig:'60',siebzig:'70',dreizehn:'13',Familie:'la famille'};
+
+/* ---------- questions écrites à la main ---------- */
+const STATIC={};
+function S(id,world,kind,o){STATIC[id]=Object.assign({id,world,kind},o);}
+// Qui est qui ?
+S('cast.age.kurt','cast','mcq',{ask:'Kurt a 52 ans. En allemand : « Kurt ist… »',big:'🧔 Kurt ist …',opts:['zweiundfünfzig','fünfundzwanzig','zweiundvierzig','achtundvierzig'],answer:'zweiundfünfzig',optLang:'de',say:'Kurt ist zweiundfünfzig.',why:'52 = <b>zwei</b> + und + <b>fünfzig</b>. On dit l\'unité d\'abord : « deux-et-cinquante ».',tip:'Piège : fünfundzwanzig, c\'est 25 !'});
+S('cast.age.sandra','cast','mcq',{ask:'Sandra a 48 ans. En allemand : « Sandra ist… »',big:'👩 Sandra ist …',opts:['achtundvierzig','vierundachtzig','achtunddreißig','achtzig'],answer:'achtundvierzig',optLang:'de',say:'Sandra ist achtundvierzig.',why:'48 = <b>acht</b> + und + <b>vierzig</b> : « huit-et-quarante ».',tip:'vierundachtzig, c\'est 84 : l\'ordre compte !'});
+S('cast.love','cast','mcq',{ask:'Qui est amoureuse ?',big:'💘 … ist verliebt.',opts:['Luna','Theo','Philipp','Sandra'],answer:'Luna',say:'Luna ist verliebt.',why:'« Luna ist verliebt » = Luna est amoureuse. <b>verliebt</b> = amoureux, amoureuse.'});
+S('cast.philipp','cast','mcq',{ask:'Qui est un « Basketballtalent » et fait du « Ballett » ?',big:'🏀 + 🩰 = ?',opts:['Philipp','Theo','Kurt','Luna'],answer:'Philipp',say:'Philipp ist ein Basketballtalent und er macht Ballett.',why:'« Philipp ist ein Basketballtalent und er macht Ballett » : Philipp est un talent du basket et il fait de la danse classique.',tip:'Smash le matin, entrechat le soir.'});
+S('cast.eltern','cast','mcq',{ask:'Complète la phrase du cours :',big:'Kurt und Sandra sind …',bigLang:'de',opts:['die Eltern','die Kinder','die Großeltern','die Familie'],answer:'die Eltern',optLang:'de',say:'Kurt und Sandra sind die Eltern.',why:'Kurt et Sandra sont <b>les parents</b> : die Eltern. C\'est un pluriel, donc <b>die</b>.'});
+S('cast.kinder','cast','mcq',{ask:'Complète la phrase du cours :',big:'Philipp, Theo und Luna sind …',bigLang:'de',opts:['die Kinder','die Eltern','die Großeltern','die Tochter'],answer:'die Kinder',optLang:'de',say:'Philipp, Theo und Luna sind die Kinder.',why:'Philipp, Theo et Luna sont <b>les enfants</b> : die Kinder.',tip:'Kinder, comme les chocolats… faits pour les enfants !'});
+S('cast.verliebt','cast','mcq',{ask:'Que veut dire cette phrase ?',big:'Luna ist verliebt.',bigLang:'de',opts:['Luna est amoureuse.','Luna est malade.','Luna est fatiguée.','Luna est stressée.'],answer:'Luna est amoureuse.',say:'Luna ist verliebt.',why:'<b>verliebt</b> = amoureux, amoureuse. (malade = krank, fatiguée = müde, stressée = gestresst)'});
+S('cast.ballett','cast','mcq',{ask:'Que veut dire « er macht Ballett » ?',big:'Er macht Ballett.',bigLang:'de',opts:['il fait de la danse classique','il fait du basket','il est très grand','il est fatigué'],answer:'il fait de la danse classique',say:'Er macht Ballett.',why:'<b>er</b> = il, <b>macht</b> = fait, <b>Ballett</b> = danse classique.'});
+S('cast.spell1','cast','mcq',{ask:'Laquelle est la bonne orthographe ?',big:'🏀 un talent du basket',opts:['Basketballtalent','Bastketballtalent','Basketbaltalent','Baskettballtalent'],answer:'Basketballtalent',optLang:'de',say:'Basketballtalent',why:'<b>Basketball</b> + <b>Talent</b>, collés en un seul mot.',tip:'L\'allemand colle les mots comme des Lego.'});
+S('cast.spell2','cast','mcq',{ask:'La danse classique, en allemand, ça s\'écrit…',big:'🩰 ?',bigEmoji:true,opts:['Ballett','Ballet','Balett','Ballette'],answer:'Ballett',optLang:'de',say:'Ballett',why:'En allemand : <b>Ballett</b>, avec deux t à la fin (et on prononce le t).'});
+S('cast.tf1','cast','tf',{big:'Theo ist verliebt.',bigLang:'de',answer:false,say:'Luna ist verliebt.',why:'Faux : c\'est <b>Luna</b> qui est amoureuse. Sur Theo, ton cours ne dit rien. Mystère…'});
+S('cast.tf2','cast','tf',{big:'Kurt ist zweiundfünfzig.',bigLang:'de',answer:true,say:'Kurt ist zweiundfünfzig.',why:'Vrai : Kurt a 52 ans, et 52 = zweiundfünfzig.'});
+S('cast.tf3','cast','tf',{big:'Sandra ist zweiundfünfzig.',bigLang:'de',answer:false,say:'Sandra ist achtundvierzig.',why:'Faux : Sandra a 48 ans, <b>achtundvierzig</b>. C\'est Kurt qui a 52 ans.'});
+S('cast.tf4','cast','tf',{big:'Pour dire « Kurt a 52 ans », on dit « Kurt ist 52 ».',answer:true,say:'Kurt ist zweiundfünfzig.',why:'Vrai ! En allemand, on n\'<b>a</b> pas son âge, on l\'<b>est</b> : ist = est.'});
+S('cast.tf5','cast','tf',{big:'« sind » veut dire « est ».',answer:false,why:'Faux : <b>ist</b> = est (Kurt ist 52) et <b>sind</b> = sont (Kurt und Sandra sind die Eltern).'});
+S('cast.build1','cast','build',{ask:'Construis la phrase en allemand :',big:'Kurt et Sandra sont les parents.',tiles:['Kurt','und','Sandra','sind','die','Eltern','ist','Kinder'],target:['Kurt','und','Sandra','sind','die','Eltern'],say:'Kurt und Sandra sind die Eltern.',why:'Kurt <b>und</b> Sandra <b>sind</b> die Eltern : ils sont deux, donc <b>sind</b> (sont).'});
+S('cast.build2','cast','build',{ask:'Construis la phrase en allemand :',big:'Luna est amoureuse.',tiles:['Luna','ist','verliebt','sind','müde'],target:['Luna','ist','verliebt'],say:'Luna ist verliebt.',why:'Luna <b>ist</b> (est) <b>verliebt</b> (amoureuse).'});
+S('cast.build3','cast','build',{ask:'Construis la phrase en allemand :',big:'Philipp, Theo et Luna sont les enfants.',tiles:['Philipp,','Theo','und','Luna','sind','die','Kinder','Eltern','ist'],target:['Philipp,','Theo','und','Luna','sind','die','Kinder'],say:'Philipp, Theo und Luna sind die Kinder.',why:'Trois enfants : <b>sind</b> (sont) + <b>die Kinder</b>.'});
+S('cast.who1','cast','mcq',{ask:'Wer bin ich ? (= Qui suis-je ?)',big:'« Ich bin die Mutter. Ich bin 48. »',bigLang:'de',opts:['Sandra','Luna','Kurt','Theo'],answer:'Sandra',say:'Ich bin die Mutter. Ich bin achtundvierzig.',why:'La mère de 48 ans, c\'est <b>Sandra</b>. « Ich bin » = je suis.'});
+S('cast.who2','cast','mcq',{ask:'Wer bin ich ? (= Qui suis-je ?)',big:'« Ich bin der Vater. Ich bin 52. »',bigLang:'de',opts:['Kurt','Philipp','Sandra','Theo'],answer:'Kurt',say:'Ich bin der Vater. Ich bin zweiundfünfzig.',why:'Le père de 52 ans, c\'est <b>Kurt</b>.'});
+S('cast.who3','cast','mcq',{ask:'Wer bin ich ? (= Qui suis-je ?)',big:'« Ich bin die Tochter. Ich bin verliebt. »',bigLang:'de',opts:['Luna','Sandra','Theo','Philipp'],answer:'Luna',say:'Ich bin die Tochter. Ich bin verliebt.',why:'La fille (die Tochter) amoureuse (verliebt), c\'est <b>Luna</b>.'});
+S('cast.dig','cast','type',{ask:'Écris l\'âge de Sandra en chiffres :',big:'Sandra ist achtundvierzig.',bigLang:'de',accept:['48'],numeric:true,say:'achtundvierzig',why:'achtundvierzig = acht (8) + und + vierzig (40) = <b>48</b>.'});
+// Die Familie
+S('fam.rel1','fam','mcq',{ask:'Complète :',big:'Philipp est … de Luna.',opts:['der Bruder','der Sohn','der Vater','die Schwester'],answer:'der Bruder',optLang:'de',say:'der Bruder',why:'Philipp est le <b>frère</b> de Luna : der Bruder. (Pour Kurt et Sandra, il est der Sohn.)'});
+S('fam.rel2','fam','mcq',{ask:'Complète :',big:'Luna est … de Kurt et Sandra.',opts:['die Tochter','die Schwester','die Mutter','der Sohn'],answer:'die Tochter',optLang:'de',say:'die Tochter',why:'Pour ses parents, Luna est leur <b>fille</b> : die Tochter.'});
+S('fam.rel3','fam','mcq',{ask:'Complète :',big:'Luna est … de Philipp et Theo.',opts:['die Schwester','die Tochter','die Mutter','der Bruder'],answer:'die Schwester',optLang:'de',say:'die Schwester',why:'Pour ses frères, Luna est leur <b>sœur</b> : die Schwester.'});
+S('fam.rel4','fam','mcq',{ask:'Complète :',big:'Kurt est … de Philipp, Theo et Luna.',opts:['der Vater','der Großvater','der Bruder','der Sohn'],answer:'der Vater',optLang:'de',say:'der Vater',why:'Kurt est leur <b>père</b> : der Vater.'});
+S('fam.rel5','fam','mcq',{ask:'Complète :',big:'Le père de ton père, c\'est…',opts:['der Großvater','der Vater','der Bruder','die Großmutter'],answer:'der Großvater',optLang:'de',say:'der Großvater',why:'Le père de ton père = ton <b>grand-père</b> : der Großvater (groß = grand).'});
+S('fam.rel6','fam','mcq',{ask:'Complète :',big:'La mère de ta mère, c\'est…',opts:['die Großmutter','die Mutter','die Schwester','die Großeltern'],answer:'die Großmutter',optLang:'de',say:'die Großmutter',why:'La mère de ta mère = ta <b>grand-mère</b> : die Großmutter.'});
+S('fam.rel7','fam','mcq',{ask:'Complète :',big:'der Vater + die Mutter = …',bigLang:'de',opts:['die Eltern','die Kinder','die Großeltern','die Familie'],answer:'die Eltern',optLang:'de',say:'die Eltern',why:'Le père + la mère = les <b>parents</b> : die Eltern.'});
+S('fam.rel8','fam','mcq',{ask:'Complète :',big:'Theo est … de Kurt.',opts:['der Sohn','der Bruder','der Vater','die Tochter'],answer:'der Sohn',optLang:'de',say:'der Sohn',why:'Pour Kurt (son père), Theo est son <b>fils</b> : der Sohn.'});
+S('fam.rel9','fam','mcq',{ask:'Complète :',big:'der Großvater + die Großmutter = …',bigLang:'de',opts:['die Großeltern','die Eltern','die Kinder','die Großmutter'],answer:'die Großeltern',optLang:'de',say:'die Großeltern',why:'Grand-père + grand-mère = les <b>grands-parents</b> : die Großeltern.'});
+S('fam.tf1','fam','tf',{big:'« Groß » veut dire « grand ». Donc Großvater = grand-père.',answer:true,say:'der Großvater',why:'Vrai : Groß (grand) + Vater (père). Exactement comme en français !'});
+S('fam.tf2','fam','tf',{big:'Au pluriel, l\'article est toujours « die ».',answer:true,say:'die Eltern, die Kinder, die Großeltern',why:'Vrai : die Eltern, die Kinder, die Großeltern.'});
+S('fam.tf3','fam','tf',{big:'« der Sohn » veut dire « la fille ».',answer:false,say:'der Sohn',why:'Faux : der Sohn = <b>le fils</b>. La fille = die Tochter.'});
+S('fam.tf4','fam','tf',{big:'En allemand, les noms s\'écrivent avec une minuscule.',answer:false,why:'Faux : <b>tous</b> les noms prennent une majuscule : die Mutter, der Vater, die Familie.'});
+S('fam.tf5','fam','tf',{big:'« die Eltern » veut dire « les grands-parents ».',answer:false,say:'die Eltern',why:'Faux : die Eltern = <b>les parents</b>. Les grands-parents = die Großeltern.'});
+S('fam.tf6','fam','tf',{big:'« Bruder » ressemble à l\'anglais « brother » et veut dire « frère ».',answer:true,say:'der Bruder',why:'Vrai ! Mutter ≈ mother, Vater ≈ father, Bruder ≈ brother, Schwester ≈ sister.'});
+// Die Zahlen
+S('num.tf1','num','tf',{big:'« dreißig » (30) s\'écrit avec un ß.',answer:true,say:'dreißig',why:'Vrai : dreißig, avec un ß (qui se dit « ss »). C\'est une exception : pas de « zig » !'});
+S('num.tf2','num','tf',{big:'Pour dire 20, on dit « zweizig ».',answer:false,say:'zwanzig',why:'Faux : 20 = <b>zwanzig</b>. « zweizig » n\'existe pas.'});
+S('num.tf3','num','tf',{big:'En allemand, on dit l\'unité avant la dizaine : 52 = zwei-und-fünfzig.',answer:true,say:'zweiundfünfzig',why:'Vrai : 52 = « deux-et-cinquante » = zweiundfünfzig.'});
+S('num.tf4','num','tf',{big:'16 se dit « sechszehn ».',answer:false,say:'sechzehn',why:'Faux : 16 = <b>sechzehn</b>. sechs perd son s !'});
+S('num.tf5','num','tf',{big:'70 se dit « siebzig ».',answer:true,say:'siebzig',why:'Vrai : sieben perd son -en, ça donne siebzig.'});
+S('num.tf6','num','tf',{big:'21 se dit « einsundzwanzig ».',answer:false,say:'einundzwanzig',why:'Faux : 21 = <b>einundzwanzig</b>. eins perd son s devant und.'});
+S('num.tf7','num','tf',{big:'« zehn » veut dire 10.',answer:true,say:'zehn',why:'Vrai : zehn = 10. Et dreizehn = 3 + 10 = 13.'});
+S('num.calc1','num','mcq',{ask:'Petit calcul :',big:'zwanzig + zwei = ?',bigLang:'de',opts:['zweiundzwanzig','zwanzigzwei','zweizwanzig','zwölf'],answer:'zweiundzwanzig',optLang:'de',say:'zweiundzwanzig',why:'20 + 2 = 22 = <b>zwei</b> + und + <b>zwanzig</b>.'});
+S('num.calc2','num','mcq',{ask:'Kurt a 52 ans, Sandra 48. Quelle différence d\'âge ?',big:'52 − 48 = ?',opts:['vier','acht','vierzehn','vierzig'],answer:'vier',optLang:'de',say:'vier',why:'52 − 48 = 4 = <b>vier</b>.',tip:'Kurt est plus vieux de 4 ans. Chut, ne lui dis pas.'});
+S('num.calc3','num','mcq',{ask:'Petit calcul :',big:'zehn + drei = ?',bigLang:'de',opts:['dreizehn','dreißig','zehndrei','dreiundzehn'],answer:'dreizehn',optLang:'de',say:'dreizehn',why:'10 + 3 = 13 = <b>dreizehn</b> (drei + zehn).'});
+S('num.calc4','num','mcq',{ask:'Petit calcul :',big:'neunzig + neun = ?',bigLang:'de',opts:['neunundneunzig','neunzigneun','neunzehn','neunzig'],answer:'neunundneunzig',optLang:'de',say:'neunundneunzig',why:'90 + 9 = 99 = <b>neun</b> + und + <b>neunzig</b>.'});
+S('num.calc5','num','mcq',{ask:'Petit calcul :',big:'dreißig − eins = ?',bigLang:'de',opts:['neunundzwanzig','zweiundneunzig','neunzehn','neununddreißig'],answer:'neunundzwanzig',optLang:'de',say:'neunundzwanzig',why:'30 − 1 = 29 = <b>neun</b> + und + <b>zwanzig</b>.'});
+// Wie geht's ?
+S('wg.ask','wg','mcq',{ask:'Tu veux demander à ta prof comment elle va. Tu dis…',big:'👩‍🏫 ?',bigEmoji:true,opts:['Wie geht es Ihnen?','Mir geht es nicht gut.','Warum?','Ich bin müde.'],answer:'Wie geht es Ihnen?',optLang:'de',say:'Wie geht es Ihnen?',why:'À un adulte, on dit <b>Wie geht es Ihnen?</b> = Comment allez-vous ?',tip:'À un copain, tu pourras dire « Wie geht\'s? » (= ça va ?).'});
+S('wg.mean1','wg','mcq',{ask:'Que veut dire… ?',big:'Wie geht es Ihnen?',bigLang:'de',opts:['Comment allez-vous ?','Pourquoi ?','Je ne vais pas bien.','Je suis malade.'],answer:'Comment allez-vous ?',say:'Wie geht es Ihnen?',why:'<b>Wie geht es Ihnen?</b> = Comment allez-vous ? (mot à mot : « comment ça va, à vous ? »)'});
+S('wg.mean2','wg','mcq',{ask:'Que veut dire… ?',big:'Mir geht es nicht gut.',bigLang:'de',opts:['Je ne vais pas bien.','Je vais très bien.','Comment allez-vous ?','Je suis fatigué.'],answer:'Je ne vais pas bien.',say:'Mir geht es nicht gut.',why:'Mir (à moi) geht es (ça va) <b>nicht</b> (pas) gut (bien) = Je ne vais pas bien.'});
+S('wg.warum','wg','mcq',{ask:'Que veut dire… ?',big:'Warum?',bigLang:'de',opts:['Pourquoi ?','Comment ?','Quand ?','Qui ?'],answer:'Pourquoi ?',say:'Warum?',why:'<b>Warum?</b> = Pourquoi ?',tip:'Warum se dit « va-roum »… vroum vroum 🏎️'});
+S('wg.krank','wg','mcq',{ask:'Que veut dire… ?',big:'Ich bin krank.',bigLang:'de',opts:['Je suis malade.','Je suis fatigué(e).','Je suis stressé(e).','Je suis amoureux(se).'],answer:'Je suis malade.',say:'Ich bin krank.',why:'<b>krank</b> = malade. Ich bin = je suis.'});
+S('wg.muede','wg','mcq',{ask:'Que veut dire… ?',big:'Ich bin müde.',bigLang:'de',opts:['Je suis fatigué(e).','Je suis malade.','Je suis stressé(e).','Je suis en retard.'],answer:'Je suis fatigué(e).',say:'Ich bin müde.',why:'<b>müde</b> = fatigué(e).',tip:'Quand t\'es müde, t\'es tout mou 🫠'});
+S('wg.stress','wg','mcq',{ask:'Que veut dire… ?',big:'Ich bin gestresst.',bigLang:'de',opts:['Je suis stressé(e).','Je suis malade.','Je suis fatigué(e).','Je suis pressé(e).'],answer:'Je suis stressé(e).',say:'Ich bin gestresst.',why:'<b>gestresst</b> = stressé(e). Facile, ça ressemble au français !'});
+S('wg.emo1','wg','mcq',{ask:'Que dit ce personnage ?',big:'🤒',bigEmoji:true,opts:['Ich bin krank.','Ich bin müde.','Ich bin gestresst.','Ich bin verliebt.'],answer:'Ich bin krank.',optLang:'de',say:'Ich bin krank.',why:'🤒 = malade = <b>krank</b>.'});
+S('wg.emo2','wg','mcq',{ask:'Que dit ce personnage ?',big:'😴',bigEmoji:true,opts:['Ich bin müde.','Ich bin krank.','Ich bin gestresst.','Mir geht es gut.'],answer:'Ich bin müde.',optLang:'de',say:'Ich bin müde.',why:'😴 = fatigué(e) = <b>müde</b>.'});
+S('wg.emo3','wg','mcq',{ask:'Que dit ce personnage ?',big:'😰',bigEmoji:true,opts:['Ich bin gestresst.','Ich bin müde.','Ich bin krank.','Ich bin verliebt.'],answer:'Ich bin gestresst.',optLang:'de',say:'Ich bin gestresst.',why:'😰 = stressé(e) = <b>gestresst</b>.'});
+S('wg.situ1','wg','mcq',{ask:'Tu as 39 de fièvre. Tu dis…',big:'🌡️ 39 °C',opts:['Ich bin krank.','Ich bin gestresst.','Mir geht es gut.','Warum?'],answer:'Ich bin krank.',optLang:'de',say:'Mir geht es nicht gut. Ich bin krank.',why:'Fièvre = malade = <b>Ich bin krank.</b>'});
+S('wg.situ2','wg','mcq',{ask:'Tu t\'es couché(e) à minuit. Ce matin, tu dis…',big:'⏰ 7 h 00',opts:['Ich bin müde.','Ich bin krank.','Ich bin verliebt.','Wie geht es Ihnen?'],answer:'Ich bin müde.',optLang:'de',say:'Ich bin müde.',why:'Pas assez dormi = fatigué(e) = <b>Ich bin müde.</b>'});
+S('wg.situ3','wg','mcq',{ask:'Contrôle d\'allemand demain matin ! Tu dis…',big:'📝 😬',bigEmoji:true,opts:['Ich bin gestresst.','Ich bin müde.','Mir geht es gut.','Warum?'],answer:'Ich bin gestresst.',optLang:'de',say:'Ich bin gestresst.',why:'Contrôle demain = stress = <b>Ich bin gestresst.</b>',tip:'Mais avec ce jeu, plus besoin de stresser 😎'});
+S('wg.tf1','wg','tf',{big:'« Ihnen » (= vous) s\'écrit avec un I majuscule.',answer:true,say:'Wie geht es Ihnen?',why:'Vrai : <b>Ihnen</b> (le vous de politesse) prend toujours une majuscule.'});
+S('wg.tf2','wg','tf',{big:'« nicht » veut dire « pas ».',answer:true,say:'nicht',why:'Vrai : Mir geht es <b>nicht</b> gut = ça ne va <b>pas</b> bien.'});
+S('wg.tf3','wg','tf',{big:'« Mir geht es nicht gut » veut dire « je vais bien ».',answer:false,say:'Mir geht es nicht gut.',why:'Faux : avec <b>nicht</b>, ça veut dire « je ne vais <b>pas</b> bien ».'});
+S('wg.tf4','wg','tf',{big:'« Wie geht es Ihnen? » se dit à un adulte qu\'on vouvoie.',answer:true,say:'Wie geht es Ihnen?',why:'Vrai : <b>Ihnen</b> = vous (politesse). À un copain : « Wie geht\'s? ».'});
+S('wg.build1','wg','build',{ask:'Construis la phrase en allemand :',big:'Je ne vais pas bien.',tiles:['Mir','geht','es','nicht','gut','Ihnen','bin'],target:['Mir','geht','es','nicht','gut'],say:'Mir geht es nicht gut.',why:'<b>Mir geht es nicht gut.</b> Mot à mot : à moi / va / ça / pas / bien.'});
+S('wg.build2','wg','build',{ask:'Construis la question en allemand :',big:'Comment allez-vous ?',tiles:['Wie','geht','es','Ihnen?','Mir','Warum?'],target:['Wie','geht','es','Ihnen?'],say:'Wie geht es Ihnen?',why:'<b>Wie geht es Ihnen?</b> Mot à mot : comment / va / ça / à vous ?'});
+S('wg.build3','wg','build',{ask:'Construis la phrase en allemand :',big:'Je suis fatigué(e).',tiles:['Ich','bin','müde','krank','ist'],target:['Ich','bin','müde'],say:'Ich bin müde.',why:'<b>Ich bin</b> = je suis, <b>müde</b> = fatigué(e).'});
+S('wg.dialog','wg','build',{ask:'Remets le dialogue dans l\'ordre :',big:'💬 Toi et ta prof',stack:true,tiles:['Wie geht es Ihnen?','Mir geht es nicht gut.','Warum?','Ich bin müde.'],target:['Wie geht es Ihnen?','Mir geht es nicht gut.','Warum?','Ich bin müde.'],say:'Wie geht es Ihnen? Mir geht es nicht gut. Warum? Ich bin müde.',why:'On demande comment ça va, on répond que ça ne va pas, « Warum? », puis on donne la raison.'});
+S('wg.type1','wg','type',{ask:'Écris en allemand :',big:'Pourquoi ?',accept:['Warum?'],say:'Warum?',why:'Pourquoi ? = <b>Warum?</b> (« va-roum »)'});
+S('wg.type2','wg','type',{ask:'Écris en allemand :',big:'Je suis malade.',accept:['Ich bin krank.'],say:'Ich bin krank.',why:'Je suis = <b>Ich bin</b>, malade = <b>krank</b>.'});
+S('wg.type3','wg','type',{ask:'Écris le mot qui manque (il veut dire « pas ») :',big:'Mir geht es … gut.',bigLang:'de',accept:['nicht'],say:'Mir geht es nicht gut.',why:'« pas » = <b>nicht</b> : Mir geht es nicht gut.'});
+// Prononciation
+S('pr.ei','pr','mcq',{ask:'Dans « drei », le « ei » se prononce…',big:'drei',bigLang:'de',opts:['aï','é','eu','i'],answer:'aï',say:'drei',why:'<b>ei</b> = « aï » : drei = « draï », zwei = « tsvaï ».'});
+S('pr.ie','pr','mcq',{ask:'Dans « vier », le « ie » se prononce…',big:'vier',bigLang:'de',opts:['i','ié','aï','eu'],answer:'i',say:'vier',why:'<b>ie</b> = un « i » long : vier = « fir », die = « di ».'});
+S('pr.eu','pr','mcq',{ask:'Dans « neun », le « eu » se prononce…',big:'neun',bigLang:'de',opts:['oï','eu','é','u'],answer:'oï',say:'neun',why:'<b>eu</b> = « oï » : neun = « noïnn ».'});
+S('pr.w','pr','mcq',{ask:'Le W de « Warum » se prononce…',big:'Warum',bigLang:'de',opts:['v','w, comme « watt »','f','ou'],answer:'v',say:'Warum',why:'En allemand, <b>w</b> = « v » : Warum = « va-roum », Wie = « vi ».'});
+S('pr.v','pr','mcq',{ask:'Le V de « Vater » se prononce…',big:'Vater',bigLang:'de',opts:['f','v','b','w'],answer:'f',say:'Vater',why:'<b>v</b> = « f » : Vater = « fâ-teur », vier = « fir ».'});
+S('pr.z','pr','mcq',{ask:'Le Z de « zehn » se prononce…',big:'zehn',bigLang:'de',opts:['ts','z','s','dz'],answer:'ts',say:'zehn',why:'<b>z</b> = « ts » : zehn = « tsénn », zwanzig = « tsvann-tsich ».'});
+S('pr.ss','pr','mcq',{ask:'La lettre ß se prononce…',big:'ß',bigLang:'de',opts:['ss','b','z','ts'],answer:'ss',say:'dreißig',why:'<b>ß</b> (« Eszett ») = « ss » : dreißig = « draï-ssich », groß = « grôss ».',tip:'Ce n\'est pas un B ! Dans tes notes, « dreiBig » devient dreißig.'});
+S('pr.ue','pr','mcq',{ask:'Le ü de « fünf » se prononce comme…',big:'fünf',bigLang:'de',opts:['le u de « tu »','le ou de « loup »','le i de « lit »','le eu de « feu »'],answer:'le u de « tu »',say:'fünf',why:'<b>ü</b> = le « u » français. Les Français sont avantagés !'});
+S('pr.u','pr','mcq',{ask:'Le u de « Mutter » se prononce…',big:'Mutter',bigLang:'de',opts:['ou','u','eu','o'],answer:'ou',say:'Mutter',why:'Sans tréma, <b>u</b> = « ou » : Mutter = « mou-teur », gut = « gout ».'});
+S('pr.s','pr','mcq',{ask:'Le S de « Sohn » (devant une voyelle) se prononce…',big:'Sohn',bigLang:'de',opts:['z','s','ch','ts'],answer:'z',say:'Sohn',why:'<b>s</b> + voyelle = « z » : Sohn = « zône », sieben = « zi-benn ».'});
+S('pr.sch','pr','mcq',{ask:'Le « sch » de « Schwester » se prononce…',big:'Schwester',bigLang:'de',opts:['ch, comme « chat »','sk','s','tch'],answer:'ch, comme « chat »',say:'Schwester',why:'<b>sch</b> = « ch » : Schwester = « chvès-teur ».'});
+S('pr.ig','pr','mcq',{ask:'La fin « -zig » de « zwanzig » se prononce…',big:'zwanzig',bigLang:'de',opts:['tsich','zig','tsig','sig'],answer:'tsich',say:'zwanzig',why:'<b>z</b> = ts et <b>-ig</b> à la fin = « ich » : zwanzig = « tsvann-tsich ».'});
+S('pr.kinder','pr','mcq',{ask:'Comment se prononce « Kinder » ?',big:'Kinder',bigLang:'de',opts:['kinn-deur','kin-dé, comme « lapin »','chine-deur','kaïn-deur'],answer:'kinn-deur',say:'Kinder',why:'En allemand, <b>in</b> n\'est jamais nasal : on entend le n. Kinder = « kinn-deur ».'});
+S('pr.fater','pr','mcq',{ask:'Quel mot se prononce « fâ-teur » ?',big:'« fâ-teur »',opts:['Vater','vier','Warum','Mutter'],answer:'Vater',optLang:'de',say:'Vater',why:'V = f : <b>Vater</b> = « fâ-teur » (le père).'});
+S('pr.draissich','pr','mcq',{ask:'Quel mot se prononce « draï-ssich » ?',big:'« draï-ssich »',opts:['dreißig','dreizehn','drei','zwanzig'],answer:'dreißig',optLang:'de',say:'dreißig',why:'ei = aï, ß = ss, -ig = ich : <b>dreißig</b> (30).'});
+S('pr.vroum','pr','mcq',{ask:'Quel mot se prononce « va-roum » ?',big:'« va-roum » 🏎️',opts:['Warum','Vater','Wie','müde'],answer:'Warum',optLang:'de',say:'Warum',why:'W = v : <b>Warum</b> = « va-roum » = pourquoi.'});
+S('pr.tf1','pr','tf',{big:'Dans « Kinder », le « in » se prononce comme dans « lapin ».',answer:false,say:'Kinder',why:'Faux : pas de son nasal en allemand. On dit « kinn-deur ».'});
+S('pr.tf2','pr','tf',{big:'Dans « zehn », le h ne se prononce pas.',answer:true,say:'zehn',why:'Vrai : après une voyelle, le <b>h</b> est muet ; il allonge juste la voyelle.'});
+S('pr.tf3','pr','tf',{big:'En allemand, le W se prononce « v ».',answer:true,say:'Wie geht es Ihnen?',why:'Vrai : Wie = « vi », Warum = « va-roum », zwei = « tsvaï ».'});
+
+/* ---------- questions générées ---------- */
+function numWordDistractors(n){
+  const t=Math.floor(n/10),u=n%10,right=de(n),c=[],fakes=[];
+  const add=x=>{if(x&&x!==right&&!c.includes(x))c.push(x);};
+  const uw=u===1?'ein':U[u];
+  if(n>20&&u){
+    const sw=u*10+t;if(sw>20&&sw%10&&sw!==n)add(de(sw));
+    if(u===1)fakes.push('einsund'+TENS[t]);
+    if(t===2)fakes.push(uw+'undzweizig');
+    if(t===3)fakes.push(uw+'unddreizig');
+    if(t===6)fakes.push(uw+'undsechszig');
+    if(t===7)fakes.push(uw+'undsiebenzig');
+    add(de(u<9?n+1:n-1));add(de(t<9?n+10:n-10));add(de(t>2?n-10:n+20));
+  }else if(n>=13&&n<=19){
+    if(n===16)fakes.push('sechszehn');if(n===17)fakes.push('siebenzehn');
+    add(de(u*10));add(de(n===19?18:n+1));add(de(n===13?14:n-1));
+  }else if(n>=20&&!u){
+    const f={20:'zweizig',30:'dreizig',60:'sechszig',70:'siebenzig'}[n];if(f)fakes.push(f);
+    add(de(10+t));add(de(n===90?80:n+10));add(de(n===20?30:n-10));
+  }else{add(de((n+1)%13));add(de((n+2)%13));add(de((n+5)%13));}
+  const out=[];if(fakes.length)out.push(pick(fakes));
+  for(const x of shuffle(c)){if(out.length>=3)break;if(!out.includes(x))out.push(x);}
+  while(out.length<3){const r=de(1+rnd(99));if(r!==right&&!out.includes(r))out.push(r);}
+  return out;
+}
+function numDigitDistractors(n){
+  const t=Math.floor(n/10),u=n%10,c=new Set();
+  if(u&&t&&n>20)c.add(u*10+t);c.add(n+(u<9?1:-1));c.add(n+(t<9?10:-10));
+  if(n>=13&&n<=19)c.add(u*10);if(n>=20&&!u)c.add(10+t);c.add(n>50?n-20:n+20);c.delete(n);
+  const out=shuffle([...c].filter(x=>x>=0&&x<100)).slice(0,3);
+  while(out.length<3){const r=1+rnd(99);if(r!==n&&!out.includes(r))out.push(r);}
+  return out;
+}
+const GEN={
+  'fam.fr2de':k=>{const f=FAMK[k];if(!f)return null;const o=sample(FAM.filter(x=>x.k!==k),3);
+    return{kind:'mcq',ask:'Comment dit-on en allemand… ?',big:`${f.emo} ${f.fr}`,opts:[f,...o].map(x=>`${x.art} ${x.k}`),answer:`${f.art} ${f.k}`,optLang:'de',say:`${f.art} ${f.k}`,why:`${cap(f.fr)} = <b>${f.art} ${f.k}</b> (${gname(f)}).`,tip:f.hook};},
+  'fam.de2fr':k=>{const f=FAMK[k];if(!f)return null;const o=sample(FAM.filter(x=>x.k!==k&&x.fr!==f.fr),3);
+    return{kind:'mcq',ask:'Que veut dire… ?',big:`${f.art} ${f.k}`,bigLang:'de',opts:[f,...o].map(x=>x.fr),answer:f.fr,say:`${f.art} ${f.k}`,why:`<b>${f.art} ${f.k}</b> = ${f.fr}.`,tip:f.hook};},
+  'fam.gen':k=>{const f=FAMK[k];if(!f)return null;
+    return{kind:'mcq',ask:'Quel article : der ou die ?',big:`___ ${f.k}`,bigLang:'de',blank:true,opts:['der','die'],noShuffle:true,answer:f.art,optLang:'de',say:`${f.art} ${f.k}`,
+      why:f.pl?`<b>${f.k}</b> est un pluriel (${f.fr}) : au pluriel, c'est toujours <b>die</b>.`:`<b>${f.k}</b> (${f.fr}) est ${f.art==='der'?'masculin : <b>der</b>':'féminin : <b>die</b>'} ${f.k}.`,tip:f.hook};},
+  'fam.type':k=>{const f=FAMK[k];if(!f)return null;
+    return{kind:'type',ask:'Écris en allemand, avec l\'article (der ou die) :',big:`${f.emo} ${f.fr}`,accept:[`${f.art} ${f.k}`],say:`${f.art} ${f.k}`,why:`${cap(f.fr)} = <b>${f.art} ${f.k}</b> (${gname(f)}).`,tip:f.hook};},
+  'num.d2w':p=>{const n=+p;if(!(n>=0&&n<100))return null;
+    return{kind:'mcq',ask:'Comment dit-on ce nombre en allemand ?',big:String(n),bigNum:true,opts:[de(n),...numWordDistractors(n)],answer:de(n),optLang:'de',say:String(n),why:numWhy(n)};},
+  'num.w2d':p=>{const n=+p;if(!(n>=0&&n<100))return null;
+    return{kind:'mcq',ask:'Quel nombre est-ce ?',big:de(n),bigLang:'de',opts:[n,...numDigitDistractors(n)].map(String),answer:String(n),optLang:'num',say:String(n),why:numWhy(n)};},
+  'num.type':p=>{const n=+p;if(!(n>=0&&n<100))return null;
+    return{kind:'type',ask:'Écris ce nombre en toutes lettres :',big:String(n),bigNum:true,accept:[de(n)],say:String(n),why:numWhy(n)};},
+  'num.dig':p=>{const n=+p;if(!(n>=0&&n<100))return null;
+    return{kind:'type',numeric:true,ask:'Écris ce nombre en chiffres :',big:de(n),bigLang:'de',accept:[String(n)],say:String(n),why:numWhy(n)};},
+  'num.build':p=>{const n=+p,t=Math.floor(n/10),u=n%10;if(!(n>20&&n<100&&u))return null;const uw=u===1?'ein':U[u];
+    const d=new Set();if(u>=2)d.add(TENS[u]);d.add(U[t]);if(u===1)d.add('eins');if(t===2)d.add('zweizig');d.add('zehn');d.delete(uw);d.delete(TENS[t]);
+    return{kind:'build',joiner:'',ask:'Construis ce nombre en allemand :',big:String(n),bigNum:true,tiles:[uw,'und',TENS[t],...[...d].slice(0,2)],target:[uw,'und',TENS[t]],say:String(n),why:numWhy(n)};},
+  'num.listen':p=>{const n=+p;if(!(n>=0&&n<100))return null;if(!Voice.ok)return GEN['num.w2d'](p);
+    return{kind:'listen',ask:'Écoute et trouve le nombre :',listen:String(n),opts:[n,...numDigitDistractors(n)].map(String),answer:String(n),optLang:'num',say:String(n),why:numWhy(n)};},
+  'pr.listen':w=>{if(!LW.includes(w))return null;
+    if(!Voice.ok){const o=sample(LW.filter(x=>x!==w&&MEAN[x]!==MEAN[w]),3);
+      return{kind:'mcq',ask:'Que veut dire… ?',big:w,bigLang:'de',opts:[w,...o].map(x=>MEAN[x]),answer:MEAN[w],say:w,why:`<b>${w}</b> = ${MEAN[w]}.`};}
+    const o=sample(LW.filter(x=>x!==w),3);
+    return{kind:'listen',ask:'Écoute : quel mot entends-tu ?',listen:w,opts:[w,...o],answer:w,optLang:'de',say:w,why:`Tu as entendu <b>${w}</b> = ${MEAN[w]}.`};}
+};
+function kindOf(id){
+  if(STATIC[id])return STATIC[id].kind;
+  const k=id.split('.').slice(0,2).join('.');
+  return {'fam.type':'type','num.type':'type','num.dig':'type','num.build':'build','num.listen':'listen','pr.listen':'listen'}[k]||'mcq';
+}
+function getQ(id){
+  let q;
+  if(STATIC[id])q=Object.assign({},STATIC[id]);
+  else{const p=id.split('.');const g=GEN[p[0]+'.'+p[1]];if(!g)return null;q=g(p.slice(2).join('.'));if(!q)return null;q.id=id;q.world=p[0];}
+  if(q.opts&&!q.noShuffle)q.opts=shuffle(q.opts);
+  if(q.tiles)q.tiles=shuffle(q.tiles);
+  if(q.kind==='tf'&&!q.ask)q.ask='Vrai ou faux ?';
+  return q;
+}
+function answerText(q){
+  if(q.kind==='tf')return q.answer?'Vrai':'Faux';
+  if(q.kind==='type')return q.accept[0];
+  if(q.kind==='build')return q.target.join(q.joiner===''?'':' ');
+  return q.answer;
+}
+
+/* =========================================================
+   État + sauvegarde
+   ========================================================= */
+const KEY='operation-bretzel-v1';
+const fresh=()=>({v:1,xp:0,stars:{},ghosts:{},best:{blitz:0,memory:0},stats:{answered:0,correct:0,rounds:0,slain:0},settings:{sound:true,voice:true},seenIntro:false,updatedAt:0,rev:0,syncedRev:0,syncBase:0});
+function merge(base,o){
+  if(!o||typeof o!=='object')return base;
+  for(const k of Object.keys(base)){
+    if(o[k]===undefined)continue;
+    if(base[k]&&typeof base[k]==='object'&&!Array.isArray(base[k]))base[k]=Object.assign({},base[k],o[k]);
+    else base[k]=o[k];
+  }
+  return base;
+}
+/* ---------- Comptes : configuration lue dans firebase-config.js ---------- */
+const FB_VERSION='12.19.0';
+const FB_CFG=(()=>{try{return(typeof firebaseConfig!=='undefined'&&firebaseConfig&&typeof firebaseConfig==='object')?firebaseConfig:null;}catch(e){return null;}})();
+const CFG_STATE=window.__cfgMissing?'missing':window.__cfgErr?'broken':!FB_CFG?'broken':(!FB_CFG.apiKey||!FB_CFG.projectId||/COLLE|ton-projet/i.test(String(FB_CFG.apiKey)+String(FB_CFG.projectId)))?'empty':'ok';
+const ACCOUNTS_ON=CFG_STATE==='ok';
+
+/* ---------- Stockage local : un emplacement « invité » + un par compte ---------- */
+let storeOK=true;
+const LAST_KEY='operation-bretzel-compte';
+const GUEST_KEY='operation-bretzel-invite';
+const accKey=uid=>KEY+':compte:'+uid;
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){storeOK=false;return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,v);storeOK=true;return true;}catch(e){storeOK=false;return false;}}
+function lsDel(k){try{localStorage.removeItem(k);}catch(e){}}
+function readLocal(k){const raw=lsGet(k);if(!raw)return null;try{return merge(fresh(),JSON.parse(raw));}catch(e){return null;}}
+let profile={type:'guest',uid:null,pseudo:''};
+if(ACCOUNTS_ON){try{const o=JSON.parse(lsGet(LAST_KEY)||'null');if(o&&o.uid)profile={type:'account',uid:o.uid,pseudo:o.pseudo||''};}catch(e){}}
+const curKey=()=>profile.type==='account'?accKey(profile.uid):KEY;
+let state=readLocal(curKey())||fresh();
+function writeLocal(){lsSet(curKey(),JSON.stringify(state));}
+function save(){state.updatedAt=Date.now();state.rev=(state.rev||0)+1;writeLocal();Sync.later();}
+const isDirty=()=>(state.rev||0)!==(state.syncedRev||0);
+const SYNC_FIELDS=['rev','syncedRev','syncBase'];
+const hasProgress=s=>!!s&&((s.xp||0)>0||Object.keys(s.ghosts||{}).length>0);
+function combine(a,b){
+  const o=merge(fresh(),JSON.parse(JSON.stringify(a)));
+  o.xp=(a.xp||0)+(b.xp||0);
+  for(const [w,n] of Object.entries(b.stars||{}))o.stars[w]=Math.max(o.stars[w]||0,n||0);
+  for(const [id,g] of Object.entries(b.ghosts||{})){const c=o.ghosts[id];o.ghosts[id]=c?Object.assign({},c,{fails:Math.max(c.fails||1,g.fails||1),hp:Math.min(c.hp||2,g.hp||2)}):g;}
+  o.best.blitz=Math.max(o.best.blitz||0,(b.best&&b.best.blitz)||0);
+  const m=[o.best.memory,b.best&&b.best.memory].filter(x=>x>0);o.best.memory=m.length?Math.min(...m):0;
+  for(const k of Object.keys(o.stats))o.stats[k]=(o.stats[k]||0)+((b.stats&&b.stats[k])||0);
+  o.seenIntro=!!(a.seenIntro||b.seenIntro);
+  return o;
+}
+
+/* =========================================================
+   Comptes : identifiant + mot de passe (Firebase)
+   L'identifiant devient une adresse technique
+   « identifiant@ton-projet.firebaseapp.com » : aucun e-mail n'est envoyé.
+   ========================================================= */
+const pseudoKey=p=>String(p||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+const pseudoEmail=k=>`${k}@${FB_CFG.projectId}.firebaseapp.com`;
+function pseudoProblem(raw){
+  const k=pseudoKey(raw);
+  if(!k)return 'Choisis un identifiant.';
+  if(/\s/.test(k))return 'Pas d\'espace dans l\'identifiant (tu peux utiliser - ou _).';
+  if(!/^[a-z0-9_-]+$/.test(k))return 'Utilise seulement des lettres, des chiffres, - ou _.';
+  if(k.length<3)return 'Ton identifiant doit faire au moins 3 caractères.';
+  if(k.length>20)return 'Ton identifiant doit faire 20 caractères au maximum.';
+  if(!/^[a-z0-9]/.test(k))return 'Ton identifiant doit commencer par une lettre ou un chiffre.';
+  return '';
+}
+function authMsg(e){
+  const c=String((e&&e.code)||'');
+  if(c.includes('email-already-in-use'))return 'Cet identifiant est déjà pris. Choisis-en un autre.';
+  if(/invalid-credential|wrong-password|user-not-found|invalid-login-credentials|invalid-email|user-mismatch/.test(c))return 'Identifiant ou mot de passe incorrect.';
+  if(c.includes('weak-password'))return 'Mot de passe trop court : au moins 6 caractères.';
+  if(c.includes('password-does-not-meet-requirements'))return 'Ce mot de passe ne respecte pas les règles du site. Essaie-en un plus long.';
+  if(c.includes('too-many-requests'))return 'Trop d\'essais. Attends quelques minutes, puis réessaie.';
+  if(c.includes('network-request-failed'))return 'Pas de connexion internet ? Vérifie ta connexion, puis réessaie.';
+  if(/operation-not-allowed|admin-restricted-operation/.test(c))return 'Les comptes ne sont pas encore activés dans Firebase (Authentication, méthode « E-mail/Mot de passe »).';
+  if(/api-key-not-valid|invalid-api-key/.test(c))return 'La configuration Firebase est incorrecte : vérifie firebase-config.js.';
+  if(c.includes('requires-recent-login'))return 'Déconnecte-toi, reconnecte-toi, puis recommence.';
+  return 'Ça n\'a pas marché ('+(c||'erreur inconnue')+'). Réessaie.';
+}
+function fsMsg(e){
+  const c=String((e&&e.code)||'');
+  if(c==='permission-denied')return 'Firestore refuse l\'accès : vérifie les règles (étape 6 du guide).';
+  if(c==='not-found')return 'La base Firestore n\'existe pas encore (étape 6 du guide).';
+  if(c==='unavailable'||c==='deadline-exceeded')return 'Hors ligne : ta progression sera envoyée au retour d\'internet.';
+  if(c==='unauthenticated')return 'Session expirée : reconnecte-toi.';
+  return 'Sauvegarde en ligne impossible pour le moment ('+(c||'erreur')+').';
+}
+const Acc={
+  on:ACCOUNTS_ON,ready:!ACCOUNTS_ON,A:null,F:null,auth:null,db:null,user:null,
+  loadErr:'',pending:null,mergeOffer:false,notice:'',loading:null,
+  async init(){
+    if(!this.on)return;
+    try{
+      const base=`https://www.gstatic.com/firebasejs/${FB_VERSION}/`;
+      const [appM,A,F]=await Promise.all([import(base+'firebase-app.js'),import(base+'firebase-auth.js'),import(base+'firebase-firestore-lite.js')]);
+      this.A=A;this.F=F;
+      const app=appM.initializeApp(FB_CFG);
+      this.auth=A.initializeAuth(app,{persistence:[A.indexedDBLocalPersistence,A.browserLocalPersistence]});
+      this.db=F.getFirestore(app);
+      const em=window.FIREBASE_EMULATORS;
+      if(em){A.connectAuthEmulator(this.auth,em.auth,{disableWarnings:true});F.connectFirestoreEmulator(this.db,em.firestore[0],em.firestore[1]);}
+      A.onAuthStateChanged(this.auth,u=>{onUser(u);});
+    }catch(e){
+      this.A=null;this.loadErr='Le système de comptes n\'a pas pu se charger. Vérifie ta connexion internet, puis recharge la page.';
+      this.ready=true;refresh();
+    }
+  }
+};
+const Sync={
+  timer:null,busy:false,again:false,lastOk:0,err:'',blocked:false,pulled:false,pulling:null,
+  can(){return !this.blocked&&profile.type==='account'&&!!Acc.user&&Acc.user.uid===profile.uid&&!!Acc.db;},
+  ref(){return Acc.F.doc(Acc.db,'joueurs',profile.uid);},
+  reset(){clearTimeout(this.timer);this.pulled=false;this.pulling=null;this.lastOk=0;this.err='';this.again=false;},
+  later(){if(!this.can())return;clearTimeout(this.timer);this.timer=setTimeout(()=>this.run(),2000);},
+  async flush(){clearTimeout(this.timer);if(this.can())await this.run();},
+  async run(){if(!this.pulled)return syncFromCloud();if(isDirty())return this.push();},
+  async push(){
+    // On n'envoie jamais avant d'avoir lu la version en ligne : sinon un nouvel appareil pourrait l'écraser.
+    if(!this.can()||!this.pulled)return;
+    if(this.busy){this.again=true;return;}
+    this.busy=true;
+    const uid=profile.uid,r0=state.rev||0,t=Date.now();
+    const prog=JSON.parse(JSON.stringify(state));SYNC_FIELDS.forEach(k=>delete prog[k]);
+    try{
+      await Acc.F.setDoc(this.ref(),{pseudo:profile.pseudo||'',progress:prog,updatedAt:t});
+      if(profile.uid===uid){state.syncedRev=Math.max(state.syncedRev||0,r0);state.syncBase=t;writeLocal();}
+      this.lastOk=Date.now();this.err='';
+    }catch(e){this.err=fsMsg(e);}
+    this.busy=false;
+    if(this.again){this.again=false;if(isDirty())await this.push();}
+    renderSave();
+  },
+  async pull(){const snap=await Acc.F.getDoc(this.ref());return snap.exists()?snap.data():null;}
+};
+function syncFromCloud(){
+  if(!Sync.can())return Promise.resolve();
+  if(Sync.pulling)return Sync.pulling;
+  Sync.pulling=(async()=>{
+    const uid=profile.uid;
+    try{
+      const r=await Sync.pull();
+      if(profile.uid!==uid)return;
+      Sync.pulled=true;Sync.err='';Sync.lastOk=Date.now();
+      if(!r||!r.progress){await Sync.push();return;}
+      const Rt=r.updatedAt||0,local=state;
+      const take=(x,dirty)=>{x.settings=Object.assign({},fresh().settings,local.settings);x.syncBase=Rt;x.rev=dirty?1:0;x.syncedRev=0;state=x;writeLocal();refresh();};
+      if(!local.syncBase){
+        // Premier contact de cet appareil avec ce compte : ce qui a été joué ici s'ajoute à la version en ligne.
+        if(isDirty()&&hasProgress(local)){take(combine(merge(fresh(),r.progress),local),true);await Sync.push();}
+        else take(merge(fresh(),r.progress),false);
+      }else if(Rt===local.syncBase){if(isDirty())await Sync.push();}
+      else if(!isDirty())take(merge(fresh(),r.progress),false);
+      else if((local.xp||0)>=((r.progress&&r.progress.xp)||0)){local.syncBase=Rt;await Sync.push();}
+      else take(merge(fresh(),r.progress),false);
+    }catch(e){Sync.err=fsMsg(e);}
+    finally{Sync.pulling=null;renderSave();}
+  })();
+  return Sync.pulling;
+}
+async function onUser(u){
+  Acc.ready=true;
+  if(u){
+    const pend=Acc.pending;Acc.pending=null;
+    Acc.user=u;Sync.blocked=false;
+    const pseudo=(pend&&pend.display)||u.displayName||String(u.email||'').split('@')[0];
+    if(!(profile.type==='account'&&profile.uid===u.uid)){
+      const settings=state.settings;
+      let next=readLocal(accKey(u.uid));
+      Acc.notice='';
+      if(pend&&pend.signup){
+        const guest=readLocal(KEY);
+        if(hasProgress(guest)){next=guest;lsDel(KEY);Acc.notice=`Identifiant créé ! Tes ${guest.xp} XP sont maintenant sauvegardés dans ton compte.`;}
+        else Acc.notice='Identifiant créé ! Ta progression sera sauvegardée automatiquement.';
+        next=next||fresh();next.syncBase=0;next.rev=(next.rev||0)+1;next.syncedRev=0;
+      }
+      state=next||fresh();state.settings=Object.assign({},fresh().settings,settings);
+      profile={type:'account',uid:u.uid,pseudo};
+      Sync.reset();
+      writeLocal();
+      Acc.mergeOffer=!(pend&&pend.signup)&&hasProgress(readLocal(KEY));
+    }else if(pseudo)profile.pseudo=pseudo;
+    lsSet(LAST_KEY,JSON.stringify({uid:u.uid,pseudo:profile.pseudo}));
+    if(screen==='auth'){show('home');renderHome();}else refresh();
+    await syncFromCloud();
+  }else{
+    Acc.user=null;
+    if(profile.type==='account'){
+      clearTimeout(Sync.timer);
+      if(!isDirty()||Acc.wipe)lsDel(accKey(profile.uid));
+      lsDel(LAST_KEY);
+      const settings=state.settings;
+      profile={type:'guest',uid:null,pseudo:''};
+      state=readLocal(KEY)||fresh();state.settings=settings;
+      Acc.mergeOffer=false;Sync.reset();
+    }
+    Sync.blocked=false;Acc.wipe=false;
+    refresh();
+  }
+}
+function refresh(){
+  if(screen==='home')renderHome();
+  else if(screen==='account')renderAccount();
+  else if(screen==='auth'){const el=$('#auth-load');if(el)el.textContent=Acc.loadErr;}
+  else renderSave();
+}
+window.addEventListener('online',()=>{if(Sync.can())Sync.run();});
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden')Sync.flush();
+  else if(Sync.can()&&(screen==='home'||screen==='result'))syncFromCloud();
+});
+
+/* =========================================================
+   Rangs
+   ========================================================= */
+const RANKS=[
+  {xp:0,de:'Kartoffel',fr:'patate débutante',emo:'🥔'},
+  {xp:120,de:'Brezel',fr:'bretzel croustillant',emo:'🥨'},
+  {xp:300,de:'Würstchen',fr:'petite saucisse',emo:'🌭'},
+  {xp:550,de:'Schnitzel',fr:'escalope panée',emo:'🍖'},
+  {xp:850,de:'Kirschtorte',fr:'gâteau forêt-noire',emo:'🍰'},
+  {xp:1250,de:'Deutsch-Profi',fr:'pro de l\'allemand',emo:'😎'},
+  {xp:1800,de:'Legende',fr:'légende vivante',emo:'🏆'}
+];
+const rankIdx=xp=>{let i=0;RANKS.forEach((r,j)=>{if(xp>=r.xp)i=j;});return i;};
+
+/* =========================================================
+   Voix allemande + sons
+   ========================================================= */
+const Voice={voice:null,ok:false,
+  init(){
+    if(!('speechSynthesis' in window)||typeof SpeechSynthesisUtterance==='undefined')return;
+    const pickV=()=>{let vs=[];try{vs=speechSynthesis.getVoices()||[];}catch(e){}
+      const d=vs.filter(v=>/^de([-_]|$)/i.test(v.lang||''));
+      this.voice=d.find(v=>/de[-_]DE/i.test(v.lang))||d[0]||null;
+      const was=this.ok;this.ok=!!this.voice;if(was!==this.ok&&screen==='home')renderHome();};
+    pickV();
+    try{speechSynthesis.addEventListener('voiceschanged',pickV);}catch(e){}
+  },
+  say(text,slow){
+    if(!this.ok||!state.settings.voice||!text)return;
+    try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.voice=this.voice;u.lang=this.voice.lang;u.rate=slow?.6:.92;speechSynthesis.speak(u);}catch(e){}
+  }
+};
+const Sfx={ctx:null,
+  play(kind){
+    if(!state.settings.sound)return;
+    try{
+      this.ctx=this.ctx||new (window.AudioContext||window.webkitAudioContext)();
+      const c=this.ctx;if(c.state==='suspended')c.resume();
+      const seq={good:[660,880],bad:[196,147],ghost:[523,659,784,1047],rank:[523,659,784,1047,1319],combo:[784,988,1175],tick:[1200]}[kind]||[440];
+      let t=c.currentTime;
+      seq.forEach(f=>{const o=c.createOscillator(),g=c.createGain();o.type=kind==='bad'?'square':'triangle';o.frequency.value=f;
+        g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(kind==='bad'?.08:.16,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+.17);
+        o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.19);t+=kind==='bad'?.13:.085;});
+    }catch(e){}
+  }
+};
+function confetti(n=46){
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const box=document.createElement('div');box.className='confetti';
+  const cols=['#FFCC00','#E4312B','#19BFB0','#2BB464','#FF8CC0','#FF8A1F','#1E5FD0'];
+  for(let i=0;i<n;i++){const s=document.createElement('i');s.style.left=(Math.random()*100)+'%';s.style.background=cols[i%cols.length];
+    s.style.animationDelay=(Math.random()*.35)+'s';s.style.setProperty('--dx',((Math.random()*2-1)*140)+'px');s.style.setProperty('--rot',(Math.random()*900-450)+'deg');box.appendChild(s);}
+  document.body.appendChild(box);setTimeout(()=>box.remove(),2600);
+}
+
+/* =========================================================
+   Mise en forme
+   ========================================================= */
+function fmtDe(t){
+  return esc(t).replace(/\b(der|die) ([A-ZÄÖÜ][a-zäöüß]+)/g,(m,a,w)=>{const f=FAMK[w];const c=f?(f.pl?'pl':f.art):(a==='der'?'der':'die');return `<span class="g-${c}">${a} ${w}</span>`;});
+}
+function fmt(t,lang){return lang==='de'?fmtDe(t):nb(esc(t));}
+const sayBtn=(txt,label)=>Voice.ok&&txt?`<button class="say" data-act="say" data-say="${esc(txt)}" aria-label="${esc(label||'Écouter en allemand')}"><span class="emo">🔊</span></button>`:'';
+const starsHtml=n=>`<span class="stars" aria-label="${n} étoile${n>1?'s':''} sur 3">${[0,1,2].map(i=>`<span class="${i<n?'on':'off'}">★</span>`).join('')}</span>`;
+const ghostIds=()=>Object.entries(state.ghosts).sort((a,b)=>(b[1].fails-a[1].fails)||(a[1].t-b[1].t)).map(e=>e[0]);
+
+/* =========================================================
+   Écrans
+   ========================================================= */
+const SCR={home:$('#scr-home'),play:$('#scr-play'),result:$('#scr-result'),memory:$('#scr-memory'),auth:$('#scr-auth'),account:$('#scr-account')};
+let screen='home';
+function show(name){
+  for(const [k,el] of Object.entries(SCR))el.hidden=k!==name;
+  screen=name;document.body.classList.toggle('paper',name==='play'||name==='memory');
+  hideSheet();window.scrollTo(0,0);
+}
+
+/* ---------- QG ---------- */
+let resetAsk=false;
+function renderHome(){
+  const ri=rankIdx(state.xp),r=RANKS[ri],nx=RANKS[ri+1];
+  const pct=nx?Math.round(100*(state.xp-r.xp)/(nx.xp-r.xp)):100;
+  const gh=ghostIds();
+  const acc=state.stats.answered?Math.round(100*state.stats.correct/state.stats.answered):0;
+  const worldTile=w=>{const W=WORLDS[w];const g=gh.filter(id=>state.ghosts[id].world===w).length;
+    return `<button class="wt" data-act="world" data-w="${w}" style="--c:${W.col}">
+      <span class="band"><span class="emo">${W.emo}</span>${g?`<span class="gh">👻 ${g}</span>`:''}</span>
+      <span class="body"><span class="h">${nb(esc(W.name))}</span><span class="d">${nb(esc(W.sub))}</span>${starsHtml(state.stars[w]||0)}</span></button>`;};
+  SCR.home.innerHTML=`
+  <header class="logo">
+    <div class="logo-top"><span class="tag">Allemand, Thema 1 et 2</span>
+      <div class="tr">${accChip()}<button class="icon-btn" data-act="sound" aria-pressed="${state.settings.sound}" aria-label="${state.settings.sound?'Couper les sons':'Activer les sons'}"><span class="emo">${state.settings.sound?'🔊':'🔇'}</span></button></div></div>
+    <h1 class="title">Opération<br>Bretzel <span class="pretzel emo">🥨</span></h1>
+    <p class="pitch">Chaque erreur devient un fantôme <span class="emo">👻</span>. Il revient te hanter jusqu'à ce que tu le battes deux fois.</p>
+  </header>
+  <div class="stack">
+    ${noticePanels()}
+    ${state.seenIntro?'':`<section class="panel intro"><h2>Comment ça marche ?</h2><ol>
+      <li><b class="n">1</b><span>Choisis une mission : 10 questions sur ton cours.</span></li>
+      <li><b class="n">2</b><span>Chaque erreur devient un fantôme <span class="emo">👻</span> qui revient quelques questions plus tard… puis dans les missions suivantes.</span></li>
+      <li><b class="n">3</b><span>Réponds juste deux fois et il disparaît <span class="emo">💥</span>. Tu gagnes des XP et tu montes de rang, de patate à légende.</span></li>
+    </ol><button class="btn dark" data-act="intro-ok">C'est parti !</button></section>`}
+    <section class="panel player" aria-label="Ton rang">
+      <div class="rank-emo"><span class="emo">${r.emo}</span></div>
+      <div class="rank-name">${esc(r.de)}</div>
+      <div class="rank-fr">= ${esc(r.fr)}</div>
+      <div class="xpbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-label="Progression vers le rang suivant"><i style="width:${pct}%"></i></div>
+      <div class="xpline"><span>${state.xp} XP</span><span>${nx?`encore ${nx.xp-state.xp} XP pour ${esc(nx.de)} <span class="emo">${nx.emo}</span>`:'Rang maximum !'}</span></div>
+      <div class="pstats"><span class="pill">✅ ${state.stats.correct} ${state.stats.correct>1?'bonnes réponses':'bonne réponse'}</span><span class="pill">🎯 ${acc} % de réussite</span><span class="pill">💥 ${state.stats.slain} ${state.stats.slain>1?'fantômes vaincus':'fantôme vaincu'}</span></div>
+    </section>
+    ${guestPanel()}
+    ${gh.length?`<section class="panel ghostcard"><div class="ghostrow" aria-hidden="true">${gh.slice(0,8).map(()=>'<span class="emo">👻</span>').join('')}</div>
+      <h2>${gh.length} fantôme${gh.length>1?'s':''} te hante${gh.length>1?'nt':''} !</h2>
+      <p>Ce sont tes erreurs. Bats chacun deux fois pour le faire disparaître (+15 XP par fantôme).</p>
+      <button class="btn full" data-act="ghosts">Chasser les fantômes <span class="emo">👻</span></button></section>`
+    :`<section class="panel empty"><h2>Aucun fantôme en vue <span class="emo">🏰</span></h2><p>Lance une mission : chaque erreur deviendra un fantôme à chasser ici.</p></section>`}
+  </div>
+  <h2 class="h2">Missions</h2>
+  <div class="worlds">${Object.keys(WORLDS).map(worldTile).join('')}</div>
+  <h2 class="h2">Modes bonus</h2>
+  <div class="worlds">
+    <button class="wt" data-act="blitz" style="--c:var(--t-blitz)"><span class="band"><span class="emo">⚡</span></span>
+      <span class="body"><span class="h">Blitz 60 s</span><span class="d">Un max de bonnes réponses en une minute.</span><span class="best">Record : ${state.best.blitz}</span></span></button>
+    <button class="wt" data-act="memory" style="--c:var(--t-mem)"><span class="band"><span class="emo">🃏</span></span>
+      <span class="body"><span class="h">Memory</span><span class="d">Retrouve les paires allemand / français.</span><span class="best">${state.best.memory?`Record : ${state.best.memory} coups`:'Pas encore de record'}</span></span></button>
+  </div>
+  <footer class="foot">
+    <div class="toggles">
+      <button class="tog" data-act="sound" aria-pressed="${state.settings.sound}">🔊 Sons</button>
+      ${Voice.ok?`<button class="tog" data-act="voice" aria-pressed="${state.settings.voice}">🗣️ Voix allemande</button>`:''}
+    </div>
+    ${Voice.ok?'':'<p class="savenote">Pas de voix allemande sur cet appareil : les questions d\'écoute sont remplacées par des questions de lecture.</p>'}
+    <p class="savenote savenote-live" id="savenote"></p>
+    <div class="reset" id="reset">${resetAsk?`Tout effacer (XP, étoiles, fantômes) ? <button class="btn white" style="font-size:15px;padding:5px 12px" data-act="reset-yes">Oui, effacer</button> <button class="link" data-act="reset-no">Annuler</button>`:`<button class="link" data-act="reset">Recommencer à zéro</button>`}</div>
+  </footer>`;
+  renderSave();
+}
+function saveText(){
+  if(!Acc.on){
+    const why={missing:'le fichier firebase-config.js est introuvable',broken:'firebase-config.js contient une erreur (garde seulement le bloc « const firebaseConfig = {…} »)',empty:'remplis firebase-config.js pour les activer (voir le guide)'}[CFG_STATE]||'';
+    return (storeOK?'💾 Ta progression est gardée dans ce navigateur.':'⚠️ Ce navigateur ne garde pas ta progression (navigation privée ?).')+(why?` Comptes désactivés : ${why}.`:'');
+  }
+  if(Acc.loadErr)return '⚠️ '+Acc.loadErr;
+  if(profile.type!=='account')return storeOK?'💾 Sans compte, ta progression reste dans ce navigateur.':'⚠️ Ce navigateur ne garde pas ta progression (navigation privée ?).';
+  if(Sync.err)return '⚠️ '+Sync.err;
+  if(Sync.lastOk)return '☁️ Progression sauvegardée dans ton compte.';
+  return '☁️ Connexion à ton compte…';
+}
+function renderSave(){const t=saveText();$$('.savenote-live').forEach(el=>{el.textContent=t;});}
+
+/* ---------- Comptes : morceaux du QG ---------- */
+function accChip(){
+  if(!Acc.on)return '';
+  if(profile.type==='account')return `<button class="chip-acc" data-act="account" aria-label="Mon compte"><span class="emo">👤</span><span class="nm">${esc(profile.pseudo||'Mon compte')}</span></button>`;
+  return `<button class="chip-acc" data-act="login"><span class="emo">👤</span><span class="nm">Connexion</span></button>`;
+}
+function noticePanels(){
+  let h='';
+  if(Acc.notice)h+=`<section class="panel notice" role="status"><p><span class="emo">✅</span> ${esc(Acc.notice)}</p><button class="btn white" data-act="notice-ok">OK</button></section>`;
+  const g=Acc.mergeOffer&&profile.type==='account'?readLocal(KEY):null;
+  if(hasProgress(g)){
+    const n=Object.keys(g.ghosts).length;
+    h+=`<section class="panel merge"><h2>Progression trouvée sur cet appareil</h2>
+      <p>Avant de te connecter, tu as joué ici sans compte : ${g.xp} XP${n?`, ${n} fantôme${n>1?'s':''}`:''}. Tu veux l'ajouter à ton compte ?</p>
+      <div class="row"><button class="btn" data-act="merge-yes">Ajouter à mon compte</button><button class="btn white" data-act="merge-no">Non merci</button></div></section>`;
+  }
+  return h;
+}
+function guestPanel(){
+  if(!Acc.on||profile.type==='account')return '';
+  return `<section class="panel guestbar"><h2>Tu joues sans compte</h2>
+    <p>Ta progression reste seulement sur cet appareil. Crée ton identifiant pour la retrouver partout.</p>
+    <div class="row"><button class="btn" data-act="signup">Créer mon identifiant</button><button class="btn white" data-act="login">Me connecter</button></div></section>`;
+}
+
+/* ---------- Écran de connexion ---------- */
+let authMode='signup',authFrom='welcome',authBusy=false,authDraft='';
+function openAuth(mode,from){authMode=mode;authFrom=from;show('auth');renderAuth();}
+const PSEUDO_RULE='3 à 20 caractères : lettres, chiffres, - ou _. Évite ton vrai nom.';
+function renderAuth(){
+  const su=authMode==='signup';
+  SCR.auth.innerHTML=`
+  <header class="logo">
+    <div class="logo-top"><span class="tag">Allemand, Thema 1 et 2</span>${authFrom==='home'?'<button class="icon-btn" data-act="home" aria-label="Retour au QG">✕</button>':''}</div>
+    <h1 class="title">Opération<br>Bretzel <span class="pretzel emo">🥨</span></h1>
+    <p class="pitch">${su?'Crée ton identifiant : ta progression sera sauvegardée en ligne et tu la retrouveras sur tous tes appareils.':'Connecte-toi pour retrouver ta progression, tes étoiles et tes fantômes, sur n\'importe quel appareil.'}</p>
+  </header>
+  <div class="stack">
+    ${Acc.notice&&authFrom==='welcome'?`<section class="panel notice" role="status"><p>${esc(Acc.notice)}</p></section>`:''}
+    <section class="panel auth">
+      <div class="tabs" role="tablist" aria-label="Connexion ou création d'identifiant">
+        <button class="tab" type="button" role="tab" aria-selected="${!su}" data-act="mode-login">J'ai un identifiant</button>
+        <button class="tab" type="button" role="tab" aria-selected="${su}" data-act="mode-signup">Je crée mon identifiant</button>
+      </div>
+      <form id="authform" novalidate>
+        <label class="lbl" for="f-pseudo">Identifiant</label>
+        <input class="field" id="f-pseudo" name="username" value="${esc(authDraft)}" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="24" aria-describedby="pseudo-hint">
+        <p class="hint" id="pseudo-hint">${su?PSEUDO_RULE:'Le pseudo choisi en créant ton compte.'}</p>
+        <label class="lbl" for="f-pass">Mot de passe</label>
+        <div class="pw"><input class="field" id="f-pass" name="password" type="password" autocomplete="${su?'new-password':'current-password'}" aria-describedby="pass-hint"><button type="button" class="eye" data-act="eye" data-for="f-pass" aria-label="Afficher le mot de passe" aria-pressed="false"><span class="emo">👁️</span></button></div>
+        <p class="hint" id="pass-hint">${su?'Au moins 6 caractères. Note-le bien : on ne peut pas le retrouver si tu l\'oublies.':''}</p>
+        <p class="err" id="auth-err" role="alert"></p>
+        <button class="btn dark full" type="submit" id="auth-go">${su?'Créer mon identifiant':'Me connecter'}</button>
+      </form>
+    </section>
+    <p class="err" id="auth-load" role="alert">${esc(Acc.loadErr)}</p>
+  </div>
+  ${authFrom==='welcome'?'<div class="guestlink"><button class="link" data-act="guest">Jouer sans compte</button><p class="small">Sans compte, ta progression reste seulement sur cet appareil.</p></div>':''}`;
+  updatePseudoHint();
+}
+function updatePseudoHint(){
+  if(authMode!=='signup')return;
+  const inp=$('#f-pseudo'),h=$('#pseudo-hint');if(!inp||!h)return;
+  const raw=inp.value.trim(),k=pseudoKey(raw),p=raw?pseudoProblem(raw):'';
+  h.classList.toggle('bad',!!p);
+  h.textContent=p||(raw&&k!==raw?`Ton identifiant sera : ${k} (majuscules et accents ne comptent pas).`:PSEUDO_RULE);
+}
+async function submitAuth(){
+  if(authBusy)return;
+  const su=authMode==='signup',raw=$('#f-pseudo').value,pass=$('#f-pass').value;
+  const fail=m=>{const el=$('#auth-err');if(el)el.textContent=m;};
+  fail('');
+  if(!raw.trim())return fail('Tape ton identifiant.');
+  const prob=pseudoProblem(raw);
+  if(su&&prob)return fail(prob);
+  if(!pass)return fail('Tape ton mot de passe.');
+  if(su&&pass.length<6)return fail('Mot de passe trop court : au moins 6 caractères.');
+  if(!su&&prob)return fail('Identifiant ou mot de passe incorrect.');
+  authBusy=true;
+  const go=$('#auth-go'),label=go.textContent;go.disabled=true;go.textContent=su?'Création…':'Connexion…';
+  try{
+    await Acc.loading;
+    if(!Acc.A)throw{code:'load'};
+    const email=pseudoEmail(pseudoKey(raw));
+    if(su){
+      Acc.pending={signup:true,display:raw.trim()};
+      try{
+        const cred=await Acc.A.createUserWithEmailAndPassword(Acc.auth,email,pass);
+        try{await Acc.A.updateProfile(cred.user,{displayName:raw.trim()});}catch(e){}
+      }catch(e){
+        Acc.pending=null;
+        if(!String(e&&e.code).includes('email-already-in-use'))throw e;
+        // Identifiant déjà pris : si le mot de passe est le bon, c'était le sien → on le connecte.
+        try{await Acc.A.signInWithEmailAndPassword(Acc.auth,email,pass);}catch(e2){throw e;}
+      }
+    }else await Acc.A.signInWithEmailAndPassword(Acc.auth,email,pass);
+    authDraft='';
+  }catch(e){
+    Acc.pending=null;
+    fail(e&&e.code==='load'?Acc.loadErr:(su&&String(e&&e.code).includes('invalid-email')?'Cet identifiant n\'est pas accepté. Essaie-en un autre.':authMsg(e)));
+  }
+  authBusy=false;
+  const g2=$('#auth-go');if(g2){g2.disabled=false;g2.textContent=label;}
+}
+
+/* ---------- Écran « Mon compte » ---------- */
+let delOpen=false;
+function renderAccount(){
+  if(profile.type!=='account'){show('home');renderHome();return;}
+  if(delOpen&&$('#delform')){renderSave();return;}
+  const r=RANKS[rankIdx(state.xp)];
+  const key=Acc.user&&Acc.user.email?String(Acc.user.email).split('@')[0]:pseudoKey(profile.pseudo);
+  SCR.account.innerHTML=`
+  <div class="topbar"><button class="icon-btn" data-act="home" aria-label="Retour au QG">✕</button><h2>Mon compte</h2></div>
+  <div class="stack">
+    <section class="panel">
+      <div class="acc-head"><div class="rank-emo"><span class="emo">${r.emo}</span></div><div><div class="rank-name">${esc(profile.pseudo||key)}</div><div class="rank-fr">${state.xp} XP, rang ${esc(r.de)}</div></div></div>
+      <p class="savenote savenote-live" style="margin-top:12px"></p>
+      <div class="acc-help"><p>Pour retrouver ta progression sur un autre appareil (téléphone, ordinateur du CDI…), ouvre le jeu et connecte-toi avec :</p><p class="idline">Identifiant : <b>${esc(key)}</b></p></div>
+      <button class="btn dark full" data-act="logout" id="logout">Me déconnecter</button>
+    </section>
+    <section class="panel danger">
+      ${delOpen?`<form id="delform" novalidate><h2>Supprimer mon compte</h2>
+        <p>Ton identifiant et ta progression en ligne seront effacés pour de bon. Pour confirmer, tape ton mot de passe.</p>
+        <label class="lbl" for="f-delpass">Mot de passe</label>
+        <div class="pw"><input class="field" id="f-delpass" type="password" autocomplete="current-password"><button type="button" class="eye" data-act="eye" data-for="f-delpass" aria-label="Afficher le mot de passe" aria-pressed="false"><span class="emo">👁️</span></button></div>
+        <p class="err" id="del-err" role="alert"></p>
+        <div class="row"><button class="btn" type="submit" id="del-go">Supprimer définitivement</button><button class="btn white" type="button" data-act="delete-no">Annuler</button></div></form>`
+      :`<p>Tu veux tout effacer ?</p><button class="link" data-act="delete-ask" style="margin-top:8px">Supprimer mon compte</button>`}
+    </section>
+  </div>`;
+  renderSave();
+}
+async function logout(){
+  const b=$('#logout');if(b){b.disabled=true;b.textContent='Déconnexion…';}
+  await Sync.flush();
+  try{if(Acc.A&&Acc.auth)await Acc.A.signOut(Acc.auth);else await onUser(null);}catch(e){await onUser(null);}
+  delOpen=false;Acc.notice='';authDraft='';
+  openAuth('login','welcome');
+}
+async function submitDelete(){
+  const pass=$('#f-delpass').value,err=$('#del-err'),go=$('#del-go');
+  if(!pass){err.textContent='Tape ton mot de passe pour confirmer.';return;}
+  go.disabled=true;go.textContent='Suppression…';err.textContent='';
+  const u=Acc.user;
+  try{
+    if(!u||!Acc.A)throw{code:'auth/network-request-failed'};
+    await Acc.A.reauthenticateWithCredential(u,Acc.A.EmailAuthProvider.credential(u.email,pass));
+    Sync.blocked=true;clearTimeout(Sync.timer);
+    try{await Acc.F.deleteDoc(Acc.F.doc(Acc.db,'joueurs',u.uid));}catch(e){throw{fs:e};}
+    Acc.wipe=true;lsDel(accKey(u.uid));
+    await Acc.A.deleteUser(u);
+    delOpen=false;authDraft='';
+    Acc.notice='Ton compte a été supprimé.';
+    openAuth('signup','welcome');
+  }catch(x){
+    Sync.blocked=false;Acc.wipe=false;
+    const el=$('#del-err');if(el)el.textContent=x&&x.fs?fsMsg(x.fs):authMsg(x);
+    const g=$('#del-go');if(g){g.disabled=false;g.textContent='Supprimer définitivement';}
+  }
+}
+
+/* ---------- Construction d'une mission ---------- */
+function poolFor(w){
+  const ids=Object.keys(STATIC).filter(id=>STATIC[id].world===w);
+  if(w==='pr'&&Voice.ok)ids.push(...sample(LW,4).map(x=>'pr.listen.'+x));
+  return ids;
+}
+function pickWorld(w,n,exclude){
+  const ok=id=>!exclude.includes(id);
+  if(w==='num'){
+    const trap=shuffle([16,17,20,21,30,60,70,52,48,99,31,66,77,71,13,19]);
+    const rn=()=>{const r=Math.random();if(r<.2)return 13+rnd(7);if(r<.4)return(2+rnd(8))*10;return 21+rnd(79);};
+    const comp=()=>{let x;do{x=21+rnd(79);}while(x%10===0);return x;};
+    const st=shuffle(Object.keys(STATIC).filter(id=>STATIC[id].world==='num'));
+    const ids=[`num.d2w.${trap[0]}`,`num.w2d.${rn()}`,`num.d2w.${rn()}`,`num.type.${trap[1]}`,`num.dig.${comp()}`,`num.build.${comp()}`,`num.w2d.${trap[2]}`,Voice.ok?`num.listen.${rn()}`:`num.d2w.${trap[3]}`,st[0],st[1],st[2]];
+    return shuffle([...new Set(ids)].filter(ok)).slice(0,n);
+  }
+  if(w==='fam'){
+    const words=shuffle(FAM.map(f=>f.k));
+    const gen=['fr2de','de2fr','gen','fr2de','de2fr','type','gen'].map((k,i)=>`fam.${k}.${words[i]}`);
+    const st=shuffle(Object.keys(STATIC).filter(id=>STATIC[id].world==='fam')).slice(0,4);
+    return shuffle([...gen,...st].filter(ok)).slice(0,n);
+  }
+  const capK={tf:2,build:2,type:2,listen:3},cnt={},out=[];
+  for(const id of shuffle(poolFor(w)).filter(ok)){const k=kindOf(id);if(capK[k]&&(cnt[k]||0)>=capK[k])continue;cnt[k]=(cnt[k]||0)+1;out.push(id);if(out.length>=n)break;}
+  return out;
+}
+function toItems(ids){
+  const out=[];
+  for(const id of ids){const q=getQ(id);if(q)out.push({id,q});else if(state.ghosts[id]){delete state.ghosts[id];}}
+  return out;
+}
+
+/* ---------- Mission ---------- */
+let run=null;
+function newRun(mode,world,items){
+  return{mode,world,queue:items,i:0,first:{},wrongList:[],combo:0,maxCombo:0,xp:0,newGhosts:0,slain:0,reasked:new Set(),rank0:rankIdx(state.xp),answered:false,quit:false};
+}
+function startWorld(w){
+  const g=ghostIds().filter(id=>state.ghosts[id].world===w).slice(0,3);
+  const ids=shuffle([...g,...pickWorld(w,10-g.length,g)]);
+  run=newRun('world',w,toItems(ids));
+  show('play');renderQ();
+}
+function startGhosts(){
+  const ids=ghostIds().slice(0,10);if(!ids.length){renderHome();return;}
+  run=newRun('ghosts',null,toItems(shuffle(ids)));
+  if(!run.queue.length){save();renderHome();return;}
+  show('play');renderQ();
+}
+function progHtml(){
+  if(run.mode==='blitz')return '';
+  return run.queue.map((it,i)=>{let c='';if(i<run.i||(i===run.i&&run.answered))c=it.res===true?'ok':(it.res===false?'ko':'');else if(i===run.i)c='cur';return `<span class="seg ${c}"></span>`;}).join('');
+}
+function topbar(){
+  const blitz=run.mode==='blitz';
+  return `<div class="topbar">
+    <button class="icon-btn" data-act="quit" aria-label="Quitter la mission">✕</button>
+    ${blitz?`<span class="timer" id="timer">60</span><span class="pill" id="bscore">⚡ 0</span>`:`<div class="prog" id="prog" aria-hidden="true">${progHtml()}</div>`}
+    <span class="combo" id="combo" ${run.combo>=2?'':'hidden'}>🔥 x${run.combo}</span>
+  </div>
+  <div id="quitbox"></div>`;
+}
+function renderQ(){
+  const it=run.queue[run.i];const q=it.q;const W=WORLDS[q.world]||WORLDS.cast;
+  run.answered=false;run.pick=[];
+  const isGhost=!!state.ghosts[it.id];
+  const badge=it.reask?'<span class="gbadge">👻 Le fantôme revient !</span>':(isGhost?`<span class="gbadge">👻 Fantôme ${state.ghosts[it.id].hp===1?'(plus qu\'une vie)':''}</span>`:'');
+  const kindLabel={mcq:'',tf:'',type:'Écris',build:'Construis',listen:'Écoute'}[q.kind];
+  let bigCls='big';if(q.bigNum)bigCls+=' num';else if(q.bigEmoji)bigCls+=' emoji';else if(String(q.big||'').length>26)bigCls+=' long';
+  let bigInner='';
+  if(q.big!=null){
+    bigInner=q.blank?`<span class="blank"></span>${fmtDe(String(q.big).replace(/^___ /,''))}`:fmt(q.big,q.bigLang);
+  }
+  const bigSay=(q.bigLang==='de'&&!q.blank&&!String(q.big).includes('…'))?sayBtn(q.big):'';
+  let body='';
+  if(q.kind==='mcq'||q.kind==='listen'){
+    const short=q.opts.every(o=>String(o).length<=13);
+    body=`<div class="opts ${short?'two':''}" id="opts">${q.opts.map((o,i)=>`<button class="opt ${q.optLang==='num'?'num':''}" data-act="opt" data-i="${i}"><span class="k">${i+1}</span><span class="t">${q.optLang==='num'?esc(o):fmt(o,q.optLang)}</span></button>`).join('')}</div>`;
+  }else if(q.kind==='tf'){
+    body=`<div class="opts two tf" id="opts"><button class="opt" data-act="tf" data-v="1"><span class="k">1</span><span class="t">Vrai</span></button><button class="opt" data-act="tf" data-v="0"><span class="k">2</span><span class="t">Faux</span></button></div>`;
+  }else if(q.kind==='type'){
+    body=`<form class="typer" id="typer" autocomplete="off">
+      <label class="sr" for="ans" style="position:absolute;left:-9999px">Ta réponse</label>
+      <input id="ans" name="ans" ${q.numeric?'inputmode="numeric" pattern="[0-9]*"':''} autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${q.numeric?'Ex. : 25':'Ta réponse…'}">
+      ${q.numeric?'':`<div class="keys">${['ä','ö','ü','ß'].map(c=>`<button type="button" class="key" data-act="key" data-c="${c}">${c}</button>`).join('')}</div>`}
+      <button class="btn dark full" type="submit" id="go">Valider</button></form>`;
+  }else if(q.kind==='build'){
+    body=`<div class="line ${q.stack?'stack':''}" id="line" aria-label="Ta réponse"></div><div class="preview" id="preview"></div>
+      <div class="bank ${q.stack?'stack':''}" id="bank">${q.tiles.map((t,i)=>`<button class="tile" data-act="tile" data-i="${i}">${fmt(t,'de')}</button>`).join('')}</div>
+      <button class="btn dark full go" id="go" data-act="build-go" disabled>Valider</button>`;
+  }
+  const listenUI=q.kind==='listen'?`<div class="listen"><button class="btn" data-act="listen"><span class="emo">🔊</span> Écouter</button><button class="btn white" data-act="listen-slow"><span class="emo">🐢</span> Lentement</button></div>`:'';
+  SCR.play.innerHTML=`${topbar()}
+  <article class="qcard" style="--c:${W.col}">
+    <div class="qtop"><span class="wchip">${W.emo} ${nb(esc(W.name))}</span>${kindLabel?`<span class="wchip" style="--c:var(--paper)">${kindLabel}</span>`:''}${badge}</div>
+    <p class="ask">${nb(esc(q.ask||''))}</p>
+    ${q.kind==='listen'?listenUI:`<div class="bigrow"><p class="${bigCls}">${bigInner}</p>${bigSay}</div>`}
+    ${body}
+    <div id="flash"></div>
+  </article>`;
+  if(q.kind==='type'){const inp=$('#ans');setTimeout(()=>{try{inp.focus({preventScroll:true});}catch(e){}},60);}
+  if(q.kind==='listen')setTimeout(()=>Voice.say(q.listen),250);
+}
+
+/* ---------- Réponse ---------- */
+function norm(s){return String(s).toLowerCase().replace(/[’`]/g,"'").replace(/[.,!?¿¡;:«»"()]/g,' ').replace(/ß/g,'ss').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/\s+/g,' ').trim();}
+const noUml=s=>norm(s).replace(/ae/g,'a').replace(/oe/g,'o').replace(/ue/g,'u');
+function checkTyped(given,q){
+  const g=norm(given);if(!g)return{ok:false,empty:true};
+  for(const a of q.accept){if(norm(a)===g){const clean=x=>String(x).trim().replace(/[.!?]+$/,'').replace(/\s+/g,' ');return{ok:true,exact:clean(given)===clean(a)};}}
+  for(const a of q.accept){if(noUml(a)===noUml(given))return{ok:false,near:'uml'};}
+  for(const a of q.accept){const m=String(a).match(/^(der|die) (.+)$/);if(m&&norm(m[2])===g)return{ok:false,near:'art'};}
+  return{ok:false};
+}
+function onAnswer(ok,info={}){
+  if(run.answered)return;run.answered=true;
+  const it=run.queue[run.i],q=it.q,id=it.id;
+  it.res=ok;
+  if(!it.reask)run.first[id]=ok;
+  state.stats.answered++;if(ok)state.stats.correct++;
+  let gain=0,ghostLine='',extra='';
+  const had=state.ghosts[id];
+  if(ok){
+    run.combo++;run.maxCombo=Math.max(run.maxCombo,run.combo);
+    gain=10+Math.min(10,2*(run.combo-1));
+    if(had){
+      had.hp=(had.hp||2)-1;
+      if(had.hp<=0){delete state.ghosts[id];run.slain++;state.stats.slain++;gain+=15;ghostLine='💥 Fantôme vaincu ! +15 XP';Sfx.play('ghost');confetti(30);}
+      else ghostLine='👻 Touché ! Encore une bonne réponse, dans une prochaine mission, et il disparaît.';
+    }
+    if([3,5,8,10,15].includes(run.combo)){extra=run.combo>=8?`🔥 Combo x${run.combo} : Unglaublich ! (= incroyable)`:`🔥 Combo x${run.combo} !`;Sfx.play('combo');}
+    else if(!ghostLine)Sfx.play('good');
+  }else{
+    run.combo=0;
+    state.ghosts[id]={hp:2,fails:((had&&had.fails)||0)+1,world:q.world,t:Date.now()};
+    if(!had)run.newGhosts++;
+    if(run.mode!=='blitz'&&!run.reasked.has(id)){
+      run.reasked.add(id);
+      const pos=Math.min(run.i+4,run.queue.length);
+      run.queue.splice(pos,0,{id,q:getQ(id),reask:true});
+      ghostLine='👻 Un fantôme est né ! Il revient dans quelques questions… et encore plus tard.';
+    }else ghostLine='👻 Toujours là ! Ce fantôme reviendra dans une prochaine mission.';
+    Sfx.play('bad');
+  }
+  run.xp+=gain;state.xp+=gain;
+  const rNow=rankIdx(state.xp);
+  if(rNow>run.rank0){extra=(extra?extra+'<br>':'')+`🎉 Nouveau rang : ${esc(RANKS[rNow].de)} ${RANKS[rNow].emo} (= ${esc(RANKS[rNow].fr)})`;run.rank0=rNow;run.rankUp=rNow;Sfx.play('rank');confetti();}
+  save();
+  if(run.mode==='blitz'){blitzAfter(ok,q);return;}
+  const prog=$('#prog');if(prog)prog.innerHTML=progHtml();
+  const cb=$('#combo');if(cb){cb.hidden=run.combo<2;cb.textContent=`🔥 x${run.combo}`;cb.classList.remove('pop');void cb.offsetWidth;cb.classList.add('pop');}
+  showSheet(ok,gain,q,info,ghostLine,extra);
+}
+const CHEERS=[['Genau !','exactement','🎯'],['Super !','super','🥨'],['Sehr gut !','très bien','🌟'],['Wunderbar !','merveilleux','✨'],['Klasse !','la classe','😎'],['Prima !','parfait','👍'],['Toll !','génial','🎉'],['Ausgezeichnet !','excellent','🏆']];
+const OOPS=[['Hoppla !','oups','😅'],['Schade !','dommage','🙈'],['Oh nein !','oh non','😱'],['Fast !','presque','🤏']];
+function showSheet(ok,gain,q,info,ghostLine,extra){
+  const h=ok?pick(CHEERS):(info.near?OOPS[3]:pick(OOPS.slice(0,3)));
+  const ans=answerText(q);
+  let note='';
+  if(ok&&info.exact===false)note=`Accepté ! Mais au contrôle, écris : <b>${fmtDe(ans)}</b>`;
+  if(!ok&&info.near==='uml')note='Presque ! Il manque juste le tréma (ä, ö, ü).';
+  if(!ok&&info.near==='art')note='Presque ! Il manque l\'article : der ou die.';
+  if(!ok&&info.given)note=(note?note+'<br>':'')+`Ta réponse : « ${esc(info.given)} »`;
+  const sayTxt=q.say||'';
+  const sheet=$('#sheet');
+  sheet.innerHTML=`<div class="sheet-in ${ok?'good':'bad'}">
+    <div class="fb-head"><h3>${h[0]} <span class="emo">${h[2]}</span></h3><span class="fb-tr">(= ${h[1]})</span>${gain?`<span class="xp-chip">+${gain} XP</span>`:''}</div>
+    ${!ok||q.kind==='build'||q.kind==='type'?`<p class="fb-ans">${ok?'Réponse':'La bonne réponse'} : <span>${q.kind==='tf'?ans:(q.optLang==='num'?esc(ans):fmtDe(ans))}</span> ${sayBtn(sayTxt)}</p>`:(sayTxt&&Voice.ok?`<p class="fb-ans">${sayBtn(sayTxt)} <span style="font-weight:700;font-size:15px">${fmtDe(sayTxt)}</span></p>`:'')}
+    ${note?`<p class="fb-why">${note}</p>`:''}
+    <p class="fb-why">${nb(q.why||'')}</p>
+    ${q.tip?`<p class="fb-tip"><span class="emo">💡</span> ${nb(q.tip)}</p>`:''}
+    ${ghostLine?`<p class="fb-extra">${ghostLine}</p>`:''}
+    ${extra?`<p class="fb-extra">${extra}</p>`:''}
+    <button class="btn dark full" data-act="cont" id="cont">Continuer</button>
+  </div>`;
+  sheet.hidden=false;
+  requestAnimationFrame(()=>{sheet.classList.add('on');$('#app').style.paddingBottom=(sheet.offsetHeight+24)+'px';try{$('#cont').focus({preventScroll:true});}catch(e){}});
+  if(sayTxt&&state.settings.voice)setTimeout(()=>Voice.say(sayTxt),350);
+}
+function hideSheet(){const s=$('#sheet');s.classList.remove('on');s.hidden=true;s.innerHTML='';$('#app').style.paddingBottom='';}
+function cont(){
+  hideSheet();
+  run.i++;
+  if(run.i>=run.queue.length)finish();else{renderQ();window.scrollTo(0,0);}
+}
+function markOpts(correctIdx,chosenIdx){
+  const box=$('#opts');if(!box)return;box.classList.add('locked');
+  $$('.opt',box).forEach((b,i)=>{if(i===correctIdx)b.classList.add('right');else if(i===chosenIdx)b.classList.add('wrong');else b.classList.add('dim');});
+}
+
+/* ---------- Fin de mission ---------- */
+function finish(){
+  const vals=Object.values(run.first);const good=vals.filter(Boolean).length,total=vals.length;
+  const pct=total?good/total:0;
+  const stars=pct>=.9?3:pct>=.7?2:pct>=.4?1:0;
+  let bonus=0;
+  if(run.mode!=='blitz'&&total>=5){bonus+=20;if(stars===3)bonus+=20;}
+  run.xp+=bonus;state.xp+=bonus;
+  if(run.mode==='world')state.stars[run.world]=Math.max(state.stars[run.world]||0,stars);
+  state.stats.rounds++;
+  const rNow=rankIdx(state.xp);if(rNow>run.rank0){run.rankUp=rNow;run.rank0=rNow;}
+  save();Sync.flush();
+  renderResult({good,total,stars,pct,bonus});
+}
+function verdict(pct){
+  if(pct>=1)return['Perfekt !','parfait','Même Kurt, 52 ans d\'expérience, n\'a jamais vu ça.'];
+  if(pct>=.8)return['Sehr gut !','très bien','Tu parles presque comme Sandra.'];
+  if(pct>=.6)return['Gut !','bien','Pas mal du tout. Les fantômes attendent leur revanche.'];
+  if(pct>=.4)return['Na ja…','bof, bof','Ça rentre ! Chasse tes fantômes pour progresser.'];
+  return['Kopf hoch !','garde la tête haute','L\'allemand s\'apprend en se trompant. Tes fantômes vont t\'aider.'];
+}
+function renderResult(r){
+  const v=verdict(r.pct);const gh=ghostIds().length;
+  const wrong=run.queue.filter(it=>!it.reask&&run.first[it.id]===false);
+  const seen=new Set();const uniq=wrong.filter(it=>!seen.has(it.id)&&seen.add(it.id));
+  SCR.result.innerHTML=`<div class="res">
+    <div class="res-hero"><h2>${v[0]}</h2><p class="tr">(= ${v[1]})</p>${starsBig(r.stars)}<p class="quip">${nb(esc(v[2]))}</p></div>
+    <div class="stats"><div class="stat"><b>${r.good}/${r.total}</b><span>du premier coup</span></div><div class="stat"><b>+${run.xp}</b><span>XP gagnés</span></div><div class="stat"><b>x${run.maxCombo}</b><span>meilleur combo</span></div></div>
+    ${run.rankUp!=null?`<section class="panel rankup"><span class="emo">${RANKS[run.rankUp].emo}</span><h3>Nouveau rang : ${esc(RANKS[run.rankUp].de)} !</h3><p style="margin:4px 0 0;font-weight:800">= ${esc(RANKS[run.rankUp].fr)}</p></section>`:''}
+    <section class="panel"><h3 style="font-size:22px"><span class="emo">👻</span> Bilan fantômes</h3>
+      <p style="margin:6px 0 0;font-weight:700">${run.newGhosts?`${run.newGhosts} nouveau${run.newGhosts>1?'x':''} fantôme${run.newGhosts>1?'s':''}. `:'Aucun nouveau fantôme. '}${run.slain?`${run.slain} vaincu${run.slain>1?'s':''} ! `:''}Il en reste ${gh} à chasser.</p></section>
+    ${uniq.length?`<section class="panel review"><h3>À revoir</h3><ul>${uniq.map(it=>{const q=it.q;const a=answerText(q);return `<li><span class="q">${nb(esc(q.ask||''))} ${q.kind==='listen'?'(écoute)':(q.big!=null?`<b>${q.bigLang==='de'?fmtDe(q.big):nb(esc(q.big))}</b>`:'')}</span><span class="a">${q.optLang==='num'||q.kind==='tf'?esc(a):fmtDe(a)} ${sayBtn(q.say)}</span></li>`;}).join('')}</ul></section>`:''}
+    <div class="actions">
+      ${run.mode==='world'?`<button class="btn full" data-act="world" data-w="${run.world}">Rejouer cette mission</button>`:''}
+      ${gh?`<button class="btn dark full" data-act="ghosts">Chasser les fantômes (${gh}) <span class="emo">👻</span></button>`:''}
+      <button class="btn white full" data-act="home">Retour au QG</button>
+    </div></div>`;
+  show('result');
+  if(r.stars===3||run.rankUp!=null)confetti();
+}
+const starsBig=n=>`<div class="bigstars stars" aria-label="${n} étoile${n>1?'s':''} sur 3">${[0,1,2].map(i=>`<span class="${i<n?'on':'off'}">★</span>`).join('')}</div>`;
+
+/* ---------- Blitz ---------- */
+function blitzPool(){
+  const st=Object.keys(STATIC).filter(id=>['mcq','tf'].includes(STATIC[id].kind));
+  return st;
+}
+function blitzNextId(){
+  const r=Math.random();let id;
+  if(r<.45)id=pick(blitzPool());
+  else if(r<.7)id=`fam.${pick(['fr2de','de2fr','gen'])}.${pick(FAM).k}`;
+  else{const n=pick([16,17,20,21,30,60,70,52,48,99,13+rnd(7),(2+rnd(8))*10,21+rnd(79),21+rnd(79)]);id=`num.${pick(['d2w','w2d'])}.${n}`;}
+  if(run.recent.includes(id))return blitzNextId();
+  run.recent.push(id);if(run.recent.length>10)run.recent.shift();
+  return id;
+}
+function startBlitz(){
+  run=newRun('blitz',null,[]);run.recent=[];run.score=0;run.end=Date.now()+60000;
+  show('play');blitzNext();
+  run.timer=setInterval(()=>{
+    const left=Math.max(0,Math.ceil((run.end-Date.now())/1000));const t=$('#timer');if(t)t.textContent=left;
+    if(left<=0){clearInterval(run.timer);run.timer=null;blitzEnd();}
+  },200);
+}
+function blitzNext(){
+  if(!run||run.mode!=='blitz')return;
+  const id=blitzNextId();const q=getQ(id);
+  run.queue=[{id,q}];run.i=0;renderQ();
+  const t=$('#timer');if(t)t.textContent=Math.max(0,Math.ceil((run.end-Date.now())/1000));
+  const b=$('#bscore');if(b)b.textContent='⚡ '+run.score;
+}
+function blitzAfter(ok,q){
+  if(ok)run.score++;
+  const b=$('#bscore');if(b)b.textContent='⚡ '+run.score;
+  const cb=$('#combo');if(cb){cb.hidden=run.combo<2;cb.textContent=`🔥 x${run.combo}`;}
+  const f=$('#flash');
+  if(f)f.innerHTML=ok?`<div class="flash good">✅ ${pick(CHEERS)[0]}</div>`:`<div class="flash bad">❌ C'était : <b>${q.kind==='tf'?answerText(q):(q.optLang==='num'?esc(answerText(q)):fmtDe(answerText(q)))}</b></div>`;
+  setTimeout(()=>{if(run&&run.mode==='blitz'&&run.timer)blitzNext();},ok?450:1300);
+}
+function blitzEnd(){
+  if(!run||run.mode!=='blitz')return;
+  const best=state.best.blitz||0;const rec=run.score>best;if(rec)state.best.blitz=run.score;
+  const bonus=run.score*5;run.xp+=bonus;state.xp+=bonus;state.stats.rounds++;
+  const rNow=rankIdx(state.xp);if(rNow>run.rank0){run.rankUp=rNow;}
+  save();Sync.flush();
+  const gh=ghostIds().length;
+  SCR.result.innerHTML=`<div class="res">
+    <div class="res-hero"><h2>${run.score>=15?'Blitzschnell !':'Zeit ist um !'}</h2><p class="tr">(= ${run.score>=15?'rapide comme l\'éclair':'le temps est écoulé'})</p>
+      <p class="bigstars" style="font-family:var(--f-display);color:var(--paper);text-shadow:var(--outline)">⚡ ${run.score}</p>
+      <p class="quip">${rec?'🏆 Nouveau record !':`Record à battre : ${best}`}</p></div>
+    <div class="stats"><div class="stat"><b>${run.score}</b><span>bonnes réponses</span></div><div class="stat"><b>+${run.xp}</b><span>XP gagnés</span></div><div class="stat"><b>x${run.maxCombo}</b><span>meilleur combo</span></div></div>
+    ${run.rankUp!=null?`<section class="panel rankup"><span class="emo">${RANKS[run.rankUp].emo}</span><h3>Nouveau rang : ${esc(RANKS[run.rankUp].de)} !</h3></section>`:''}
+    <div class="actions">
+      <button class="btn full" data-act="blitz">Rejouer le Blitz</button>
+      ${gh?`<button class="btn dark full" data-act="ghosts">Chasser les fantômes (${gh}) <span class="emo">👻</span></button>`:''}
+      <button class="btn white full" data-act="home">Retour au QG</button></div></div>`;
+  show('result');if(rec||run.rankUp!=null)confetti();
+}
+
+/* ---------- Memory ---------- */
+const PAIRS=[['der Vater','le père'],['die Mutter','la mère'],['die Eltern','les parents'],['der Sohn','le fils'],['die Tochter','la fille'],['der Bruder','le frère'],['die Schwester','la sœur'],['die Kinder','les enfants'],['der Großvater','le grand-père'],['die Großmutter','la grand-mère'],['die Großeltern','les grands-parents'],['krank','malade'],['müde','fatigué(e)'],['gestresst','stressé(e)'],['Warum?','Pourquoi ?'],['verliebt','amoureux'],['zwanzig','20'],['dreißig','30'],['sechzehn','16'],['siebzig','70'],['zweiundfünfzig','52'],['achtundvierzig','48']];
+let mem=null;
+function startMemory(){
+  const pairs=sample(PAIRS,6);
+  const cards=shuffle(pairs.flatMap((p,i)=>[{p:i,t:p[0],de:true},{p:i,t:p[1],de:false}]));
+  mem={cards,open:[],done:new Set(),moves:0,lock:false,pairs};
+  show('memory');renderMemory();
+}
+function renderMemory(){
+  SCR.memory.innerHTML=`<div class="topbar"><button class="icon-btn" data-act="home" aria-label="Retour au QG">✕</button><span class="pill" id="mmoves">Coups : ${mem.moves}</span><span class="pill">Paires : <span id="mpairs">${mem.done.size}</span>/6</span></div>
+  <div class="mhead"><h2>Memory <span class="emo">🃏</span></h2><p style="margin:0;font-weight:700">Retourne deux cartes : allemand + français qui vont ensemble.</p></div>
+  <div class="mgrid">${mem.cards.map((c,i)=>`<button class="mcard" data-act="mem" data-i="${i}" aria-label="Carte ${i+1}"><span class="in"><span class="f"><span class="emo">🥨</span></span><span class="b ${c.de?'de':''}">${c.de?fmtDe(c.t):nb(esc(c.t))}</span></span></button>`).join('')}</div>`;
+}
+function memFlip(i){
+  if(mem.lock)return;const c=mem.cards[i];const el=$$('.mcard')[i];
+  if(mem.done.has(c.p)||mem.open.includes(i))return;
+  el.classList.add('up');el.setAttribute('aria-label',c.t);mem.open.push(i);
+  if(c.de)Voice.say(c.t);
+  if(mem.open.length===2){
+    mem.moves++;$('#mmoves').textContent='Coups : '+mem.moves;
+    const [a,b]=mem.open;
+    if(mem.cards[a].p===mem.cards[b].p){
+      mem.done.add(c.p);mem.open=[];Sfx.play('good');
+      [a,b].forEach(k=>$$('.mcard')[k].classList.add('done'));
+      $('#mpairs').textContent=mem.done.size;
+      if(mem.done.size===6)setTimeout(memEnd,500);
+    }else{
+      mem.lock=true;
+      setTimeout(()=>{[a,b].forEach(k=>{const e=$$('.mcard')[k];if(e){e.classList.remove('up');e.setAttribute('aria-label','Carte '+(k+1));}});mem.open=[];mem.lock=false;},950);
+    }
+  }
+}
+function memEnd(){
+  const best=state.best.memory||0;const rec=!best||mem.moves<best;if(rec)state.best.memory=mem.moves;
+  const r0=rankIdx(state.xp);state.xp+=30;const r1=rankIdx(state.xp);save();Sync.flush();
+  Sfx.play(r1>r0?'rank':'ghost');confetti();
+  SCR.result.innerHTML=`<div class="res"><div class="res-hero"><h2>Geschafft !</h2><p class="tr">(= réussi)</p><p class="quip">6 paires en ${mem.moves} coups. ${rec?'🏆 Nouveau record !':`Record : ${best} coups.`}</p></div>
+    <section class="panel review"><h3>Les paires de cette partie</h3><ul>${mem.pairs.map(p=>`<li><span class="a">${fmtDe(p[0])} = ${nb(esc(p[1]))} ${sayBtn(p[0])}</span></li>`).join('')}</ul></section>
+    ${r1>r0?`<section class="panel rankup"><span class="emo">${RANKS[r1].emo}</span><h3>Nouveau rang : ${esc(RANKS[r1].de)} !</h3></section>`:''}
+    <div class="actions"><button class="btn full" data-act="memory">Rejouer (+30 XP)</button><button class="btn white full" data-act="home">Retour au QG</button></div></div>`;
+  show('result');
+}
+
+/* =========================================================
+   Événements
+   ========================================================= */
+function quitNow(){if(run&&run.timer){clearInterval(run.timer);run.timer=null;}run=null;Sync.flush();show('home');renderHome();}
+const ACT={
+  'intro-ok'(){state.seenIntro=true;save();renderHome();},
+  sound(){state.settings.sound=!state.settings.sound;save();renderHome();if(state.settings.sound)Sfx.play('good');},
+  voice(){state.settings.voice=!state.settings.voice;save();renderHome();if(state.settings.voice)Voice.say('Hallo! Wie geht es Ihnen?');},
+  reset(){resetAsk=true;renderHome();},
+  'reset-no'(){resetAsk=false;renderHome();},
+  'reset-yes'(){resetAsk=false;const s=state.settings;state=fresh();state.settings=s;state.seenIntro=true;save();Sync.flush();renderHome();},
+  world(a){startWorld(a.dataset.w);},
+  ghosts(){startGhosts();},
+  blitz(){startBlitz();},
+  memory(){startMemory();},
+  home(){quitNow();},
+  quit(){
+    const box=$('#quitbox');if(!box||(run&&run.mode==='blitz'))return quitNow();
+    if(box.innerHTML){box.innerHTML='';return;}
+    box.innerHTML=`<div class="quitask">Quitter la mission ? Tes fantômes sont déjà enregistrés. <button class="btn" data-act="home">Quitter</button><button class="btn white" data-act="quit-no">Continuer à jouer</button></div>`;
+  },
+  'quit-no'(){const box=$('#quitbox');if(box)box.innerHTML='';},
+  say(a){Voice.say(a.dataset.say);},
+  listen(){const q=run&&run.queue[run.i]&&run.queue[run.i].q;if(q)Voice.say(q.listen);},
+  'listen-slow'(){const q=run&&run.queue[run.i]&&run.queue[run.i].q;if(q)Voice.say(q.listen,true);},
+  opt(a){
+    if(!run||run.answered)return;const q=run.queue[run.i].q;const i=+a.dataset.i;
+    const ci=q.opts.findIndex(o=>String(o)===String(q.answer));
+    markOpts(ci,i);onAnswer(i===ci);
+  },
+  tf(a){
+    if(!run||run.answered)return;const q=run.queue[run.i].q;const v=a.dataset.v==='1';
+    markOpts(q.answer?0:1,v?0:1);onAnswer(v===q.answer);
+  },
+  key(a){const inp=$('#ans');if(!inp)return;const s=inp.selectionStart??inp.value.length,e=inp.selectionEnd??inp.value.length;inp.value=inp.value.slice(0,s)+a.dataset.c+inp.value.slice(e);inp.focus();try{inp.setSelectionRange(s+1,s+1);}catch(err){}},
+  tile(a){
+    if(!run||run.answered)return;const i=+a.dataset.i;const q=run.queue[run.i].q;
+    const inLine=a.closest('#line');
+    if(inLine){run.pick=run.pick.filter(x=>x!==i);}
+    else{if(run.pick.includes(i))return;run.pick.push(i);}
+    const line=$('#line');line.innerHTML=run.pick.map(k=>`<button class="tile" data-act="tile" data-i="${k}">${fmt(q.tiles[k],'de')}</button>`).join('');
+    $$('#bank .tile').forEach(b=>b.classList.toggle('used',run.pick.includes(+b.dataset.i)));
+    const words=run.pick.map(k=>q.tiles[k]);
+    $('#preview').textContent=words.length?(q.joiner===''?`${words.join(' + ')} → ${words.join('')}`:words.join(' ')):'';
+    $('#go').disabled=!words.length;
+  },
+  'build-go'(){
+    if(!run||run.answered)return;const q=run.queue[run.i].q;
+    const words=run.pick.map(k=>q.tiles[k]);const ok=words.join('|')===q.target.join('|');
+    $('#line').style.borderStyle='solid';$('#line').style.background=ok?'var(--good-bg)':'var(--bad-bg)';
+    $$('#bank .tile, #line .tile').forEach(b=>b.disabled=true);$('#go').disabled=true;
+    onAnswer(ok,{given:ok?'':words.join(q.joiner===''?'':' ')});
+  },
+  cont(){cont();},
+  mem(a){memFlip(+a.dataset.i);},
+  login(){openAuth('login',screen==='home'?'home':'welcome');},
+  signup(){openAuth('signup',screen==='home'?'home':'welcome');},
+  'mode-login'(){authMode='login';renderAuth();},
+  'mode-signup'(){authMode='signup';renderAuth();},
+  eye(a){const i=document.getElementById(a.dataset.for);if(!i)return;const vis=i.type==='password';i.type=vis?'text':'password';a.setAttribute('aria-pressed',String(vis));a.setAttribute('aria-label',vis?'Masquer le mot de passe':'Afficher le mot de passe');},
+  guest(){lsSet(GUEST_KEY,'1');Acc.notice='';show('home');renderHome();},
+  account(){delOpen=false;show('account');renderAccount();},
+  logout(){logout();},
+  'delete-ask'(){delOpen=true;renderAccount();try{$('#f-delpass').focus();}catch(e){}},
+  'delete-no'(){delOpen=false;renderAccount();},
+  'merge-yes'(){const g=readLocal(KEY);if(hasProgress(g)){state=combine(state,g);lsDel(KEY);save();Sync.flush();Acc.notice=`+${g.xp} XP ajoutés à ton compte !`;}Acc.mergeOffer=false;renderHome();},
+  'merge-no'(){Acc.mergeOffer=false;renderHome();},
+  'notice-ok'(){Acc.notice='';renderHome();}
+};
+document.addEventListener('click',e=>{const a=e.target.closest('[data-act]');if(!a)return;const f=ACT[a.dataset.act];if(f){e.preventDefault();f(a,e);}});
+document.addEventListener('submit',e=>{
+  if(e.target.id==='authform'){e.preventDefault();submitAuth();return;}
+  if(e.target.id==='delform'){e.preventDefault();submitDelete();return;}
+  if(e.target.id!=='typer')return;e.preventDefault();
+  if(!run||run.answered)return;const q=run.queue[run.i].q;const inp=$('#ans');const given=inp.value;
+  const r=checkTyped(given,q);
+  if(r.empty){inp.focus();return;}
+  inp.classList.add(r.ok?'ok':'ko');inp.readOnly=true;$('#go').disabled=true;$$('.key').forEach(k=>k.disabled=true);
+  onAnswer(r.ok,{exact:r.ok?r.exact:undefined,near:r.near,given:r.ok?'':given});
+});
+document.addEventListener('input',e=>{if(e.target&&e.target.id==='f-pseudo'){authDraft=e.target.value;updatePseudoHint();}});
+document.addEventListener('keydown',e=>{
+  if(screen!=='play'||!run)return;
+  const sheet=$('#sheet');
+  if(!sheet.hidden&&(e.key==='Enter'||e.key===' ')){if(document.activeElement&&document.activeElement.id==='cont')return;e.preventDefault();cont();return;}
+  if(e.target&&e.target.tagName==='INPUT')return;
+  if(run.answered)return;
+  const n=parseInt(e.key,10);
+  if(n>=1&&n<=4){const b=$$('#opts .opt')[n-1];if(b)b.click();}
+});
+
+/* =========================================================
+   Démarrage
+   ========================================================= */
+function boot(){
+  Voice.init();
+  if(Acc.on&&profile.type!=='account'&&!lsGet(GUEST_KEY))openAuth('signup','welcome');
+  else{show('home');renderHome();}
+  Acc.loading=Acc.init();
+}
+boot();
+</script>
+</body>
+</html>
