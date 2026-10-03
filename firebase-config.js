@@ -1,24 +1,10 @@
-// =====================================================================
-//  Opération Bretzel : configuration des comptes (Firebase)
-// =====================================================================
-//  Tant que ce fichier n'est pas rempli, le jeu marche quand même,
-//  mais sans comptes : la progression reste dans le navigateur.
-//
-//  Pour activer les comptes (étape 7 du guide README.md) :
-//    1. Dans la console Firebase, copie le bloc « const firebaseConfig = { … }; »
-//    2. Remplace tout le bloc ci-dessous par le tien.
-//  Ne change rien d'autre.
-//
-//  Ces valeurs ne sont pas secrètes : c'est normal qu'elles soient
-//  visibles sur GitHub. Ce sont les règles Firestore qui protègent
-//  la progression de chaque joueur.
-// =====================================================================
-
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "COLLE-ICI-TA-CLE",
-  authDomain: "ton-projet.firebaseapp.com",
-  projectId: "ton-projet",
-  storageBucket: "ton-projet.firebasestorage.app",
-  messagingSenderId: "000000000000",
-  appId: "1:000000000000:web:0000000000000000"
+  apiKey: "AIzaSyCBlVwuI1RQnKEF14uAxsJCrj0ClaJkJow",
+  authDomain: "operation-bretzel.firebaseapp.com",
+  projectId: "operation-bretzel",
+  storageBucket: "operation-bretzel.firebasestorage.app",
+  messagingSenderId: "586605781985",
+  appId: "1:586605781985:web:3719875c6fe10eb8be28a0",
+  measurementId: "G-B13S9BYYVV"
 };
