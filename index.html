@@ -33,6 +33,11 @@
   --t-pr:#FF8CC0;
   --t-blitz:#E4312B;
   --t-mem:#9B7BFF;
+  --t-moi:#5C9DFF;
+  --t-land:#F25C54;
+  --t-hobby:#8BD346;
+  --t-konj:#B4BAC6;
+  --t-meine:#D9A3FF;
   --f-display:'Lilita One','Arial Rounded MT Bold','Trebuchet MS',sans-serif;
   --f-body:'Nunito','Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
   --outline:3px 0 0 var(--ink),-3px 0 0 var(--ink),0 3px 0 var(--ink),0 -3px 0 var(--ink),2px 2px 0 var(--ink),-2px -2px 0 var(--ink),2px -2px 0 var(--ink),-2px 2px 0 var(--ink);
@@ -96,6 +101,8 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.05;
 .h2{font-size:26px;margin:26px 0 12px;color:var(--ink)}
 .worlds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .worlds>.wt:last-child:nth-child(odd){grid-column:1/-1}
+.h2sub{margin:-6px 0 12px;font-weight:800;font-size:14px}
+.wt[data-w="land"] .band{background:linear-gradient(180deg,#000 0 33.4%,#DD0000 33.4% 66.7%,#FFCE00 66.7%)}
 .wt{appearance:none;position:relative;text-align:left;border:3px solid var(--ink);border-radius:18px;background:var(--paper);box-shadow:5px 5px 0 var(--ink);padding:0;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;transition:transform .06s,box-shadow .06s}
 .wt:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--ink)}
 .wt .band{background:var(--c);border-bottom:3px solid var(--ink);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:56px}
@@ -518,10 +525,241 @@ const GEN={
     const o=sample(LW.filter(x=>x!==w),3);
     return{kind:'listen',ask:'Écoute : quel mot entends-tu ?',listen:w,opts:[w,...o],answer:w,optLang:'de',say:w,why:`Tu as entendu <b>${w}</b> = ${MEAN[w]}.`};}
 };
+/* =========================================================
+   Nouveaux cours (cahier de textes, 7 sept. → 1er oct.)
+   Uniquement des ajouts : les questions existantes ne changent pas.
+   ========================================================= */
+Object.assign(WORLDS,{
+  moi:{name:'Ich stelle mich vor',sub:'Se présenter : nom, ville, pays, âge, langue',emo:'🙋',col:'var(--t-moi)'},
+  land:{name:'Länder und Farben',sub:'Les pays, les couleurs et les drapeaux',emo:'🌍',col:'var(--t-land)'},
+  hobby:{name:'Das ist mein Hobby!',sub:'Les activités, les instruments et les jours',emo:'⚽',col:'var(--t-hobby)'},
+  konj:{name:'Konjugation',sub:'ich -e, du -st, er -t et les verbes forts',emo:'🔧',col:'var(--t-konj)'},
+  meine:{name:'Meine Familie',sub:'J\'ai un frère, je suis enfant unique…',emo:'🏠',col:'var(--t-meine)'}
+});
+const THEMES=[
+  {title:'Thema 1 : Ich stelle mich vor',sub:'Les cours du 7 au 22 septembre',worlds:['moi','land','hobby','konj','wg']},
+  {title:'Thema 2 : Die Familie',sub:'Les cours depuis le 24 septembre',worlds:['cast','fam','meine','num']}
+];
+LW.push('schwimmen','tanzen','lesen','malen','reiten','Montag','Dienstag','Mittwoch','Donnerstag','Deutschland','Österreich','Schweiz','Frankreich','Geschwister','Einzelkind','rot','blau','grün','gelb','schwarz','weiß','Woher','Geige','Klavier');
+Object.assign(MEAN,{schwimmen:'nager',tanzen:'danser',lesen:'lire',malen:'dessiner, peindre',reiten:'faire du cheval',Montag:'lundi',Dienstag:'mardi',Mittwoch:'mercredi',Donnerstag:'jeudi',Deutschland:'l\'Allemagne','Österreich':'l\'Autriche',Schweiz:'la Suisse',Frankreich:'la France',Geschwister:'frères et sœurs',Einzelkind:'enfant unique',rot:'rouge',blau:'bleu','grün':'vert',gelb:'jaune',schwarz:'noir','weiß':'blanc',Woher:'d\'où ?',Geige:'le violon',Klavier:'le piano'});
+
+/* ---------- Ich stelle mich vor (7, 10 et 15 sept.) ---------- */
+const RQ=['Ich heiße Tina.','Ich wohne in Paris.','Ich bin zwölf.','Ich komme aus Deutschland.'];
+S('moi.q.heisst','moi','mcq',{ask:'Comment dit-on en allemand… ?',big:'Comment tu t\'appelles ?',opts:['Wie heißt du?','Wo wohnst du?','Woher kommst du?','Wer bist du?'],answer:'Wie heißt du?',optLang:'de',say:'Wie heißt du?',why:'<b>Wie</b> = comment, <b>heißt</b> = t\'appelles (de heißen, s\'appeler).'});
+S('moi.q.wohnst','moi','mcq',{ask:'Comment dit-on en allemand… ?',big:'Où habites-tu ?',opts:['Wo wohnst du?','Woher kommst du?','Wie heißt du?','Wie alt bist du?'],answer:'Wo wohnst du?',optLang:'de',say:'Wo wohnst du?',why:'<b>Wo</b> = où, <b>wohnst</b> = habites (de wohnen, habiter).',tip:'Avec « du », c\'est wohn<b>st</b>, pas « wohnt ».'});
+S('moi.q.woher','moi','mcq',{ask:'Comment dit-on en allemand… ?',big:'D\'où viens-tu ?',opts:['Woher kommst du?','Wo wohnst du?','Wer bist du?','Welche Sprache sprichst du?'],answer:'Woher kommst du?',optLang:'de',say:'Woher kommst du?',why:'<b>Woher</b> = d\'où, <b>kommst</b> = viens (de kommen, venir).',tip:'Wo = où. Woher = d\'où (l\'endroit d\'où tu viens).'});
+S('moi.q.alt','moi','mcq',{ask:'Comment dit-on en allemand… ?',big:'Quel âge as-tu ?',opts:['Wie alt bist du?','Wie heißt du?','Wer bist du?','Wo wohnst du?'],answer:'Wie alt bist du?',optLang:'de',say:'Wie alt bist du?',why:'Mot à mot : « comment vieux es-tu ? ». On répond : <b>Ich bin zwölf.</b>'});
+S('moi.q.sprache','moi','mcq',{ask:'Comment dit-on en allemand… ?',big:'Quelle langue parles-tu ?',opts:['Welche Sprache sprichst du?','Woher kommst du?','Wie geht es dir?','Wer bist du?'],answer:'Welche Sprache sprichst du?',optLang:'de',say:'Welche Sprache sprichst du?',why:'<b>Welche Sprache</b> = quelle langue, <b>sprichst</b> = parles (de sprechen).',tip:'Verbe fort : ich spreche, mais du spr<b>i</b>chst !'});
+S('moi.q.wer','moi','mcq',{ask:'Comment dit-on en allemand… ?',big:'Qui es-tu ?',opts:['Wer bist du?','Wo bist du?','Wie bist du?','Woher bist du?'],answer:'Wer bist du?',optLang:'de',say:'Wer bist du?',why:'<b>Wer</b> = qui.',tip:'Piège : « wer » ressemble à « where » en anglais, mais ça veut dire « qui » !'});
+S('moi.r.heisst','moi','mcq',{ask:'Que réponds-tu ?',big:'Wie heißt du?',bigLang:'de',opts:RQ,answer:'Ich heiße Tina.',optLang:'de',say:'Ich heiße Tina.',why:'« Comment tu t\'appelles ? » → <b>Ich heiße Tina.</b> (Je m\'appelle Tina.)'});
+S('moi.r.wohnst','moi','mcq',{ask:'Que réponds-tu ?',big:'Wo wohnst du?',bigLang:'de',opts:RQ,answer:'Ich wohne in Paris.',optLang:'de',say:'Ich wohne in Paris.',why:'« Où habites-tu ? » → <b>Ich wohne in Paris.</b> (J\'habite à Paris.)'});
+S('moi.r.woher','moi','mcq',{ask:'Que réponds-tu ?',big:'Woher kommst du?',bigLang:'de',opts:RQ,answer:'Ich komme aus Deutschland.',optLang:'de',say:'Ich komme aus Deutschland.',why:'« D\'où viens-tu ? » → <b>Ich komme aus Deutschland.</b> (Je viens d\'Allemagne.)'});
+S('moi.r.alt','moi','mcq',{ask:'Que réponds-tu ?',big:'Wie alt bist du?',bigLang:'de',opts:RQ,answer:'Ich bin zwölf.',optLang:'de',say:'Ich bin zwölf.',why:'« Quel âge as-tu ? » → <b>Ich bin zwölf.</b> (J\'ai douze ans.)'});
+S('moi.r.sprache','moi','mcq',{ask:'Que réponds-tu ?',big:'Welche Sprache sprichst du?',bigLang:'de',opts:['Ich spreche Deutsch.','Ich komme aus Deutschland.','Ich heiße Tina.','Ich bin zwölf.'],answer:'Ich spreche Deutsch.',optLang:'de',say:'Ich spreche Deutsch.',why:'« Quelle langue parles-tu ? » → <b>Ich spreche Deutsch.</b> (Je parle allemand.)'});
+S('moi.w.wo','moi','mcq',{ask:'Quel mot manque ?',big:'___ wohnst du? Ich wohne in Berlin.',bigLang:'de',opts:['Wo','Wer','Wie','Woher'],answer:'Wo',optLang:'de',say:'Wo wohnst du?',why:'Pour demander un lieu (où ?), on utilise <b>Wo</b>.'});
+S('moi.w.woher','moi','mcq',{ask:'Quel mot manque ?',big:'___ kommst du? Ich komme aus Österreich.',bigLang:'de',opts:['Woher','Wo','Wer','Wie'],answer:'Woher',optLang:'de',say:'Woher kommst du?',why:'D\'où viens-tu ? = <b>Woher</b> kommst du?'});
+S('moi.w.wie','moi','mcq',{ask:'Quel mot manque ?',big:'___ heißt du? Ich heiße Tom.',bigLang:'de',opts:['Wie','Wo','Wer','Woher'],answer:'Wie',optLang:'de',say:'Wie heißt du?',why:'Comment t\'appelles-tu ? = <b>Wie</b> heißt du?'});
+S('moi.w.wer','moi','mcq',{ask:'Quel mot manque ?',big:'___ bist du? Ich bin Clara.',bigLang:'de',opts:['Wer','Wo','Wie','Woher'],answer:'Wer',optLang:'de',say:'Wer bist du?',why:'Qui es-tu ? = <b>Wer</b> bist du?'});
+S('moi.vor','moi','mcq',{ask:'Que veut dire… ?',big:'Ich stelle mich vor.',bigLang:'de',opts:['Je me présente.','Je viens d\'Allemagne.','J\'habite à Paris.','Je parle allemand.'],answer:'Je me présente.',say:'Ich stelle mich vor.',why:'<b>Ich stelle mich vor</b> = je me présente. C\'est le titre du Thema 1 !'});
+S('moi.angela','moi','mcq',{ask:'Comment dit-on en allemand… ?',big:'Elle s\'appelle Angela.',opts:['Sie heißt Angela.','Er heißt Angela.','Ich heiße Angela.','Sie heißen Angela.'],answer:'Sie heißt Angela.',optLang:'de',say:'Sie heißt Angela.',why:'<b>sie</b> = elle, et avec sie ou er, le verbe finit par <b>-t</b> : sie heiß<b>t</b>.'});
+S('moi.tom','moi','mcq',{ask:'Comment dit-on en allemand… ?',big:'Il habite à Berlin.',opts:['Er wohnt in Berlin.','Er wohnst in Berlin.','Er kommt in Berlin.','Sie wohnt in Berlin.'],answer:'Er wohnt in Berlin.',optLang:'de',say:'Er wohnt in Berlin.',why:'<b>er</b> = il, wohnen → er wohn<b>t</b>.'});
+S('moi.schweiz','moi','mcq',{ask:'Comment dit-on en allemand… ?',big:'Elle vient de Suisse.',opts:['Sie kommt aus der Schweiz.','Sie kommt aus Schweiz.','Sie wohnt aus der Schweiz.','Sie komme aus der Schweiz.'],answer:'Sie kommt aus der Schweiz.',optLang:'de',say:'Sie kommt aus der Schweiz.',why:'On dit « die Schweiz », donc « aus <b>der</b> Schweiz » (on garde un article).'});
+S('moi.zwoelf','moi','mcq',{ask:'Que veut dire… ?',big:'Ich bin zwölf.',bigLang:'de',opts:['J\'ai douze ans.','Je suis en douzième.','J\'ai deux ans.','Il est midi.'],answer:'J\'ai douze ans.',say:'Ich bin zwölf.',why:'Comme pour Kurt : on <b>est</b> son âge. Ich bin zwölf = j\'ai 12 ans.'});
+S('moi.tf.wo','moi','tf',{big:'« Wo » veut dire « où ».',answer:true,say:'Wo wohnst du?',why:'Vrai : Wo wohnst du? = Où habites-tu ?'});
+S('moi.tf.woher','moi','tf',{big:'« Woher kommst du? » veut dire « Où habites-tu ? ».',answer:false,say:'Woher kommst du?',why:'Faux : Woher kommst du? = D\'où viens-tu ? « Où habites-tu ? », c\'est Wo wohnst du?'});
+S('moi.tf.wer','moi','tf',{big:'« Wer » veut dire « où », comme « where » en anglais.',answer:false,say:'Wer bist du?',why:'Faux ! <b>Wer</b> = qui. « Où », c\'est <b>wo</b>. C\'est le piège classique.'});
+S('moi.tf.sprichst','moi','tf',{big:'On dit « Welche Sprache sprichst du? ».',answer:true,say:'Welche Sprache sprichst du?',why:'Vrai : sprechen est un verbe fort, donc du spr<b>i</b>chst.'});
+S('moi.b.tina','moi','build',{ask:'Construis la phrase en allemand :',big:'Je m\'appelle Tina et j\'habite à Paris.',tiles:['Ich','heiße','Tina','und','ich','wohne','in','Paris','wohnst','komme'],target:['Ich','heiße','Tina','und','ich','wohne','in','Paris'],say:'Ich heiße Tina und ich wohne in Paris.',why:'<b>Ich heiße</b> Tina <b>und</b> ich <b>wohne in</b> Paris.'});
+S('moi.b.woher','moi','build',{ask:'Construis la question en allemand :',big:'D\'où viens-tu ?',tiles:['Woher','kommst','du?','Wo','komme'],target:['Woher','kommst','du?'],say:'Woher kommst du?',why:'<b>Woher</b> (d\'où) <b>kommst</b> (viens) <b>du</b> (tu) ?'});
+S('moi.t.komme','moi','type',{ask:'Écris en allemand :',big:'Je viens d\'Allemagne.',accept:['Ich komme aus Deutschland.'],say:'Ich komme aus Deutschland.',why:'Je viens de = <b>Ich komme aus</b> + le pays : Ich komme aus Deutschland.'});
+S('moi.t.heisst','moi','type',{ask:'Écris le mot qui manque :',big:'Wie ___ du? (Comment tu t\'appelles ?)',accept:['heißt'],say:'Wie heißt du?',why:'Wie <b>heißt</b> du? Avec un ß, qui se dit « ss ».'});
+
+/* ---------- Länder und Farben (8 sept.) ---------- */
+const LANDS=['Deutschland','Österreich','Frankreich','die Schweiz'];
+S('land.de','land','mcq',{ask:'Comment dit-on en allemand… ?',big:'🇩🇪 l\'Allemagne',opts:LANDS,answer:'Deutschland',optLang:'de',say:'Deutschland',why:'L\'Allemagne = <b>Deutschland</b>. Et l\'allemand (la langue) = Deutsch.'});
+S('land.at','land','mcq',{ask:'Comment dit-on en allemand… ?',big:'🇦🇹 l\'Autriche',opts:LANDS,answer:'Österreich',optLang:'de',say:'Österreich',why:'L\'Autriche = <b>Österreich</b> (mot à mot : « le royaume de l\'Est »).'});
+S('land.ch','land','mcq',{ask:'Comment dit-on en allemand… ?',big:'🇨🇭 la Suisse',opts:LANDS,answer:'die Schweiz',optLang:'de',say:'die Schweiz',why:'La Suisse = <b>die Schweiz</b>, avec un article. Ich komme aus der Schweiz.'});
+S('land.fr','land','mcq',{ask:'Comment dit-on en allemand… ?',big:'🇫🇷 la France',opts:LANDS,answer:'Frankreich',optLang:'de',say:'Frankreich',why:'La France = <b>Frankreich</b> (« le royaume des Francs »).'});
+S('land.it','land','mcq',{ask:'Que veut dire… ?',big:'Italien',bigLang:'de',opts:['l\'Italie','l\'Espagne','l\'Autriche','la Suisse'],answer:'l\'Italie',say:'Italien',why:'<b>Italien</b> = l\'Italie.'});
+S('land.es','land','mcq',{ask:'Que veut dire… ?',big:'Spanien',bigLang:'de',opts:['l\'Espagne','l\'Italie','l\'Autriche','la France'],answer:'l\'Espagne',say:'Spanien',why:'<b>Spanien</b> = l\'Espagne.'});
+S('land.li','land','mcq',{ask:'Que veut dire… ?',big:'Liechtenstein',bigLang:'de',opts:['le Liechtenstein','l\'Autriche','la Suisse','l\'Allemagne'],answer:'le Liechtenstein',say:'Liechtenstein',why:'Le Liechtenstein : un tout petit pays entre la Suisse et l\'Autriche, où l\'on parle allemand.'});
+S('land.berlin','land','mcq',{ask:'Complète :',big:'Ich wohne in Berlin. Das ist in …',bigLang:'de',opts:['Deutschland','Österreich','der Schweiz','Frankreich'],answer:'Deutschland',optLang:'de',say:'Ich wohne in Berlin. Das ist in Deutschland.',why:'Berlin est la capitale de l\'Allemagne : <b>Deutschland</b>.'});
+S('land.wien','land','mcq',{ask:'Complète :',big:'Ich wohne in Wien. Das ist in …',bigLang:'de',opts:['Österreich','Deutschland','der Schweiz','Frankreich'],answer:'Österreich',optLang:'de',say:'Ich wohne in Wien. Das ist in Österreich.',why:'Wien (Vienne) est la capitale de l\'Autriche : <b>Österreich</b>.'});
+S('land.zuerich','land','mcq',{ask:'Complète :',big:'Ich wohne in Zürich. Das ist in …',bigLang:'de',opts:['der Schweiz','Österreich','Deutschland','Frankreich'],answer:'der Schweiz',optLang:'de',say:'Ich wohne in Zürich. Das ist in der Schweiz.',why:'Zürich est en Suisse : in <b>der</b> Schweiz (avec l\'article).'});
+const FLAGS=['schwarz, rot, gold','blau, weiß, rot','rot, weiß, rot','grün, weiß, rot'];
+S('land.flag.de','land','mcq',{ask:'Quelles sont les couleurs de ce drapeau ?',big:'🇩🇪',bigEmoji:true,opts:FLAGS,answer:'schwarz, rot, gold',optLang:'de',say:'schwarz, rot, gold',why:'Die deutsche Flagge : <b>schwarz, rot, gold</b> (noir, rouge, or).'});
+S('land.flag.fr','land','mcq',{ask:'Quelles sont les couleurs de ce drapeau ?',big:'🇫🇷',bigEmoji:true,opts:FLAGS,answer:'blau, weiß, rot',optLang:'de',say:'blau, weiß, rot',why:'La France : <b>blau, weiß, rot</b> (bleu, blanc, rouge).'});
+S('land.flag.at','land','mcq',{ask:'Quelles sont les couleurs de ce drapeau ?',big:'🇦🇹',bigEmoji:true,opts:FLAGS,answer:'rot, weiß, rot',optLang:'de',say:'rot, weiß, rot',why:'L\'Autriche : <b>rot, weiß, rot</b> (rouge, blanc, rouge).'});
+S('land.c.rot','land','mcq',{ask:'Quelle couleur ?',big:'🟥',bigEmoji:true,opts:['rot','blau','grün','gelb'],answer:'rot',optLang:'de',say:'rot',why:'🟥 = <b>rot</b> (rouge).'});
+S('land.c.blau','land','mcq',{ask:'Quelle couleur ?',big:'🟦',bigEmoji:true,opts:['blau','rot','grün','schwarz'],answer:'blau',optLang:'de',say:'blau',why:'🟦 = <b>blau</b> (bleu).'});
+S('land.c.gruen','land','mcq',{ask:'Quelle couleur ?',big:'🟩',bigEmoji:true,opts:['grün','gelb','blau','weiß'],answer:'grün',optLang:'de',say:'grün',why:'🟩 = <b>grün</b> (vert).',tip:'Le ü se prononce comme le u de « tu ».'});
+S('land.c.gelb','land','mcq',{ask:'Quelle couleur ?',big:'🟨',bigEmoji:true,opts:['gelb','grün','rot','weiß'],answer:'gelb',optLang:'de',say:'gelb',why:'🟨 = <b>gelb</b> (jaune).'});
+S('land.c.schwarz','land','mcq',{ask:'Quelle couleur ?',big:'⬛',bigEmoji:true,opts:['schwarz','weiß','rot','blau'],answer:'schwarz',optLang:'de',say:'schwarz',why:'⬛ = <b>schwarz</b> (noir).',tip:'sch = ch et z = ts : « chvarts ».'});
+S('land.c.weiss','land','mcq',{ask:'Quelle couleur ?',big:'⬜',bigEmoji:true,opts:['weiß','schwarz','gelb','grün'],answer:'weiß',optLang:'de',say:'weiß',why:'⬜ = <b>weiß</b> (blanc), avec un ß.',tip:'w = v et ei = aï : « vaïss ».'});
+S('land.c.gold','land','mcq',{ask:'Que veut dire… ?',big:'gold',bigLang:'de',opts:['or (doré)','jaune','argent','gris'],answer:'or (doré)',say:'gold',why:'Sur le drapeau allemand, on dit <b>gold</b> (or), même si ça ressemble à du jaune (gelb).'});
+S('land.tf.weiss','land','tf',{big:'« weiß » veut dire « blanc ».',answer:true,say:'weiß',why:'Vrai : weiß = blanc. Schwarz = noir.'});
+S('land.tf.flag','land','tf',{big:'Le drapeau allemand est noir, rouge et or.',answer:true,say:'schwarz, rot, gold',why:'Vrai : schwarz, rot, gold.'});
+S('land.tf.gruen','land','tf',{big:'« grün » veut dire « gris ».',answer:false,say:'grün',why:'Faux : grün = <b>vert</b>.'});
+S('land.tf.wien','land','tf',{big:'Wien (Vienne) est en Allemagne.',answer:false,say:'Wien ist in Österreich.',why:'Faux : Wien est en <b>Autriche</b> (Österreich).'});
+S('land.b.at','land','build',{ask:'Construis la phrase en allemand :',big:'Je viens d\'Autriche.',tiles:['Ich','komme','aus','Österreich','Deutschland','wohne'],target:['Ich','komme','aus','Österreich'],say:'Ich komme aus Österreich.',why:'<b>Ich komme aus</b> + le pays : Ich komme aus Österreich.'});
+S('land.t.weiss','land','type',{ask:'Écris en allemand (avec le ß) :',big:'⬜ blanc',accept:['weiß'],say:'weiß',why:'Blanc = <b>weiß</b>.'});
+S('land.t.de','land','type',{ask:'Écris en allemand :',big:'🇩🇪 l\'Allemagne',accept:['Deutschland'],say:'Deutschland',why:'L\'Allemagne = <b>Deutschland</b>, avec une majuscule (c\'est un nom).'});
+
+/* ---------- Das ist mein Hobby! (17 et 21 sept.) ---------- */
+const HOB=[
+  {k:'schwimmen',de:'schwimmen',fr:'nager',emo:'🏊',er:'er schwimmt'},
+  {k:'tanzen',de:'tanzen',fr:'danser',emo:'💃',er:'er tanzt'},
+  {k:'judo',de:'Judo machen',fr:'faire du judo',emo:'🥋',er:'er macht Judo'},
+  {k:'boxen',de:'boxen',fr:'faire de la boxe',emo:'🥊',er:'er boxt'},
+  {k:'wandern',de:'wandern',fr:'faire de la randonnée',emo:'🥾',er:'er wandert'},
+  {k:'schach',de:'Schach spielen',fr:'jouer aux échecs',emo:'♟️',er:'er spielt Schach'},
+  {k:'yoga',de:'Yoga machen',fr:'faire du yoga',emo:'🧘',er:'er macht Yoga'},
+  {k:'fotos',de:'Fotos machen',fr:'faire des photos',emo:'📷',er:'er macht Fotos'},
+  {k:'basketball',de:'Basketball spielen',fr:'jouer au basket',emo:'🏀',er:'er spielt Basketball'},
+  {k:'malen',de:'malen',fr:'dessiner, peindre',emo:'🎨',er:'er malt'},
+  {k:'lesen',de:'lesen',fr:'lire',emo:'📖',er:'er liest'},
+  {k:'reiten',de:'reiten',fr:'faire du cheval',emo:'🏇',er:'er reitet'},
+  {k:'ski',de:'Ski fahren',fr:'faire du ski',emo:'⛷️',er:'er fährt Ski'},
+  {k:'rad',de:'Rad fahren',fr:'faire du vélo',emo:'🚲',er:'er fährt Rad'},
+  {k:'musik',de:'Musik hören',fr:'écouter de la musique',emo:'🎧',er:'er hört Musik'},
+  {k:'geige',de:'Geige spielen',fr:'jouer du violon',emo:'🎻',er:'er spielt Geige'},
+  {k:'klavier',de:'Klavier spielen',fr:'jouer du piano',emo:'🎹',er:'er spielt Klavier'},
+  {k:'trompete',de:'Trompete spielen',fr:'jouer de la trompette',emo:'🎺',er:'er spielt Trompete'},
+  {k:'saxofon',de:'Saxofon spielen',fr:'jouer du saxophone',emo:'🎷',er:'er spielt Saxofon'},
+  {k:'singen',de:'singen',fr:'chanter',emo:'🎤',er:'er singt'}
+];
+const HOBK=Object.fromEntries(HOB.map(h=>[h.k,h]));
+GEN['hobby.emo']=k=>{const h=HOBK[k];if(!h)return null;const o=sample(HOB.filter(x=>x.k!==k),3);
+  return{kind:'mcq',ask:'Quelle activité est-ce ?',big:h.emo,bigEmoji:true,opts:[h,...o].map(x=>x.de),answer:h.de,optLang:'de',say:h.de,why:`${h.emo} = <b>${h.de}</b> (${h.fr}). Pour parler d'un copain : <b>${h.er}</b>.`};};
+GEN['hobby.fr2de']=k=>{const h=HOBK[k];if(!h)return null;const o=sample(HOB.filter(x=>x.k!==k),3);
+  return{kind:'mcq',ask:'Comment dit-on en allemand… ?',big:`${h.emo} ${h.fr}`,opts:[h,...o].map(x=>x.de),answer:h.de,optLang:'de',say:h.de,why:`${cap(h.fr)} = <b>${h.de}</b>. Pour parler d'un copain : <b>${h.er}</b>.`};};
+GEN['hobby.de2fr']=k=>{const h=HOBK[k];if(!h)return null;const o=sample(HOB.filter(x=>x.k!==k),3);
+  return{kind:'mcq',ask:'Que veut dire… ?',big:h.de,bigLang:'de',opts:[h,...o].map(x=>x.fr),answer:h.fr,say:h.de,why:`<b>${h.de}</b> = ${h.fr} ${h.emo}`};};
+const JOURS=['le lundi','le mardi','le mercredi','le jeudi'];
+S('hobby.ich.schwimme','hobby','mcq',{ask:'Comment dit-on en allemand… ?',big:'je nage',opts:['ich schwimme','ich schwimmt','ich schwimmst','ich schwimmen'],answer:'ich schwimme',optLang:'de',say:'ich schwimme',why:'ich + radical <b>schwimm</b> + <b>e</b> = ich schwimme.'});
+S('hobby.er.tanzt','hobby','mcq',{ask:'Comment dit-on en allemand… ?',big:'il danse',opts:['er tanzt','er tanze','er tanzst','er tanzen'],answer:'er tanzt',optLang:'de',say:'er tanzt',why:'er + radical <b>tanz</b> + <b>t</b> = er tanzt.'});
+S('hobby.tag.mo','hobby','mcq',{ask:'Quel jour ?',big:'Ich male am Montag.',bigLang:'de',opts:JOURS,answer:'le lundi',say:'Ich male am Montag.',why:'<b>am Montag</b> = le lundi. Ich male am Montag = je dessine le lundi.'});
+S('hobby.tag.di','hobby','mcq',{ask:'Quel jour ?',big:'Ich tanze am Dienstag.',bigLang:'de',opts:JOURS,answer:'le mardi',say:'Ich tanze am Dienstag.',why:'<b>am Dienstag</b> = le mardi.'});
+S('hobby.tag.mi','hobby','mcq',{ask:'Quel jour ?',big:'Ich spiele Basketball am Mittwoch.',bigLang:'de',opts:JOURS,answer:'le mercredi',say:'Ich spiele Basketball am Mittwoch.',why:'<b>am Mittwoch</b> = le mercredi.',tip:'Mittwoch = « le milieu de la semaine » (Mitte = milieu).'});
+S('hobby.tag.do','hobby','mcq',{ask:'Quel jour ?',big:'Ich lese am Donnerstag.',bigLang:'de',opts:JOURS,answer:'le jeudi',say:'Ich lese am Donnerstag.',why:'<b>am Donnerstag</b> = le jeudi.',tip:'Donner = le tonnerre : jeudi, c\'est le jour du dieu du tonnerre ⚡'});
+S('hobby.tag.fr2de','hobby','mcq',{ask:'Comment dit-on en allemand… ?',big:'📅 le mercredi',opts:['am Mittwoch','am Montag','am Dienstag','am Donnerstag'],answer:'am Mittwoch',optLang:'de',say:'am Mittwoch',why:'Le mercredi = <b>am Mittwoch</b>.'});
+S('hobby.sportlich','hobby','mcq',{ask:'Que veut dire… ?',big:'Ich bin sportlich.',bigLang:'de',opts:['Je suis sportif (sportive).','Je suis musicien(ne).','Je suis créatif (créative).','Je suis fatigué(e).'],answer:'Je suis sportif (sportive).',say:'Ich bin sportlich.',why:'<b>sportlich</b> = sportif. Ich bin sportlich : ich schwimme, ich spiele Basketball.'});
+S('hobby.musikalisch','hobby','mcq',{ask:'Er ist musikalisch. Que fait-il sûrement ?',big:'Er ist musikalisch.',bigLang:'de',opts:['Er spielt Klavier.','Er schwimmt.','Er boxt.','Er wandert.'],answer:'Er spielt Klavier.',optLang:'de',say:'Er ist musikalisch. Er spielt Klavier.',why:'<b>musikalisch</b> = musicien : il joue d\'un instrument, comme le piano (Klavier).'});
+S('hobby.kreativ','hobby','mcq',{ask:'Que veut dire… ?',big:'Bist du kreativ? Malst du?',bigLang:'de',opts:['Es-tu créatif ? Tu dessines ?','Es-tu sportif ? Tu nages ?','Es-tu fatigué ? Tu dors ?','Tu lis ? Tu écris ?'],answer:'Es-tu créatif ? Tu dessines ?',say:'Bist du kreativ? Malst du?',why:'<b>kreativ</b> = créatif, <b>malst du?</b> = tu dessines ? (de malen).'});
+S('hobby.reite','hobby','mcq',{ask:'Que veut dire… ?',big:'ich reite',bigLang:'de',opts:['je fais du cheval','je fais du vélo','je fais du ski','je fais de la randonnée'],answer:'je fais du cheval',say:'ich reite',why:'<b>reiten</b> = faire du cheval : ich reite.'});
+S('hobby.ski','hobby','mcq',{ask:'Que veut dire… ?',big:'Er fährt Ski.',bigLang:'de',opts:['Il fait du ski.','Il fait du vélo.','Il fait du cheval.','Il nage.'],answer:'Il fait du ski.',say:'Er fährt Ski.',why:'<b>Ski fahren</b> = faire du ski : er fährt Ski (verbe fort, avec ä).'});
+S('hobby.rad','hobby','mcq',{ask:'Comment dit-on en allemand… ?',big:'🚲 Je fais du vélo.',opts:['Ich fahre Rad.','Ich fahre Ski.','Ich reite.','Ich fährt Rad.'],answer:'Ich fahre Rad.',optLang:'de',say:'Ich fahre Rad.',why:'<b>Rad fahren</b> = faire du vélo : ich fahre Rad (sans ä avec ich).'});
+S('hobby.musik','hobby','mcq',{ask:'Comment dit-on en allemand… ?',big:'🎧 Tu écoutes de la musique.',opts:['Du hörst Musik.','Du hört Musik.','Du höre Musik.','Du spielst Musik.'],answer:'Du hörst Musik.',optLang:'de',say:'Du hörst Musik.',why:'<b>Musik hören</b> = écouter de la musique : du hör<b>st</b> Musik.'});
+S('hobby.geige','hobby','mcq',{ask:'Que veut dire… ?',big:'Er spielt Geige.',bigLang:'de',opts:['Il joue du violon.','Il joue du piano.','Il joue de la trompette.','Il joue au foot.'],answer:'Il joue du violon.',say:'Er spielt Geige.',why:'<b>die Geige</b> = le violon 🎻 (le piano = das Klavier).'});
+S('hobby.freund','hobby','mcq',{ask:'Que veut dire… ?',big:'Mein Freund schwimmt.',bigLang:'de',opts:['Mon ami nage.','Mon frère nage.','Mon père danse.','Mon ami lit.'],answer:'Mon ami nage.',say:'Mein Freund schwimmt.',why:'<b>ein Freund</b> = un ami. Ich habe einen Freund = j\'ai un ami.'});
+S('hobby.tf.wandern','hobby','tf',{big:'« wandern » veut dire « faire de la randonnée ».',answer:true,say:'wandern',why:'Vrai : wandern = faire de la randonnée 🥾'});
+S('hobby.tf.schach','hobby','tf',{big:'« Schach spielen » veut dire « jouer aux cartes ».',answer:false,say:'Schach spielen',why:'Faux : Schach spielen = jouer aux <b>échecs</b> ♟️'});
+S('hobby.tf.malen','hobby','tf',{big:'« malen » veut dire « dessiner, peindre ».',answer:true,say:'malen',why:'Vrai : ich male = je dessine 🎨'});
+S('hobby.tf.lesen','hobby','tf',{big:'« lesen » veut dire « écrire ».',answer:false,say:'lesen',why:'Faux : lesen = <b>lire</b> 📖'});
+S('hobby.b.montag','hobby','build',{ask:'Construis la phrase en allemand :',big:'Je dessine le lundi.',tiles:['Ich','male','am','Montag','Dienstag','malst'],target:['Ich','male','am','Montag'],say:'Ich male am Montag.',why:'<b>Ich male am Montag.</b> « le lundi » = am Montag.'});
+S('hobby.b.mittwoch','hobby','build',{ask:'Construis la phrase en allemand :',big:'Il joue au basket le mercredi.',tiles:['Er','spielt','Basketball','am','Mittwoch','spiele','Montag'],target:['Er','spielt','Basketball','am','Mittwoch'],say:'Er spielt Basketball am Mittwoch.',why:'<b>Er spielt Basketball am Mittwoch.</b>'});
+S('hobby.t.tanze','hobby','type',{ask:'Écris en allemand :',big:'💃 je danse',accept:['ich tanze'],say:'ich tanze',why:'tanzen → <b>ich tanze</b>.'});
+S('hobby.t.schwimmt','hobby','type',{ask:'Écris le verbe :',big:'il nage : er ___',accept:['schwimmt'],say:'er schwimmt',why:'schwimmen → er schwimm<b>t</b>.'});
+
+/* ---------- Konjugation (15, 17 et 21 sept.) ---------- */
+const VERBS=[
+  {inf:'spielen',st:'spiel',fr:'jouer'},{inf:'wohnen',st:'wohn',fr:'habiter'},{inf:'kommen',st:'komm',fr:'venir'},
+  {inf:'schwimmen',st:'schwimm',fr:'nager'},{inf:'malen',st:'mal',fr:'dessiner'},{inf:'hören',st:'hör',fr:'écouter'},
+  {inf:'singen',st:'sing',fr:'chanter'},{inf:'machen',st:'mach',fr:'faire'},{inf:'wandern',st:'wander',fr:'faire de la randonnée'}
+];
+const VERBK=Object.fromEntries(VERBS.map(v=>[v.inf,v]));
+const PERS={ich:{p:'ich',end:'e'},du:{p:'du',end:'st'},er:{p:'er',end:'t'},sie:{p:'sie (= elle)',say:'sie',end:'t'}};
+function konjForm(p){const [inf,pk]=String(p).split('.');const v=VERBK[inf],P=PERS[pk];if(!v||!P)return null;
+  const forms={e:v.st+'e',st:v.st+'st',t:v.st+'t'};return{v,P,pk,forms,ans:forms[P.end]};}
+GEN['konj.f']=p=>{const c=konjForm(p);if(!c)return null;const {v,P,forms,ans}=c;
+  return{kind:'mcq',ask:`Conjugue « ${v.inf} » (${v.fr}) :`,big:`${P.p} ___`,bigLang:'de',opts:[forms.e,forms.st,forms.t,v.inf],answer:ans,optLang:'de',say:`${P.say||P.p} ${ans}`,
+    why:`${P.say||P.p} → radical <b>${v.st}</b> + <b>-${P.end}</b> = <b>${P.say||P.p} ${ans}</b>.`};};
+GEN['konj.t']=p=>{const c=konjForm(p);if(!c)return null;const {v,P,ans}=c;
+  return{kind:'type',ask:'Écris le verbe conjugué :',big:`${P.p} ___ (${v.inf})`,accept:[ans],say:`${P.say||P.p} ${ans}`,
+    why:`${P.say||P.p} → radical <b>${v.st}</b> + <b>-${P.end}</b> = <b>${P.say||P.p} ${ans}</b>.`};};
+const ENDS=['e','st','t','en'];
+S('konj.sein.ich','konj','mcq',{ask:'Conjugue « sein » (être) :',big:'ich ___',bigLang:'de',opts:['bin','bist','ist','sein'],answer:'bin',optLang:'de',say:'ich bin',why:'sein : <b>ich bin</b>, du bist, er ist.'});
+S('konj.sein.du','konj','mcq',{ask:'Conjugue « sein » (être) :',big:'du ___',bigLang:'de',opts:['bist','bin','ist','sein'],answer:'bist',optLang:'de',say:'du bist',why:'sein : ich bin, <b>du bist</b>, er ist.'});
+S('konj.sein.er','konj','mcq',{ask:'Conjugue « sein » (être) :',big:'er ___',bigLang:'de',opts:['ist','bin','bist','sein'],answer:'ist',optLang:'de',say:'er ist',why:'sein : ich bin, du bist, <b>er ist</b>.'});
+S('konj.lesen.du','konj','mcq',{ask:'Conjugue « lesen » (lire), un verbe fort :',big:'du ___',bigLang:'de',opts:['liest','lest','lesst','lese'],answer:'liest',optLang:'de',say:'du liest',why:'Verbe fort : le e devient <b>ie</b> avec du et er. Du liest.'});
+S('konj.lesen.er','konj','mcq',{ask:'Conjugue « lesen » (lire), un verbe fort :',big:'er ___',bigLang:'de',opts:['liest','lest','lesen','lese'],answer:'liest',optLang:'de',say:'er liest',why:'Verbe fort : er l<b>ie</b>st.'});
+S('konj.lesen.ich','konj','mcq',{ask:'Conjugue « lesen » (lire), un verbe fort :',big:'ich ___',bigLang:'de',opts:['lese','liese','liest','lest'],answer:'lese',optLang:'de',say:'ich lese',why:'Avec ich, pas de changement : <b>ich lese</b>. Le e devient ie seulement avec du et er.'});
+S('konj.fahren.du','konj','mcq',{ask:'Conjugue « fahren », un verbe fort :',big:'du ___',bigLang:'de',opts:['fährst','fahrst','fährt','fahre'],answer:'fährst',optLang:'de',say:'du fährst',why:'Verbe fort : le a devient <b>ä</b> avec du et er. Du f<b>ä</b>hrst.'});
+S('konj.fahren.er','konj','mcq',{ask:'Conjugue « fahren », un verbe fort :',big:'er ___ Ski',bigLang:'de',opts:['fährt','fahrt','fährst','fahre'],answer:'fährt',optLang:'de',say:'er fährt Ski',why:'Er f<b>ä</b>hrt Ski = il fait du ski.'});
+S('konj.fahren.ich','konj','mcq',{ask:'Conjugue « fahren », un verbe fort :',big:'ich ___ Rad',bigLang:'de',opts:['fahre','fähre','fährst','fährt'],answer:'fahre',optLang:'de',say:'ich fahre Rad',why:'Avec ich, pas de ä : <b>ich fahre</b> Rad.'});
+S('konj.tanzen.du','konj','mcq',{ask:'Conjugue « tanzen » (danser) :',big:'du ___',bigLang:'de',opts:['tanzt','tanzst','tanze','tanzen'],answer:'tanzt',optLang:'de',say:'du tanzt',why:'Piège : le radical tanz finit déjà par z (« ts »), donc on ajoute juste un t : du tanz<b>t</b>.'});
+S('konj.heissen.du','konj','mcq',{ask:'Complète :',big:'Wie ___ du?',bigLang:'de',opts:['heißt','heißst','heiße','heißen'],answer:'heißt',optLang:'de',say:'Wie heißt du?',why:'Même piège : heiß finit par ß, donc du heiß<b>t</b>.'});
+S('konj.rule.du','konj','mcq',{ask:'Quelle terminaison avec « du » ?',big:'du spiel___',bigLang:'de',opts:ENDS,noShuffle:true,answer:'st',optLang:'de',say:'du spielst',why:'du + radical + <b>st</b> : du spiel<b>st</b>.'});
+S('konj.rule.ich','konj','mcq',{ask:'Quelle terminaison avec « ich » ?',big:'ich spiel___',bigLang:'de',opts:ENDS,noShuffle:true,answer:'e',optLang:'de',say:'ich spiele',why:'ich + radical + <b>e</b> : ich spiel<b>e</b>.'});
+S('konj.rule.er','konj','mcq',{ask:'Quelle terminaison avec « er » ou « sie » (elle) ?',big:'er spiel___',bigLang:'de',opts:ENDS,noShuffle:true,answer:'t',optLang:'de',say:'er spielt',why:'er/sie + radical + <b>t</b> : er spiel<b>t</b>.'});
+S('konj.radical','konj','mcq',{ask:'Quel est le radical de « spielen » ?',big:'spielen',bigLang:'de',opts:['spiel','spielen','spiele','spie'],answer:'spiel',optLang:'de',say:'spielen',why:'On enlève <b>-en</b> à l\'infinitif : spiel|en → radical <b>spiel</b>.'});
+S('konj.end.wohn','konj','mcq',{ask:'Quelle terminaison ?',big:'Ich wohn___ in München.',bigLang:'de',opts:ENDS,noShuffle:true,answer:'e',optLang:'de',say:'Ich wohne in München.',why:'ich → <b>-e</b> : ich wohn<b>e</b> in München.'});
+S('konj.end.komm','konj','mcq',{ask:'Quelle terminaison ?',big:'Er komm___ aus Hamburg.',bigLang:'de',opts:ENDS,noShuffle:true,answer:'t',optLang:'de',say:'Er kommt aus Hamburg.',why:'er → <b>-t</b> : er komm<b>t</b> aus Hamburg.',tip:'À Hamburg, on dit bonjour comme ça : « Moin Moin ! »'});
+S('konj.end.spiel','konj','mcq',{ask:'Quelle terminaison ?',big:'Du spiel___ Tennis.',bigLang:'de',opts:ENDS,noShuffle:true,answer:'st',optLang:'de',say:'Du spielst Tennis.',why:'du → <b>-st</b> : du spiel<b>st</b> Tennis.'});
+S('konj.end.sing','konj','mcq',{ask:'Quelle terminaison ?',big:'Sie sing___ sehr gut. (= elle)',bigLang:'de',opts:ENDS,noShuffle:true,answer:'t',optLang:'de',say:'Sie singt sehr gut.',why:'sie (elle) → <b>-t</b> : sie sing<b>t</b> sehr gut (elle chante très bien).'});
+S('konj.hoeren','konj','mcq',{ask:'Conjugue « hören » (écouter) :',big:'du ___ Musik',bigLang:'de',opts:['hörst','hört','höre','hören'],answer:'hörst',optLang:'de',say:'du hörst Musik',why:'du → <b>-st</b> : du hör<b>st</b> Musik.'});
+S('konj.tf.fahren','konj','tf',{big:'« fahren » est un verbe fort : er fährt.',answer:true,say:'er fährt',why:'Vrai : ich fahre, du fährst, er fährt.'});
+S('konj.tf.lest','konj','tf',{big:'On dit « du lest » pour « tu lis ».',answer:false,say:'du liest',why:'Faux : lesen est un verbe fort, on dit <b>du liest</b>.'});
+S('konj.tf.faehre','konj','tf',{big:'« ich fähre » est correct.',answer:false,say:'ich fahre',why:'Faux : avec ich, pas de ä. <b>Ich fahre</b>, mais du fährst, er fährt.'});
+S('konj.tf.ist','konj','tf',{big:'« er ist » veut dire « il est ».',answer:true,say:'er ist',why:'Vrai : sein (être) → er ist.'});
+S('konj.t.spielst','konj','type',{ask:'Écris le verbe conjugué :',big:'du ___ (spielen)',accept:['spielst'],say:'du spielst',why:'du → spiel + <b>st</b> = du spielst.'});
+S('konj.t.liest','konj','type',{ask:'Écris le verbe conjugué :',big:'er ___ (lesen)',accept:['liest'],say:'er liest',why:'Verbe fort : er <b>liest</b>.'});
+S('konj.b.angela','konj','build',{ask:'Construis la phrase en allemand :',big:'Elle s\'appelle Angela et elle chante.',tiles:['Sie','heißt','Angela','und','sie','singt','heiße','singst'],target:['Sie','heißt','Angela','und','sie','singt'],say:'Sie heißt Angela und sie singt.',why:'<b>Sie heißt</b> Angela <b>und sie singt</b>.'});
+
+/* ---------- Meine Familie (1er oct.) ---------- */
+S('meine.bruder','meine','mcq',{ask:'Comment dit-on en allemand… ?',big:'J\'ai un frère.',opts:['Ich habe einen Bruder.','Ich habe ein Bruder.','Ich habe eine Bruder.','Ich bin einen Bruder.'],answer:'Ich habe einen Bruder.',optLang:'de',say:'Ich habe einen Bruder.',why:'Après « ich habe », der Bruder devient <b>einen</b> Bruder (masculin).'});
+S('meine.schwester','meine','mcq',{ask:'Comment dit-on en allemand… ?',big:'J\'ai une sœur.',opts:['Ich habe eine Schwester.','Ich habe einen Schwester.','Ich habe ein Schwester.','Ich bin eine Schwester.'],answer:'Ich habe eine Schwester.',optLang:'de',say:'Ich habe eine Schwester.',why:'die Schwester est féminin : ich habe <b>eine</b> Schwester.'});
+S('meine.einzelkind','meine','mcq',{ask:'Comment dit-on en allemand… ?',big:'Je suis enfant unique.',opts:['Ich bin ein Einzelkind.','Ich habe ein Einzelkind.','Ich bin ein Bruder.','Ich bin eine Schwester.'],answer:'Ich bin ein Einzelkind.',optLang:'de',say:'Ich bin ein Einzelkind.',why:'<b>Ich bin ein Einzelkind</b> = je suis enfant unique.',tip:'Einzel = seul, Kind = enfant : un « enfant tout seul ».'});
+S('meine.geschwister','meine','mcq',{ask:'Que veut dire… ?',big:'die Geschwister',bigLang:'de',opts:['les frères et sœurs','les grands-parents','les parents','les cousins'],answer:'les frères et sœurs',say:'die Geschwister',why:'<b>die Geschwister</b> = les frères et sœurs, tous ensemble.'});
+S('meine.pl.bruder','meine','mcq',{ask:'Quel est le pluriel de « der Bruder » ?',big:'der Bruder → die …',bigLang:'de',opts:['Brüder','Bruders','Bruder','Brudern'],answer:'Brüder',optLang:'de',say:'die Brüder',why:'Un frère : der Bruder. Des frères : die Br<b>ü</b>der (on ajoute un tréma).'});
+S('meine.pl.schwester','meine','mcq',{ask:'Quel est le pluriel de « die Schwester » ?',big:'die Schwester → die …',bigLang:'de',opts:['Schwestern','Schwesters','Schwester','Schwestere'],answer:'Schwestern',optLang:'de',say:'die Schwestern',why:'Une sœur : die Schwester. Des sœurs : die Schwester<b>n</b>.'});
+S('meine.kein.bruder','meine','mcq',{ask:'Comment dit-on en allemand… ?',big:'Je n\'ai pas de frère.',opts:['Ich habe keinen Bruder.','Ich habe keine Bruder.','Ich habe nicht Bruder.','Ich habe kein Bruder.'],answer:'Ich habe keinen Bruder.',optLang:'de',say:'Ich habe keinen Bruder.',why:'« pas de » = kein. Comme einen Bruder → <b>keinen</b> Bruder.'});
+S('meine.kein.schwester','meine','mcq',{ask:'Comment dit-on en allemand… ?',big:'Je n\'ai pas de sœur.',opts:['Ich habe keine Schwester.','Ich habe keinen Schwester.','Ich habe nicht Schwester.','Ich habe kein Schwester.'],answer:'Ich habe keine Schwester.',optLang:'de',say:'Ich habe keine Schwester.',why:'Comme eine Schwester → <b>keine</b> Schwester.'});
+S('meine.kein.gesch','meine','mcq',{ask:'Comment dit-on en allemand… ?',big:'Je n\'ai pas de frères et sœurs.',opts:['Ich habe keine Geschwister.','Ich habe keinen Geschwister.','Ich bin keine Geschwister.','Ich habe nicht Geschwister.'],answer:'Ich habe keine Geschwister.',optLang:'de',say:'Ich habe keine Geschwister.',why:'Au pluriel : <b>keine</b> Geschwister.'});
+S('meine.mein','meine','mcq',{ask:'Comment dit-on en allemand… ?',big:'mon père',opts:['mein Vater','meine Vater','meinen Vater','mein Mutter'],answer:'mein Vater',optLang:'de',say:'mein Vater',why:'der Vater (masculin) → <b>mein</b> Vater.'});
+S('meine.meine','meine','mcq',{ask:'Comment dit-on en allemand… ?',big:'ma mère',opts:['meine Mutter','mein Mutter','meinen Mutter','meine Vater'],answer:'meine Mutter',optLang:'de',say:'meine Mutter',why:'die Mutter (féminin) → <b>meine</b> Mutter, avec un e comme eine.'});
+S('meine.mein.bruder','meine','mcq',{ask:'Comment dit-on en allemand… ?',big:'mon frère',opts:['mein Bruder','meine Bruder','meinen Bruder','mein Schwester'],answer:'mein Bruder',optLang:'de',say:'mein Bruder',why:'der Bruder → <b>mein</b> Bruder.'});
+S('meine.meine.schwester','meine','mcq',{ask:'Comment dit-on en allemand… ?',big:'ma sœur',opts:['meine Schwester','mein Schwester','meinen Schwester','meine Bruder'],answer:'meine Schwester',optLang:'de',say:'meine Schwester',why:'die Schwester → <b>meine</b> Schwester.'});
+S('meine.count','meine','mcq',{ask:'Combien de frères et sœurs ?',big:'Ich habe zwei Brüder und zwei Schwestern.',bigLang:'de',opts:['2','3','4','5'],noShuffle:true,answer:'4',optLang:'num',say:'Ich habe zwei Brüder und zwei Schwestern.',why:'2 frères + 2 sœurs = <b>4</b> Geschwister.'});
+S('meine.fuenf','meine','mcq',{ask:'Que veut dire… ?',big:'Ich habe fünf Geschwister.',bigLang:'de',opts:['J\'ai cinq frères et sœurs.','J\'ai cinq frères.','J\'ai cinq ans.','J\'ai cinq enfants.'],answer:'J\'ai cinq frères et sœurs.',say:'Ich habe fünf Geschwister.',why:'<b>Geschwister</b> = frères et sœurs (garçons et filles).'});
+S('meine.rule.einen','meine','mcq',{ask:'Complète :',big:'Ich habe ___ Bruder.',bigLang:'de',opts:['einen','eine','ein','einer'],answer:'einen',optLang:'de',say:'Ich habe einen Bruder.',why:'der Bruder → ich habe <b>einen</b> Bruder.'});
+S('meine.rule.keine','meine','mcq',{ask:'Complète :',big:'Ich habe ___ Schwester.',bigLang:'de',opts:['keine','keinen','kein','nicht'],answer:'keine',optLang:'de',say:'Ich habe keine Schwester.',why:'die Schwester (féminin) → <b>keine</b> Schwester.'});
+S('meine.tf.einzel','meine','tf',{big:'« Ich bin ein Einzelkind » veut dire « je suis enfant unique ».',answer:true,say:'Ich bin ein Einzelkind.',why:'Vrai !'});
+S('meine.tf.meine','meine','tf',{big:'« meine Mutter » veut dire « ma mère ».',answer:true,say:'meine Mutter',why:'Vrai : mein Vater, meine Mutter.'});
+S('meine.tf.einen','meine','tf',{big:'On dit « Ich habe einen Schwester ».',answer:false,say:'Ich habe eine Schwester.',why:'Faux : die Schwester est féminin, donc <b>eine</b> Schwester.'});
+S('meine.tf.gesch','meine','tf',{big:'« Geschwister » veut dire « cousins ».',answer:false,say:'die Geschwister',why:'Faux : Geschwister = <b>frères et sœurs</b>.'});
+S('meine.b.zwei','meine','build',{ask:'Construis la phrase en allemand :',big:'J\'ai deux frères et une sœur.',tiles:['Ich','habe','zwei','Brüder','und','eine','Schwester','einen','Bruder'],target:['Ich','habe','zwei','Brüder','und','eine','Schwester'],say:'Ich habe zwei Brüder und eine Schwester.',why:'<b>Ich habe zwei Brüder und eine Schwester.</b>'});
+S('meine.b.kein','meine','build',{ask:'Construis la phrase en allemand :',big:'Je n\'ai pas de frère.',tiles:['Ich','habe','keinen','Bruder','keine','bin'],target:['Ich','habe','keinen','Bruder'],say:'Ich habe keinen Bruder.',why:'<b>Ich habe keinen Bruder.</b>'});
+S('meine.t.mein','meine','type',{ask:'Écris en allemand :',big:'mon père',accept:['mein Vater'],say:'mein Vater',why:'der Vater → <b>mein Vater</b>.'});
+S('meine.t.brueder','meine','type',{ask:'Écris le pluriel :',big:'der Bruder → die ___',accept:['Brüder'],say:'die Brüder',why:'die <b>Brüder</b>, avec un ü.'});
+
+/* ---------- Wie geht's ? : la version entre copains (22 sept.) ---------- */
+S('wg.du.ask','wg','mcq',{ask:'Tu demandes à un copain comment il va. Tu dis…',big:'🧒 ?',bigEmoji:true,opts:['Wie geht es dir?','Wie geht es Ihnen?','Wie heißt du?','Wo wohnst du?'],answer:'Wie geht es dir?',optLang:'de',say:'Wie geht es dir?',why:'À un copain (on le tutoie) : <b>Wie geht es dir?</b> À un adulte (on le vouvoie) : Wie geht es Ihnen?'});
+S('wg.du.rep','wg','mcq',{ask:'Ton copain te dit « Wie geht\'s? ». Tu réponds :',big:'😊',bigEmoji:true,opts:['Danke, gut!','Ich heiße Tom.','Ich bin zwölf.','Woher kommst du?'],answer:'Danke, gut!',optLang:'de',say:'Danke, gut!',why:'<b>Danke, gut!</b> = Bien, merci !'});
+S('wg.du.unddir','wg','mcq',{ask:'Que veut dire… ?',big:'Und dir?',bigLang:'de',opts:['Et toi ?','Merci !','Pourquoi ?','Salut !'],answer:'Et toi ?',say:'Mir geht es gut. Und dir?',why:'<b>Und dir?</b> = Et toi ? On le dit après avoir répondu : Mir geht es gut. Und dir?'});
+S('wg.du.prima','wg','mcq',{ask:'Que veut dire… ?',big:'Danke, prima!',bigLang:'de',opts:['Merci, super !','Merci, pas bien.','Bonjour, ça va ?','Pourquoi ?'],answer:'Merci, super !',say:'Danke, prima!',why:'<b>prima</b> = super, génial.'});
+S('wg.du.danke','wg','mcq',{ask:'Que veut dire… ?',big:'Danke',bigLang:'de',opts:['Merci','Salut','Pourquoi','Bien'],answer:'Merci',say:'Danke',why:'<b>Danke</b> = merci.'});
+S('wg.du.hallo','wg','mcq',{ask:'Que veut dire… ?',big:'Hallo!',bigLang:'de',opts:['Salut ! / Bonjour !','Au revoir !','Merci !','Pardon !'],answer:'Salut ! / Bonjour !',say:'Hallo!',why:'<b>Hallo!</b> = Salut ! Bonjour !'});
+S('wg.du.tf1','wg','tf',{big:'« Wie geht es dir? » se dit à un copain (on le tutoie).',answer:true,say:'Wie geht es dir?',why:'Vrai : dir = toi. À un adulte, on dit Wie geht es Ihnen?'});
+S('wg.du.tf2','wg','tf',{big:'« Wie geht\'s? » est la version courte de « Wie geht es dir? ».',answer:true,say:'Wie geht\'s?',why:'Vrai : geht\'s = geht es. C\'est la façon rapide de dire « ça va ? ».'});
+S('wg.du.tf3','wg','tf',{big:'À ta prof, tu dis « Wie geht es dir? ».',answer:false,say:'Wie geht es Ihnen?',why:'Faux : à un adulte, on vouvoie : <b>Wie geht es Ihnen?</b>'});
+S('wg.du.b','wg','build',{ask:'Construis la question (à un copain) :',big:'Salut, comment ça va ?',tiles:['Hallo,','wie','geht','es','dir?','Ihnen?','heißt'],target:['Hallo,','wie','geht','es','dir?'],say:'Hallo, wie geht es dir?',why:'<b>Hallo, wie geht es dir?</b> (dir, parce que c\'est un copain).'});
+S('wg.du.t','wg','type',{ask:'Écris en allemand :',big:'Merci, bien.',accept:['Danke, gut.'],say:'Danke, gut.',why:'<b>Danke, gut.</b>'});
+
+/* ---------- Prononciation : quelques mots en plus ---------- */
+S('pr.ae','pr','mcq',{ask:'Dans « er fährt », le ä se prononce…',big:'fährt',bigLang:'de',opts:['è, comme dans « fête »','a, comme dans « papa »','u, comme dans « tu »','eu, comme dans « feu »'],answer:'è, comme dans « fête »',say:'er fährt',why:'<b>ä</b> se dit « è » : fährt = « fèrt ».'});
+S('pr.oe','pr','mcq',{ask:'Dans « hören », le ö se prononce…',big:'hören',bigLang:'de',opts:['eu','o','é','ou'],answer:'eu',say:'hören',why:'<b>ö</b> se dit « eu » : hören = « heu-renn ».'});
+S('pr.wien','pr','mcq',{ask:'Comment se prononce « Wien » (Vienne) ?',big:'Wien',bigLang:'de',opts:['« vinne »','« ouienne »','« wienne »','« fine »'],answer:'« vinne »',say:'Wien',why:'w = v et ie = i : <b>Wien</b> = « vinne ».'});
+S('pr.zuerich','pr','mcq',{ask:'Comment se prononce « Zürich » ?',big:'Zürich',bigLang:'de',opts:['« tsu-rich »','« zu-rik »','« su-ri »','« dzou-rich »'],answer:'« tsu-rich »',say:'Zürich',why:'z = ts, ü = u, et le ch après i est doux : « tsu-rich ».'});
+S('pr.heisse','pr','mcq',{ask:'Comment se prononce « ich heiße » ?',big:'ich heiße',bigLang:'de',opts:['« ich haï-sseu »','« ich è-sse »','« ich hé-ize »','« ich i-sse »'],answer:'« ich haï-sseu »',say:'ich heiße',why:'ei = aï, ß = ss, et on entend le h : « haï-sseu ».'});
+
+/* ---------- Memory : nouvelles paires ---------- */
+const PAIRS2=[['schwimmen','nager'],['tanzen','danser'],['lesen','lire'],['malen','dessiner'],['reiten','faire du cheval'],['am Montag','le lundi'],['am Dienstag','le mardi'],['am Mittwoch','le mercredi'],['am Donnerstag','le jeudi'],['rot','rouge'],['blau','bleu'],['grün','vert'],['gelb','jaune'],['schwarz','noir'],['weiß','blanc'],['Deutschland','l\'Allemagne'],['Österreich','l\'Autriche'],['die Schweiz','la Suisse'],['Frankreich','la France'],['die Geschwister','frères et sœurs'],['das Einzelkind','enfant unique'],['Wo?','Où ?'],['Woher?','D\'où ?'],['Wer?','Qui ?'],['die Geige','le violon'],['das Klavier','le piano'],['Danke!','Merci !']];
+
 function kindOf(id){
   if(STATIC[id])return STATIC[id].kind;
   const k=id.split('.').slice(0,2).join('.');
-  return {'fam.type':'type','num.type':'type','num.dig':'type','num.build':'build','num.listen':'listen','pr.listen':'listen'}[k]||'mcq';
+  return {'fam.type':'type','num.type':'type','num.dig':'type','num.build':'build','num.listen':'listen','pr.listen':'listen','konj.t':'type'}[k]||'mcq';
 }
 function getQ(id){
   let q;
@@ -868,10 +1106,10 @@ function renderHome(){
       <button class="btn full" data-act="ghosts">Chasser les fantômes <span class="emo">👻</span></button></section>`
     :`<section class="panel empty"><h2>Aucun fantôme en vue <span class="emo">🏰</span></h2><p>Lance une mission : chaque erreur deviendra un fantôme à chasser ici.</p></section>`}
   </div>
-  <h2 class="h2">Missions</h2>
-  <div class="worlds">${Object.keys(WORLDS).map(worldTile).join('')}</div>
-  <h2 class="h2">Modes bonus</h2>
+  ${THEMES.map(t=>`<h2 class="h2">${nb(esc(t.title))}</h2><p class="h2sub">${esc(t.sub)}</p><div class="worlds">${t.worlds.map(worldTile).join('')}</div>`).join('')}
+  <h2 class="h2">Pour tout réviser</h2>
   <div class="worlds">
+    ${worldTile('pr')}
     <button class="wt" data-act="blitz" style="--c:var(--t-blitz)"><span class="band"><span class="emo">⚡</span></span>
       <span class="body"><span class="h">Blitz 60 s</span><span class="d">Un max de bonnes réponses en une minute.</span><span class="best">Record : ${state.best.blitz}</span></span></button>
     <button class="wt" data-act="memory" style="--c:var(--t-mem)"><span class="band"><span class="emo">🃏</span></span>
@@ -1073,7 +1311,7 @@ function pickWorld(w,n,exclude){
   const ok=id=>!exclude.includes(id);
   if(w==='num'){
     const trap=shuffle([16,17,20,21,30,60,70,52,48,99,31,66,77,71,13,19]);
-    const rn=()=>{const r=Math.random();if(r<.2)return 13+rnd(7);if(r<.4)return(2+rnd(8))*10;return 21+rnd(79);};
+    const rn=()=>{const r=Math.random();if(r<.15)return 1+rnd(12);if(r<.3)return 13+rnd(7);if(r<.45)return(2+rnd(8))*10;return 21+rnd(79);};
     const comp=()=>{let x;do{x=21+rnd(79);}while(x%10===0);return x;};
     const st=shuffle(Object.keys(STATIC).filter(id=>STATIC[id].world==='num'));
     const ids=[`num.d2w.${trap[0]}`,`num.w2d.${rn()}`,`num.d2w.${rn()}`,`num.type.${trap[1]}`,`num.dig.${comp()}`,`num.build.${comp()}`,`num.w2d.${trap[2]}`,Voice.ok?`num.listen.${rn()}`:`num.d2w.${trap[3]}`,st[0],st[1],st[2]];
@@ -1085,7 +1323,21 @@ function pickWorld(w,n,exclude){
     const st=shuffle(Object.keys(STATIC).filter(id=>STATIC[id].world==='fam')).slice(0,4);
     return shuffle([...gen,...st].filter(ok)).slice(0,n);
   }
-  const capK={tf:2,build:2,type:2,listen:3},cnt={},out=[];
+  if(w==='hobby'){
+    const hs=shuffle(HOB.map(h=>h.k));
+    const gen=['emo','fr2de','de2fr','emo'].map((k,i)=>`hobby.${k}.${hs[i]}`).filter(ok);
+    return shuffle([...gen,...pickStatics(w,n-gen.length,exclude)]).slice(0,n);
+  }
+  if(w==='konj'){
+    const vs=shuffle(VERBS.map(v=>v.inf)),ps=['ich','du','er','sie'];
+    const gen=[0,1,2,3].map(i=>`konj.f.${vs[i]}.${ps[i]}`);gen.push(`konj.t.${vs[4]}.${pick(ps)}`);
+    return shuffle([...gen.filter(ok),...pickStatics(w,n-gen.length,exclude,{type:1})]).slice(0,n);
+  }
+  return pickStatics(w,n,exclude);
+}
+function pickStatics(w,n,exclude,caps){
+  const ok=id=>!exclude.includes(id);
+  const capK=Object.assign({tf:2,build:2,type:2,listen:3},caps||{}),cnt={},out=[];
   for(const id of shuffle(poolFor(w)).filter(ok)){const k=kindOf(id);if(capK[k]&&(cnt[k]||0)>=capK[k])continue;cnt[k]=(cnt[k]||0)+1;out.push(id);if(out.length>=n)break;}
   return out;
 }
@@ -1303,7 +1555,8 @@ function blitzPool(){
 function blitzNextId(){
   const r=Math.random();let id;
   if(r<.45)id=pick(blitzPool());
-  else if(r<.7)id=`fam.${pick(['fr2de','de2fr','gen'])}.${pick(FAM).k}`;
+  else if(r<.6)id=`fam.${pick(['fr2de','de2fr','gen'])}.${pick(FAM).k}`;
+  else if(r<.75)id=`hobby.${pick(['emo','fr2de','de2fr'])}.${pick(HOB).k}`;
   else{const n=pick([16,17,20,21,30,60,70,52,48,99,13+rnd(7),(2+rnd(8))*10,21+rnd(79),21+rnd(79)]);id=`num.${pick(['d2w','w2d'])}.${n}`;}
   if(run.recent.includes(id))return blitzNextId();
   run.recent.push(id);if(run.recent.length>10)run.recent.shift();
@@ -1353,7 +1606,7 @@ function blitzEnd(){
 }
 
 /* ---------- Memory ---------- */
-const PAIRS=[['der Vater','le père'],['die Mutter','la mère'],['die Eltern','les parents'],['der Sohn','le fils'],['die Tochter','la fille'],['der Bruder','le frère'],['die Schwester','la sœur'],['die Kinder','les enfants'],['der Großvater','le grand-père'],['die Großmutter','la grand-mère'],['die Großeltern','les grands-parents'],['krank','malade'],['müde','fatigué(e)'],['gestresst','stressé(e)'],['Warum?','Pourquoi ?'],['verliebt','amoureux'],['zwanzig','20'],['dreißig','30'],['sechzehn','16'],['siebzig','70'],['zweiundfünfzig','52'],['achtundvierzig','48']];
+const PAIRS=[['der Vater','le père'],['die Mutter','la mère'],['die Eltern','les parents'],['der Sohn','le fils'],['die Tochter','la fille'],['der Bruder','le frère'],['die Schwester','la sœur'],['die Kinder','les enfants'],['der Großvater','le grand-père'],['die Großmutter','la grand-mère'],['die Großeltern','les grands-parents'],['krank','malade'],['müde','fatigué(e)'],['gestresst','stressé(e)'],['Warum?','Pourquoi ?'],['verliebt','amoureux'],['zwanzig','20'],['dreißig','30'],['sechzehn','16'],['siebzig','70'],['zweiundfünfzig','52'],['achtundvierzig','48']].concat(PAIRS2);
 let mem=null;
 function startMemory(){
   const pairs=sample(PAIRS,6);
