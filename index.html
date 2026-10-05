@@ -38,6 +38,8 @@
   --t-hobby:#8BD346;
   --t-konj:#B4BAC6;
   --t-meine:#D9A3FF;
+  --t-plur:#4FC3F7;
+  --t-ctrl:#FFE14D;
   --f-display:'Lilita One','Arial Rounded MT Bold','Trebuchet MS',sans-serif;
   --f-body:'Nunito','Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
   --outline:3px 0 0 var(--ink),-3px 0 0 var(--ink),0 3px 0 var(--ink),0 -3px 0 var(--ink),2px 2px 0 var(--ink),-2px -2px 0 var(--ink),2px -2px 0 var(--ink),-2px 2px 0 var(--ink);
@@ -110,6 +112,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.05;
 .wt .body{padding:9px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
 .wt .h{font-family:var(--f-display);font-size:20px;line-height:1.05}
 .wt .d{font-size:13.5px;color:var(--muted);font-weight:700;line-height:1.3;flex:1}
+.neu{margin-right:auto;font-family:var(--f-display);font-size:15px;line-height:1;background:var(--red);color:#fff;border:2.5px solid var(--ink);border-radius:999px;padding:3px 9px 4px;transform:rotate(-6deg);box-shadow:2px 2px 0 var(--ink);letter-spacing:.5px}
 .gh{font-size:13px;font-weight:900;background:var(--ink);color:var(--paper);border-radius:999px;padding:2px 8px;white-space:nowrap}
 .stars{font-size:21px;letter-spacing:2px;line-height:1;white-space:nowrap}
 .stars .on{color:var(--gold);text-shadow:1.5px 0 0 var(--ink),-1.5px 0 0 var(--ink),0 1.5px 0 var(--ink),0 -1.5px 0 var(--ink)}
@@ -756,10 +759,106 @@ S('pr.heisse','pr','mcq',{ask:'Comment se prononce « ich heiße » ?',big:'ich 
 /* ---------- Memory : nouvelles paires ---------- */
 const PAIRS2=[['schwimmen','nager'],['tanzen','danser'],['lesen','lire'],['malen','dessiner'],['reiten','faire du cheval'],['am Montag','le lundi'],['am Dienstag','le mardi'],['am Mittwoch','le mercredi'],['am Donnerstag','le jeudi'],['rot','rouge'],['blau','bleu'],['grün','vert'],['gelb','jaune'],['schwarz','noir'],['weiß','blanc'],['Deutschland','l\'Allemagne'],['Österreich','l\'Autriche'],['die Schweiz','la Suisse'],['Frankreich','la France'],['die Geschwister','frères et sœurs'],['das Einzelkind','enfant unique'],['Wo?','Où ?'],['Woher?','D\'où ?'],['Wer?','Qui ?'],['die Geige','le violon'],['das Klavier','le piano'],['Danke!','Merci !']];
 
+/* =========================================================
+   Cours du lundi 5 octobre : le pluriel (wir, sie) et le verbe mögen
+   Uniquement des ajouts : les questions existantes ne changent pas.
+   ========================================================= */
+Object.assign(WORLDS,{
+  plur:{name:'Wir mögen Sport!',sub:'Le pluriel (wir, sie) et le verbe mögen',emo:'👯',col:'var(--t-plur)',neu:true},
+  ctrl:{name:'Les 2 derniers cours',sub:'Meine Familie + wir, sie, mögen : à bien apprendre',emo:'📌',col:'var(--t-ctrl)'}
+});
+THEMES[1].worlds.push('plur');
+/* une mission qui mélange plusieurs mondes : ses fantômes viennent de ces mondes */
+const WGROUP={ctrl:['meine','plur']};
+const inWorld=(gw,w)=>(WGROUP[w]||[w]).includes(gw);
+LW.push('mögen','wir');
+Object.assign(MEAN,{'mögen':'aimer',wir:'nous'});
+
+/* ---------- conjugaison au pluriel : comme l'infinitif ---------- */
+const PLV=[
+  {inf:'spielen',fr:'jouer',sg:['spiele','spielst','spielt'],obj:'Schach'},
+  {inf:'schwimmen',fr:'nager',sg:['schwimme','schwimmst','schwimmt']},
+  {inf:'wohnen',fr:'habiter',sg:['wohne','wohnst','wohnt'],obj:'in Berlin'},
+  {inf:'kommen',fr:'venir',sg:['komme','kommst','kommt'],obj:'aus Österreich'},
+  {inf:'tanzen',fr:'danser',sg:['tanze','tanzt','tanzt'],x:'tanzst'},
+  {inf:'singen',fr:'chanter',sg:['singe','singst','singt']},
+  {inf:'malen',fr:'dessiner',sg:['male','malst','malt']},
+  {inf:'hören',fr:'écouter',sg:['höre','hörst','hört'],obj:'Musik'},
+  {inf:'machen',fr:'faire',sg:['mache','machst','macht'],obj:'Fotos'},
+  {inf:'wandern',fr:'faire de la randonnée',sg:['wandere','wanderst','wandert']},
+  {inf:'lesen',fr:'lire',sg:['lese','liest','liest'],x:'lest',fort:true},
+  {inf:'fahren',fr:'aller, rouler',sg:['fahre','fährst','fährt'],obj:'Ski',fort:true}
+];
+const PLVK=Object.fromEntries(PLV.map(v=>[v.inf,v]));
+const PLP={wir:{p:'wir',fr:'nous'},siepl:{p:'sie (= ils, elles)',say:'sie',fr:'ils / elles'}};
+function plurForm(p){const [inf,pk]=String(p).split('.');const v=PLVK[inf],P=PLP[pk];if(!v||!P)return null;return{v,P,who:P.say||P.p};}
+function plurWhy(v,who){
+  return v.fort
+    ?`Au pluriel, pas de changement de voyelle : <b>${who} ${v.inf}</b> (comme l'infinitif). Le ${v.inf==='lesen'?'ie':'ä'} n'arrive qu'avec du et er.`
+    :`Au pluriel, le verbe ressemble à l'infinitif : <b>${who} ${v.inf}</b>.`;
+}
+GEN['plur.f']=p=>{const c=plurForm(p);if(!c)return null;const {v,P,who}=c;
+  const wrong=[...new Set([...v.sg,v.x].filter(Boolean))].filter(f=>f!==v.inf).slice(0,3);
+  return{kind:'mcq',ask:`Conjugue « ${v.inf} » (${v.fr}) au pluriel :`,big:`${P.p} ___${v.obj?' '+v.obj:''}`,bigLang:'de',opts:[v.inf,...wrong],answer:v.inf,optLang:'de',
+    say:`${who} ${v.inf}${v.obj?' '+v.obj:''}`,why:plurWhy(v,who)};};
+GEN['plur.t']=p=>{const c=plurForm(p);if(!c)return null;const {v,P,who}=c;
+  return{kind:'type',ask:'Écris le verbe conjugué :',big:`${P.p} ___ (${v.inf})`,accept:[v.inf],say:`${who} ${v.inf}`,why:plurWhy(v,who)};};
+
+/* ---------- wir et sie ---------- */
+const QUI=['Ils ou elles (plusieurs personnes)','Elle (une seule fille)','Nous','Toi'];
+S('plur.pron.wir','plur','mcq',{ask:'Comment dit-on en allemand… ?',big:'nous',opts:['wir','sie','ich','er'],answer:'wir',optLang:'de',say:'wir',why:'<b>wir</b> = nous. Wir spielen Schach = nous jouons aux échecs.',tip:'w se prononce « v » : wir = « vir ».'});
+S('plur.pron.sie','plur','mcq',{ask:'Comment dit-on en allemand… ?',big:'ils / elles',opts:['sie','wir','er','du'],answer:'sie',optLang:'de',say:'sie',why:'<b>sie</b> = ils ou elles. Sie spielen Schach = ils jouent aux échecs.',tip:'sie veut aussi dire « elle » : c\'est le verbe qui dit s\'il y a une personne (sie spielt) ou plusieurs (sie spielen).'});
+S('plur.qui.pl','plur','mcq',{ask:'Qui joue aux échecs ?',big:'Sie spielen Schach.',bigLang:'de',opts:QUI,noShuffle:true,answer:QUI[0],say:'Sie spielen Schach.',why:'Le verbe finit par <b>-en</b> (spiel<b>en</b>) : c\'est le pluriel, donc <b>ils / elles</b>.',tip:'Une seule fille ? On dirait « sie spiel<b>t</b> ».'});
+S('plur.qui.sg','plur','mcq',{ask:'Qui joue aux échecs ?',big:'Sie spielt Schach.',bigLang:'de',opts:QUI,noShuffle:true,answer:QUI[1],say:'Sie spielt Schach.',why:'Le verbe finit par <b>-t</b> (spiel<b>t</b>) : c\'est le singulier, donc <b>elle</b>. Au pluriel : sie spiel<b>en</b>.'});
+S('plur.fr.schach','plur','mcq',{ask:'Comment dit-on en allemand… ?',big:'Nous jouons aux échecs.',opts:['Wir spielen Schach.','Wir spielt Schach.','Sie spielen Schach.','Wir spiele Schach.'],answer:'Wir spielen Schach.',optLang:'de',say:'Wir spielen Schach.',why:'nous = <b>wir</b>, et au pluriel le verbe ressemble à l\'infinitif : <b>wir spielen</b> Schach.'});
+S('plur.fr.schwimmen','plur','mcq',{ask:'Comment dit-on en allemand… ?',big:'Ils nagent.',opts:['Sie schwimmen.','Sie schwimmt.','Wir schwimmen.','Er schwimmt.'],answer:'Sie schwimmen.',optLang:'de',say:'Sie schwimmen.',why:'ils = <b>sie</b>, et le verbe comme l\'infinitif : <b>sie schwimmen</b>. (Sie schwimmt = elle nage.)'});
+S('plur.de.schwimmen','plur','mcq',{ask:'Que veut dire… ?',big:'Wir schwimmen.',bigLang:'de',opts:['Nous nageons.','Ils nagent.','Je nage.','Nous dansons.'],answer:'Nous nageons.',say:'Wir schwimmen.',why:'<b>wir</b> = nous, <b>schwimmen</b> = nager.'});
+
+/* ---------- sein : l'exception ---------- */
+S('plur.sein.wir','plur','mcq',{ask:'Conjugue « sein » (être) :',big:'wir ___',bigLang:'de',opts:['sind','sein','ist','bin'],answer:'sind',optLang:'de',say:'wir sind',why:'Piège : sein ne ressemble pas à l\'infinitif ! <b>wir sind</b> = nous sommes.'});
+S('plur.sein.sie','plur','mcq',{ask:'Conjugue « sein » (être) :',big:'sie ___ (= ils, elles)',bigLang:'de',opts:['sind','ist','sein','bist'],answer:'sind',optLang:'de',say:'sie sind',why:'<b>sie sind</b> = ils / elles sont. (Une seule fille : sie ist.)'});
+S('plur.sein.all','plur','mcq',{ask:'Quelle est la bonne conjugaison de « sein » (être) ?',big:'sein',bigLang:'de',opts:['ich bin, du bist, er ist, wir sind, sie sind','ich bin, du bist, er ist, wir sein, sie sein','ich bin, du bist, er bist, wir sind, sie sind','ich bist, du bin, er ist, wir sind, sie sind'],answer:'ich bin, du bist, er ist, wir sind, sie sind',optLang:'de',say:'ich bin, du bist, er ist, wir sind, sie sind',why:'<b>ich bin, du bist, er ist, wir sind, sie sind</b> : verbe irrégulier, à savoir par cœur.'});
+
+/* ---------- mögen : une conjugaison particulière ---------- */
+S('plur.mag.ich','plur','mcq',{ask:'Conjugue « mögen » (aimer) :',big:'ich ___',bigLang:'de',opts:['mag','möge','mögen','magst'],answer:'mag',optLang:'de',say:'ich mag',why:'mögen a une conjugaison particulière : <b>ich mag</b>, du magst, er mag.'});
+S('plur.mag.du','plur','mcq',{ask:'Conjugue « mögen » (aimer) :',big:'du ___',bigLang:'de',opts:['magst','mögst','mag','mögen'],answer:'magst',optLang:'de',say:'du magst',why:'du → <b>magst</b> : on garde le a de « mag » et on ajoute -st.'});
+S('plur.mag.er','plur','mcq',{ask:'Conjugue « mögen » (aimer) :',big:'er ___',bigLang:'de',opts:['mag','magt','mögt','mögen'],answer:'mag',optLang:'de',say:'er mag',why:'⚠️ Piège : <b>er mag</b>, sans t ! Comme ich mag.'});
+S('plur.mag.wir','plur','mcq',{ask:'Conjugue « mögen » (aimer) :',big:'wir ___',bigLang:'de',opts:['mögen','mag','magen','mögt'],answer:'mögen',optLang:'de',say:'wir mögen',why:'Au pluriel, on revient à l\'infinitif : <b>wir mögen</b>, sie mögen.'});
+S('plur.mag.sie','plur','mcq',{ask:'Conjugue « mögen » (aimer) :',big:'sie ___ (= ils, elles)',bigLang:'de',opts:['mögen','mag','magst','mögt'],answer:'mögen',optLang:'de',say:'sie mögen',why:'<b>sie mögen</b> = ils / elles aiment. (Une seule fille : sie mag.)'});
+S('plur.mag.mean','plur','mcq',{ask:'Que veut dire… ?',big:'mögen',bigLang:'de',opts:['aimer','manger','pouvoir','bouger'],answer:'aimer',say:'mögen',why:'<b>mögen</b> = aimer. Wir mögen Sport = nous aimons le sport.',tip:'ö se prononce « eu » : meu-guen.'});
+S('plur.mag.sport','plur','mcq',{ask:'Que veut dire… ?',big:'Wir mögen Sport.',bigLang:'de',opts:['Nous aimons le sport.','Ils aiment le sport.','Nous faisons du sport.','J\'aime le sport.'],answer:'Nous aimons le sport.',say:'Wir mögen Sport.',why:'<b>wir mögen</b> = nous aimons.'});
+S('plur.mag.siesport','plur','mcq',{ask:'Que veut dire… ?',big:'Sie mögen Sport.',bigLang:'de',opts:['Ils / elles aiment le sport.','Elle aime le sport.','Nous aimons le sport.','Tu aimes le sport.'],answer:'Ils / elles aiment le sport.',say:'Sie mögen Sport.',why:'mög<b>en</b> → pluriel : <b>ils / elles</b> aiment. Une seule fille : sie <b>mag</b> Sport.'});
+S('plur.mag.ichsport','plur','mcq',{ask:'Comment dit-on en allemand… ?',big:'J\'aime le sport.',opts:['Ich mag Sport.','Ich möge Sport.','Ich mögen Sport.','Ich magst Sport.'],answer:'Ich mag Sport.',optLang:'de',say:'Ich mag Sport.',why:'<b>Ich mag</b> Sport : mögen a une conjugaison particulière.'});
+
+/* ---------- avec la famille (les deux derniers cours) ---------- */
+S('plur.fam.spielen','plur','mcq',{ask:'Quel verbe ?',big:'Mein Bruder und meine Schwester ___ Schach.',bigLang:'de',opts:['spielen','spielt','spielst','spiele'],answer:'spielen',optLang:'de',say:'Mein Bruder und meine Schwester spielen Schach.',why:'Deux personnes = pluriel (= sie) → <b>spielen</b>. Mon frère et ma sœur jouent aux échecs.'});
+S('plur.fam.sind','plur','mcq',{ask:'Quel verbe ?',big:'Meine Eltern ___ sportlich.',bigLang:'de',opts:['sind','ist','sein','bin'],answer:'sind',optLang:'de',say:'Meine Eltern sind sportlich.',why:'die Eltern = pluriel (= sie) → <b>sind</b>. Mes parents sont sportifs.'});
+S('plur.fam.moegen','plur','mcq',{ask:'Quel verbe ?',big:'Meine Geschwister ___ Musik.',bigLang:'de',opts:['mögen','mag','magst','möge'],answer:'mögen',optLang:'de',say:'Meine Geschwister mögen Musik.',why:'die Geschwister = pluriel → <b>mögen</b>. Mes frères et sœurs aiment la musique.'});
+
+/* ---------- vrai ou faux ---------- */
+S('plur.tf.inf','plur','tf',{big:'Au pluriel (wir, sie), le verbe ressemble à l\'infinitif : wir spielen.',answer:true,say:'wir spielen',why:'Vrai : wir spielen, sie spielen, wir schwimmen… Facile !'});
+S('plur.tf.sein','plur','tf',{big:'« wir sein » est correct.',answer:false,say:'wir sind',why:'Faux : sein est l\'exception. On dit <b>wir sind</b>, sie sind.'});
+S('plur.tf.magt','plur','tf',{big:'« er magt Sport » est correct.',answer:false,say:'er mag Sport',why:'Faux : <b>er mag</b> Sport, sans t !'});
+S('plur.tf.sie','plur','tf',{big:'« sie spielen » peut vouloir dire « ils jouent ».',answer:true,say:'sie spielen',why:'Vrai : sie spielen = ils / elles jouent. (sie spielt = elle joue.)'});
+
+/* ---------- construire et écrire ---------- */
+S('plur.b.schach','plur','build',{ask:'Construis la phrase en allemand :',big:'Ils jouent aux échecs.',tiles:['Sie','spielen','Schach','spielt','Wir'],target:['Sie','spielen','Schach'],say:'Sie spielen Schach.',why:'<b>Sie spielen Schach.</b>'});
+S('plur.b.sport','plur','build',{ask:'Construis la phrase en allemand :',big:'Nous aimons le sport.',tiles:['Wir','mögen','Sport','mag','Sie'],target:['Wir','mögen','Sport'],say:'Wir mögen Sport.',why:'<b>Wir mögen Sport.</b>'});
+S('plur.b.sind','plur','build',{ask:'Construis la phrase en allemand :',big:'Nous sommes sportifs.',tiles:['Wir','sind','sportlich','sein','ist'],target:['Wir','sind','sportlich'],say:'Wir sind sportlich.',why:'<b>Wir sind sportlich.</b> sein → wir sind.'});
+S('plur.t.sind','plur','type',{ask:'Écris le verbe :',big:'nous sommes : wir ___',accept:['sind'],say:'wir sind',why:'sein → <b>wir sind</b>.'});
+S('plur.t.mag','plur','type',{ask:'Écris le verbe :',big:'il aime : er ___',accept:['mag'],say:'er mag',why:'mögen → <b>er mag</b> (sans t).'});
+S('plur.t.moegen','plur','type',{ask:'Écris le verbe :',big:'ils aiment : sie ___',accept:['mögen'],say:'sie mögen',why:'Au pluriel : <b>sie mögen</b>.'});
+
+/* ---------- prononciation ---------- */
+S('pr.moegen','pr','mcq',{ask:'Comment se prononce « wir mögen » ?',big:'wir mögen',bigLang:'de',opts:['« vir meu-guen »','« ouir mo-jen »','« vir mo-gaine »','« wir mu-gen »'],answer:'« vir meu-guen »',say:'wir mögen',why:'w = v, ö = eu et le g reste dur : <b>wir mögen</b> = « vir meu-guen ».'});
+
+/* ---------- Memory : nouvelles paires ---------- */
+const PAIRS3=[['wir','nous'],['mögen','aimer'],['ich mag','j\'aime'],['wir sind','nous sommes'],['sie sind','ils / elles sont'],['sie spielen','ils / elles jouent'],['wir schwimmen','nous nageons']];
+
 function kindOf(id){
   if(STATIC[id])return STATIC[id].kind;
   const k=id.split('.').slice(0,2).join('.');
-  return {'fam.type':'type','num.type':'type','num.dig':'type','num.build':'build','num.listen':'listen','pr.listen':'listen','konj.t':'type'}[k]||'mcq';
+  return {'fam.type':'type','num.type':'type','num.dig':'type','num.build':'build','num.listen':'listen','pr.listen':'listen','konj.t':'type','plur.t':'type'}[k]||'mcq';
 }
 function getQ(id){
   let q;
@@ -1073,9 +1172,9 @@ function renderHome(){
   const pct=nx?Math.round(100*(state.xp-r.xp)/(nx.xp-r.xp)):100;
   const gh=ghostIds();
   const acc=state.stats.answered?Math.round(100*state.stats.correct/state.stats.answered):0;
-  const worldTile=w=>{const W=WORLDS[w];const g=gh.filter(id=>state.ghosts[id].world===w).length;
+  const worldTile=w=>{const W=WORLDS[w];const g=gh.filter(id=>inWorld(state.ghosts[id].world,w)).length;
     return `<button class="wt" data-act="world" data-w="${w}" style="--c:${W.col}">
-      <span class="band"><span class="emo">${W.emo}</span>${g?`<span class="gh">👻 ${g}</span>`:''}</span>
+      <span class="band"><span class="emo">${W.emo}</span>${W.neu?'<span class="neu">NEU</span>':''}${g?`<span class="gh">👻 ${g}</span>`:''}</span>
       <span class="body"><span class="h">${nb(esc(W.name))}</span><span class="d">${nb(esc(W.sub))}</span>${starsHtml(state.stars[w]||0)}</span></button>`;};
   SCR.home.innerHTML=`
   <header class="logo">
@@ -1109,6 +1208,7 @@ function renderHome(){
   ${THEMES.map(t=>`<h2 class="h2">${nb(esc(t.title))}</h2><p class="h2sub">${esc(t.sub)}</p><div class="worlds">${t.worlds.map(worldTile).join('')}</div>`).join('')}
   <h2 class="h2">Pour tout réviser</h2>
   <div class="worlds">
+    ${worldTile('ctrl')}
     ${worldTile('pr')}
     <button class="wt" data-act="blitz" style="--c:var(--t-blitz)"><span class="band"><span class="emo">⚡</span></span>
       <span class="body"><span class="h">Blitz 60 s</span><span class="d">Un max de bonnes réponses en une minute.</span><span class="best">Record : ${state.best.blitz}</span></span></button>
@@ -1331,7 +1431,18 @@ function pickWorld(w,n,exclude){
   if(w==='konj'){
     const vs=shuffle(VERBS.map(v=>v.inf)),ps=['ich','du','er','sie'];
     const gen=[0,1,2,3].map(i=>`konj.f.${vs[i]}.${ps[i]}`);gen.push(`konj.t.${vs[4]}.${pick(ps)}`);
-    return shuffle([...gen.filter(ok),...pickStatics(w,n-gen.length,exclude,{type:1})]).slice(0,n);
+    const g2=gen.filter(ok);
+    return shuffle([...g2,...pickStatics(w,n-g2.length,exclude,{type:1})]).slice(0,n);
+  }
+  if(w==='plur'){
+    const vs=shuffle(PLV.map(v=>v.inf)),ps=shuffle(['wir','siepl','wir','siepl']);
+    const gen=[0,1,2].map(i=>`plur.f.${vs[i]}.${ps[i]}`);gen.push(`plur.t.${vs[3]}.${ps[3]}`);
+    const g2=gen.filter(ok);
+    return shuffle([...g2,...pickStatics(w,n-g2.length,exclude,{type:1})]).slice(0,n);
+  }
+  if(w==='ctrl'){
+    const a=Math.ceil(n/2),fam=pickWorld('meine',a,exclude);
+    return shuffle([...fam,...pickWorld('plur',n-fam.length,[...exclude,...fam])]).slice(0,n);
   }
   return pickStatics(w,n,exclude);
 }
@@ -1353,7 +1464,7 @@ function newRun(mode,world,items){
   return{mode,world,queue:items,i:0,first:{},wrongList:[],combo:0,maxCombo:0,xp:0,newGhosts:0,slain:0,reasked:new Set(),rank0:rankIdx(state.xp),answered:false,quit:false};
 }
 function startWorld(w){
-  const g=ghostIds().filter(id=>state.ghosts[id].world===w).slice(0,3);
+  const g=ghostIds().filter(id=>inWorld(state.ghosts[id].world,w)).slice(0,3);
   const ids=shuffle([...g,...pickWorld(w,10-g.length,g)]);
   run=newRun('world',w,toItems(ids));
   show('play');renderQ();
@@ -1557,6 +1668,7 @@ function blitzNextId(){
   if(r<.45)id=pick(blitzPool());
   else if(r<.6)id=`fam.${pick(['fr2de','de2fr','gen'])}.${pick(FAM).k}`;
   else if(r<.75)id=`hobby.${pick(['emo','fr2de','de2fr'])}.${pick(HOB).k}`;
+  else if(r<.83)id=`plur.f.${pick(PLV).inf}.${pick(['wir','siepl'])}`;
   else{const n=pick([16,17,20,21,30,60,70,52,48,99,13+rnd(7),(2+rnd(8))*10,21+rnd(79),21+rnd(79)]);id=`num.${pick(['d2w','w2d'])}.${n}`;}
   if(run.recent.includes(id))return blitzNextId();
   run.recent.push(id);if(run.recent.length>10)run.recent.shift();
@@ -1606,7 +1718,7 @@ function blitzEnd(){
 }
 
 /* ---------- Memory ---------- */
-const PAIRS=[['der Vater','le père'],['die Mutter','la mère'],['die Eltern','les parents'],['der Sohn','le fils'],['die Tochter','la fille'],['der Bruder','le frère'],['die Schwester','la sœur'],['die Kinder','les enfants'],['der Großvater','le grand-père'],['die Großmutter','la grand-mère'],['die Großeltern','les grands-parents'],['krank','malade'],['müde','fatigué(e)'],['gestresst','stressé(e)'],['Warum?','Pourquoi ?'],['verliebt','amoureux'],['zwanzig','20'],['dreißig','30'],['sechzehn','16'],['siebzig','70'],['zweiundfünfzig','52'],['achtundvierzig','48']].concat(PAIRS2);
+const PAIRS=[['der Vater','le père'],['die Mutter','la mère'],['die Eltern','les parents'],['der Sohn','le fils'],['die Tochter','la fille'],['der Bruder','le frère'],['die Schwester','la sœur'],['die Kinder','les enfants'],['der Großvater','le grand-père'],['die Großmutter','la grand-mère'],['die Großeltern','les grands-parents'],['krank','malade'],['müde','fatigué(e)'],['gestresst','stressé(e)'],['Warum?','Pourquoi ?'],['verliebt','amoureux'],['zwanzig','20'],['dreißig','30'],['sechzehn','16'],['siebzig','70'],['zweiundfünfzig','52'],['achtundvierzig','48']].concat(PAIRS2,PAIRS3);
 let mem=null;
 function startMemory(){
   const pairs=sample(PAIRS,6);
