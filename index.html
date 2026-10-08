@@ -40,6 +40,7 @@
   --t-meine:#D9A3FF;
   --t-plur:#4FC3F7;
   --t-ctrl:#FFE14D;
+  --t-patch:#FFADAD;
   --f-display:'Lilita One','Arial Rounded MT Bold','Trebuchet MS',sans-serif;
   --f-body:'Nunito','Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
   --outline:3px 0 0 var(--ink),-3px 0 0 var(--ink),0 3px 0 var(--ink),0 -3px 0 var(--ink),2px 2px 0 var(--ink),-2px -2px 0 var(--ink),2px -2px 0 var(--ink),-2px 2px 0 var(--ink);
@@ -104,6 +105,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.05;
 .worlds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .worlds>.wt:last-child:nth-child(odd){grid-column:1/-1}
 .h2sub{margin:-6px 0 12px;font-weight:800;font-size:14px}
+.wt[data-w="patch"] .band{background:conic-gradient(#FFADAD 0 25%,#FDFFB6 0 50%,#A0E7E5 0 75%,#CAFFBF 0) 0 0/36px 36px}
 .wt[data-w="land"] .band{background:linear-gradient(180deg,#000 0 33.4%,#DD0000 33.4% 66.7%,#FFCE00 66.7%)}
 .wt{appearance:none;position:relative;text-align:left;border:3px solid var(--ink);border-radius:18px;background:var(--paper);box-shadow:5px 5px 0 var(--ink);padding:0;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;transition:transform .06s,box-shadow .06s}
 .wt:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--ink)}
@@ -764,12 +766,11 @@ const PAIRS2=[['schwimmen','nager'],['tanzen','danser'],['lesen','lire'],['malen
    Uniquement des ajouts : les questions existantes ne changent pas.
    ========================================================= */
 Object.assign(WORLDS,{
-  plur:{name:'Wir mögen Sport!',sub:'Le pluriel (wir, sie) et le verbe mögen',emo:'👯',col:'var(--t-plur)',neu:true},
-  ctrl:{name:'Les 2 derniers cours',sub:'Meine Familie + wir, sie, mögen : à bien apprendre',emo:'📌',col:'var(--t-ctrl)'}
+  plur:{name:'Wir mögen Sport!',sub:'Le pluriel (wir, sie) et le verbe mögen',emo:'👯',col:'var(--t-plur)'}
 });
 THEMES[1].worlds.push('plur');
 /* une mission qui mélange plusieurs mondes : ses fantômes viennent de ces mondes */
-const WGROUP={ctrl:['meine','plur']};
+const WGROUP={};
 const inWorld=(gw,w)=>(WGROUP[w]||[w]).includes(gw);
 LW.push('mögen','wir');
 Object.assign(MEAN,{'mögen':'aimer',wir:'nous'});
@@ -855,10 +856,86 @@ S('pr.moegen','pr','mcq',{ask:'Comment se prononce « wir mögen » ?',big:'wir 
 /* ---------- Memory : nouvelles paires ---------- */
 const PAIRS3=[['wir','nous'],['mögen','aimer'],['ich mag','j\'aime'],['wir sind','nous sommes'],['sie sind','ils / elles sont'],['sie spielen','ils / elles jouent'],['wir schwimmen','nous nageons']];
 
+/* =========================================================
+   Cours du jeudi 8 octobre : die Patchworkfamilie (Stief- ou Halb- ?)
+   + le contrôle du jeudi 15 octobre
+   Uniquement des ajouts : les questions existantes ne changent pas.
+   ========================================================= */
+Object.assign(WORLDS,{
+  patch:{name:'Die Patchwork\u00ADfamilie',sub:'La famille recomposée : Stief- ou Halb- ?',emo:'🧩',col:'var(--t-patch)',neu:true},
+  exam:{name:'Spécial contrôle',sub:'Jeudi 15 octobre : toute la famille, mein, einen, sein, mögen, haben',emo:'📝',col:'var(--t-ctrl)'}
+});
+THEMES[1].worlds.push('patch');
+Object.assign(WGROUP,{exam:['fam','meine','plur','patch']});
+LW.push('Stiefvater','Halbschwester','Patchworkfamilie');
+Object.assign(MEAN,{Stiefvater:'le beau-père',Halbschwester:'la demi-sœur',Patchworkfamilie:'la famille recomposée'});
+
+/* ---------- le vocabulaire du 8 octobre ---------- */
+const PATCH=[
+  {k:'Patchworkfamilie',art:'die',fr:'la famille recomposée',emo:'🧩',hook:'Un patchwork, c\'est un tissu fait de morceaux cousus ensemble : une famille recomposée, quoi ! Comme Familie : die.'},
+  {k:'Stiefvater',art:'der',fr:'le beau-père',d:'le mari de ma mère',emo:'👨',hook:'Stief + Vater : il n\'est pas ton père, mais il vit avec ta mère. Comme Vater : der.'},
+  {k:'Stiefmutter',art:'die',fr:'la belle-mère',d:'la femme de mon père',emo:'👩',hook:'Stief + Mutter : la belle-mère des contes, comme celle de Cendrillon ! Comme Mutter : die.'},
+  {k:'Stiefbruder',art:'der',fr:'le fils de mon beau-père ou de ma belle-mère',d:'aucun parent en commun',emo:'👦',hook:'Stief = aucun parent en commun avec toi. Comme Bruder : der.'},
+  {k:'Stiefschwester',art:'die',fr:'la fille de mon beau-père ou de ma belle-mère',d:'aucun parent en commun',emo:'👧',hook:'Stief = aucun parent en commun avec toi. Comme Schwester : die.'},
+  {k:'Halbbruder',art:'der',fr:'le demi-frère',d:'un parent en commun',emo:'👦',hook:'Halb = moitié : vous avez un seul parent en commun. Comme Bruder : der.'},
+  {k:'Halbschwester',art:'die',fr:'la demi-sœur',d:'un parent en commun',emo:'👧',hook:'Halb = moitié : vous avez un seul parent en commun. Comme Schwester : die.'}
+];
+const PATCHK=Object.fromEntries(PATCH.map(f=>[f.k,f]));
+const pfull=f=>f.d?`${f.fr} (${f.d})`:f.fr;
+const pgen=f=>f.art==='der'?'masculin':'féminin';
+GEN['patch.fr2de']=k=>{const f=PATCHK[k];if(!f)return null;const o=sample(PATCH.filter(x=>x.k!==k),3);
+  return{kind:'mcq',ask:'Comment dit-on en allemand… ?',big:`${f.emo} ${pfull(f)}`,opts:[f,...o].map(x=>`${x.art} ${x.k}`),answer:`${f.art} ${f.k}`,optLang:'de',say:`${f.art} ${f.k}`,why:`${cap(pfull(f))} = <b>${f.art} ${f.k}</b>, un mot ${pgen(f)}.`,tip:f.hook};};
+GEN['patch.de2fr']=k=>{const f=PATCHK[k];if(!f)return null;const o=sample(PATCH.filter(x=>x.k!==k),3);
+  return{kind:'mcq',ask:'Que veut dire… ?',big:`${f.art} ${f.k}`,bigLang:'de',opts:[f,...o].map(pfull),answer:pfull(f),say:`${f.art} ${f.k}`,why:`<b>${f.art} ${f.k}</b> = ${pfull(f)}.`,tip:f.hook};};
+GEN['patch.gen']=k=>{const f=PATCHK[k];if(!f)return null;
+  return{kind:'mcq',ask:'Quel article : der ou die ?',big:`___ ${f.k}`,bigLang:'de',blank:true,opts:['der','die'],noShuffle:true,answer:f.art,optLang:'de',say:`${f.art} ${f.k}`,
+    why:`<b>${f.k}</b> = ${f.fr}. C'est un mot ${pgen(f)} : <b>${f.art}</b> ${f.k}. Stief- et Halb- ne changent pas l'article.`,tip:f.hook};};
+GEN['patch.type']=k=>{const f=PATCHK[k];if(!f)return null;
+  return{kind:'type',ask:'Écris en allemand, avec l\'article (der ou die) :',big:`${f.emo} ${pfull(f)}`,accept:[`${f.art} ${f.k}`],say:`${f.art} ${f.k}`,why:`${cap(pfull(f))} = <b>${f.art} ${f.k}</b>, un mot ${pgen(f)}.`,tip:f.hook};};
+
+/* ---------- Halb oder Stief ? ---------- */
+S('patch.rule','patch','mcq',{ask:'Quelle est la règle ?',big:'Halb oder Stief?',bigLang:'de',opts:['Un parent en commun = Halb','Un parent en commun = Stief','Halb = plus âgé, Stief = plus jeune','Halb = un garçon, Stief = une fille'],answer:'Un parent en commun = Halb',say:'Halb oder Stief?',why:'La règle du cours : <b>un parent identique = Halb</b>. Aucun parent en commun = <b>Stief</b>.'});
+S('patch.qui.halb1','patch','mcq',{ask:'Halb oder Stief ?',big:'Lena et moi, on a le même père, mais pas la même mère. Lena est…',opts:['meine Halbschwester','meine Stiefschwester','meine Stiefmutter','meine Großmutter'],answer:'meine Halbschwester',optLang:'de',say:'Lena ist meine Halbschwester.',why:'Un parent en commun (le père) → <b>Halb</b> : Lena ist meine <b>Halbschwester</b>.'});
+S('patch.qui.halb2','patch','mcq',{ask:'Halb oder Stief ?',big:'Tom et moi, on a la même mère, mais pas le même père. Tom est…',opts:['mein Halbbruder','mein Stiefbruder','mein Stiefvater','mein Großvater'],answer:'mein Halbbruder',optLang:'de',say:'Tom ist mein Halbbruder.',why:'La même mère = un parent en commun → <b>Halb</b> : Tom ist mein <b>Halbbruder</b>.'});
+S('patch.qui.stief1','patch','mcq',{ask:'Halb oder Stief ?',big:'Max est le fils de ma belle-mère. On n\'a aucun parent en commun. Max est…',opts:['mein Stiefbruder','mein Halbbruder','mein Stiefvater','mein Vater'],answer:'mein Stiefbruder',optLang:'de',say:'Max ist mein Stiefbruder.',why:'Aucun parent en commun → <b>Stief</b> : Max ist mein <b>Stiefbruder</b>.'});
+S('patch.qui.stiefvater','patch','mcq',{ask:'Qui est-ce ?',big:'Paul est le mari de ma mère, mais ce n\'est pas mon père. Paul est…',opts:['mein Stiefvater','mein Vater','mein Stiefbruder','mein Großvater'],answer:'mein Stiefvater',optLang:'de',say:'Paul ist mein Stiefvater.',why:'Le mari de ta mère, qui n\'est pas ton père = <b>der Stiefvater</b> → mein Stiefvater.'});
+S('patch.qui.stiefmutter','patch','mcq',{ask:'Qui est-ce ?',big:'Anna est la femme de mon père, mais ce n\'est pas ma mère. Anna est…',opts:['meine Stiefmutter','meine Mutter','meine Halbschwester','meine Großmutter'],answer:'meine Stiefmutter',optLang:'de',say:'Anna ist meine Stiefmutter.',why:'La femme de ton père, qui n\'est pas ta mère = <b>die Stiefmutter</b> → meine Stiefmutter.'});
+
+/* ---------- mein / meine, einen / eine, keinen ---------- */
+S('patch.mein.stiefvater','patch','mcq',{ask:'Complète :',big:'___ Stiefvater heißt Paul.',bigLang:'de',opts:['Mein','Meine','Meinen','Ein'],answer:'Mein',optLang:'de',say:'Mein Stiefvater heißt Paul.',why:'der Stiefvater (masculin) → <b>mein</b> Stiefvater.'});
+S('patch.meine.halbschwester','patch','mcq',{ask:'Complète :',big:'___ Halbschwester heißt Lena.',bigLang:'de',opts:['Meine','Mein','Meinen','Eine'],answer:'Meine',optLang:'de',say:'Meine Halbschwester heißt Lena.',why:'die Halbschwester (féminin) → <b>meine</b> Halbschwester.'});
+S('patch.einen.halbbruder','patch','mcq',{ask:'Complète :',big:'Ich habe ___ Halbbruder.',bigLang:'de',opts:['einen','eine','ein','meine'],answer:'einen',optLang:'de',say:'Ich habe einen Halbbruder.',why:'der Halbbruder → ich habe <b>einen</b> Halbbruder, comme einen Bruder.'});
+S('patch.eine.stiefschwester','patch','mcq',{ask:'Complète :',big:'Ich habe ___ Stiefschwester.',bigLang:'de',opts:['eine','einen','ein','mein'],answer:'eine',optLang:'de',say:'Ich habe eine Stiefschwester.',why:'die Stiefschwester → ich habe <b>eine</b> Stiefschwester.'});
+S('patch.keinen','patch','mcq',{ask:'Complète (= je n\'ai pas de…) :',big:'Ich habe ___ Stiefbruder.',bigLang:'de',opts:['keinen','keine','kein','nicht'],answer:'keinen',optLang:'de',say:'Ich habe keinen Stiefbruder.',why:'der Stiefbruder → ich habe <b>keinen</b> Stiefbruder, comme keinen Bruder.'});
+S('patch.bin.stiefvater','patch','mcq',{ask:'Comment dit-on en allemand… ?',big:'Salut, je suis le beau-père !',opts:['Hallo, ich bin der Stiefvater!','Hallo, ich bin die Stiefvater!','Hallo, ich habe der Stiefvater!','Hallo, ich bist der Stiefvater!'],answer:'Hallo, ich bin der Stiefvater!',optLang:'de',say:'Hallo, ich bin der Stiefvater!',why:'ich <b>bin</b> + <b>der</b> Stiefvater (masculin, comme der Vater).'});
+
+/* ---------- haben (avoir) ---------- */
+S('patch.haben.ich','patch','mcq',{ask:'Conjugue « haben » (avoir) :',big:'ich ___',bigLang:'de',opts:['habe','hast','hat','haben'],answer:'habe',optLang:'de',say:'ich habe',why:'<b>ich habe</b> : ich habe einen Bruder.'});
+S('patch.haben.wir','patch','mcq',{ask:'Conjugue « haben » (avoir) :',big:'wir ___',bigLang:'de',opts:['haben','habe','hat','habt'],answer:'haben',optLang:'de',say:'wir haben',why:'Au pluriel, comme l\'infinitif : <b>wir haben</b>, sie haben.'});
+S('patch.haben.sie','patch','mcq',{ask:'Conjugue « haben » (avoir) :',big:'sie ___ (= ils, elles)',bigLang:'de',opts:['haben','hat','habe','hast'],answer:'haben',optLang:'de',say:'sie haben',why:'<b>sie haben</b> = ils / elles ont. Comme l\'infinitif.'});
+S('patch.haben.er','patch','mcq',{ask:'Conjugue « haben » (avoir) :',big:'er ___ eine Stiefschwester.',bigLang:'de',opts:['hat','habt','habe','haben'],answer:'hat',optLang:'de',say:'Er hat eine Stiefschwester.',why:'⚠️ haben est irrégulier avec du et er : du hast, er <b>hat</b>.'});
+
+/* ---------- vrai ou faux ---------- */
+S('patch.tf.halb','patch','tf',{big:'« Halb » veut dire qu\'on a un parent en commun.',answer:true,say:'der Halbbruder, die Halbschwester',why:'Vrai : un parent identique = <b>Halb</b>. Halbbruder, Halbschwester.'});
+S('patch.tf.stiefmutter','patch','tf',{big:'« die Stiefmutter », c\'est ma vraie mère.',answer:false,say:'die Stiefmutter',why:'Faux : die Stiefmutter = la femme de ton père, pas ta mère.'});
+S('patch.tf.patchwork','patch','tf',{big:'Une « Patchworkfamilie » est une famille recomposée.',answer:true,say:'die Patchworkfamilie',why:'Vrai : die Patchworkfamilie = la famille recomposée 🧩'});
+S('patch.tf.stiefbruder','patch','tf',{big:'Mon « Stiefbruder » et moi, on a la même mère.',answer:false,say:'der Halbbruder',why:'Faux : avec la même mère, c\'est un <b>Halbbruder</b>. Stief = aucun parent en commun.'});
+
+/* ---------- construire ---------- */
+S('patch.b.halb','patch','build',{ask:'Construis la phrase en allemand :',big:'J\'ai un demi-frère.',tiles:['Ich','habe','einen','Halbbruder','eine','Stiefbruder'],target:['Ich','habe','einen','Halbbruder'],say:'Ich habe einen Halbbruder.',why:'<b>Ich habe einen Halbbruder.</b> (der Halbbruder → einen)'});
+S('patch.b.stiefvater','patch','build',{ask:'Construis la phrase en allemand :',big:'Mon beau-père s\'appelle Paul.',tiles:['Mein','Stiefvater','heißt','Paul','Meine','heiße'],target:['Mein','Stiefvater','heißt','Paul'],say:'Mein Stiefvater heißt Paul.',why:'<b>Mein Stiefvater heißt Paul.</b> (der Stiefvater → mein)'});
+S('patch.b.patchwork','patch','build',{ask:'Construis la phrase en allemand :',big:'Nous sommes une famille recomposée.',tiles:['Wir','sind','eine','Patchworkfamilie','sein','einen'],target:['Wir','sind','eine','Patchworkfamilie'],say:'Wir sind eine Patchworkfamilie.',why:'<b>Wir sind eine Patchworkfamilie.</b> (sein → wir sind ; die Familie → eine)'});
+
+/* ---------- prononciation ---------- */
+S('pr.stief','pr','mcq',{ask:'Comment se prononce « Stiefvater » ?',big:'Stiefvater',bigLang:'de',opts:['« chtif-fâ-teur »','« stiève-va-teur »','« stif-va-tère »','« chti-va-teur »'],answer:'« chtif-fâ-teur »',say:'der Stiefvater',why:'Au début d\'un mot, <b>st</b> se dit « cht », <b>ie</b> = i et <b>v</b> = f : Stiefvater = « chtif-fâ-teur ».'});
+
+/* ---------- Memory : nouvelles paires ---------- */
+const PAIRS4=[['die Patchworkfamilie','la famille recomposée'],['die Stiefmutter','la belle-mère'],['der Stiefvater','le beau-père'],['der Halbbruder','le demi-frère'],['die Halbschwester','la demi-sœur'],['ich habe','j\'ai'],['wir haben','nous avons']];
+
 function kindOf(id){
   if(STATIC[id])return STATIC[id].kind;
   const k=id.split('.').slice(0,2).join('.');
-  return {'fam.type':'type','num.type':'type','num.dig':'type','num.build':'build','num.listen':'listen','pr.listen':'listen','konj.t':'type','plur.t':'type'}[k]||'mcq';
+  return {'fam.type':'type','num.type':'type','num.dig':'type','num.build':'build','num.listen':'listen','pr.listen':'listen','konj.t':'type','plur.t':'type','patch.type':'type'}[k]||'mcq';
 }
 function getQ(id){
   let q;
@@ -1208,7 +1285,7 @@ function renderHome(){
   ${THEMES.map(t=>`<h2 class="h2">${nb(esc(t.title))}</h2><p class="h2sub">${esc(t.sub)}</p><div class="worlds">${t.worlds.map(worldTile).join('')}</div>`).join('')}
   <h2 class="h2">Pour tout réviser</h2>
   <div class="worlds">
-    ${worldTile('ctrl')}
+    ${worldTile('exam')}
     ${worldTile('pr')}
     <button class="wt" data-act="blitz" style="--c:var(--t-blitz)"><span class="band"><span class="emo">⚡</span></span>
       <span class="body"><span class="h">Blitz 60 s</span><span class="d">Un max de bonnes réponses en une minute.</span><span class="best">Record : ${state.best.blitz}</span></span></button>
@@ -1440,9 +1517,23 @@ function pickWorld(w,n,exclude){
     const g2=gen.filter(ok);
     return shuffle([...g2,...pickStatics(w,n-g2.length,exclude,{type:1})]).slice(0,n);
   }
-  if(w==='ctrl'){
-    const a=Math.ceil(n/2),fam=pickWorld('meine',a,exclude);
-    return shuffle([...fam,...pickWorld('plur',n-fam.length,[...exclude,...fam])]).slice(0,n);
+  if(w==='patch'){
+    const ws=shuffle(PATCH.map(f=>f.k));
+    const gen=['fr2de','de2fr','gen','type'].map((k,i)=>`patch.${k}.${ws[i]}`);
+    const g2=gen.filter(ok);
+    return shuffle([...g2,...pickStatics(w,n-g2.length,exclude,{type:1})]).slice(0,n);
+  }
+  if(w==='exam'){
+    /* contrôle du 15 octobre : Patchworkfamilie, pluriel + mögen, Meine Familie, Die Familie */
+    const out=[];const ex=()=>[...exclude,...out];
+    const take=(ids,k)=>{for(const id of shuffle(ids)){if(out.length>=n||k<=0)break;if(!ex().includes(id)){out.push(id);k--;}}};
+    take([`patch.${pick(['fr2de','de2fr','gen'])}.${pick(PATCH).k}`],1);
+    take(pickStatics('patch',5,ex()),2);
+    take([`plur.f.${pick(PLV).inf}.${pick(['wir','siepl'])}`],1);
+    take(pickStatics('plur',5,ex()),2);
+    take(pickStatics('meine',5,ex()),2);
+    take(pickWorld('fam',5,ex()),2);
+    return shuffle(out).slice(0,n);
   }
   return pickStatics(w,n,exclude);
 }
@@ -1502,7 +1593,7 @@ function renderQ(){
   const bigSay=(q.bigLang==='de'&&!q.blank&&!String(q.big).includes('…'))?sayBtn(q.big):'';
   let body='';
   if(q.kind==='mcq'||q.kind==='listen'){
-    const short=q.opts.every(o=>String(o).length<=13);
+    const short=q.opts.every(o=>String(o).length<=13&&String(o).split(/\s+/).every(w=>w.length<=8));
     body=`<div class="opts ${short?'two':''}" id="opts">${q.opts.map((o,i)=>`<button class="opt ${q.optLang==='num'?'num':''}" data-act="opt" data-i="${i}"><span class="k">${i+1}</span><span class="t">${q.optLang==='num'?esc(o):fmt(o,q.optLang)}</span></button>`).join('')}</div>`;
   }else if(q.kind==='tf'){
     body=`<div class="opts two tf" id="opts"><button class="opt" data-act="tf" data-v="1"><span class="k">1</span><span class="t">Vrai</span></button><button class="opt" data-act="tf" data-v="0"><span class="k">2</span><span class="t">Faux</span></button></div>`;
@@ -1669,6 +1760,7 @@ function blitzNextId(){
   else if(r<.6)id=`fam.${pick(['fr2de','de2fr','gen'])}.${pick(FAM).k}`;
   else if(r<.75)id=`hobby.${pick(['emo','fr2de','de2fr'])}.${pick(HOB).k}`;
   else if(r<.83)id=`plur.f.${pick(PLV).inf}.${pick(['wir','siepl'])}`;
+  else if(r<.9)id=`patch.${pick(['fr2de','de2fr','gen'])}.${pick(PATCH).k}`;
   else{const n=pick([16,17,20,21,30,60,70,52,48,99,13+rnd(7),(2+rnd(8))*10,21+rnd(79),21+rnd(79)]);id=`num.${pick(['d2w','w2d'])}.${n}`;}
   if(run.recent.includes(id))return blitzNextId();
   run.recent.push(id);if(run.recent.length>10)run.recent.shift();
@@ -1718,7 +1810,7 @@ function blitzEnd(){
 }
 
 /* ---------- Memory ---------- */
-const PAIRS=[['der Vater','le père'],['die Mutter','la mère'],['die Eltern','les parents'],['der Sohn','le fils'],['die Tochter','la fille'],['der Bruder','le frère'],['die Schwester','la sœur'],['die Kinder','les enfants'],['der Großvater','le grand-père'],['die Großmutter','la grand-mère'],['die Großeltern','les grands-parents'],['krank','malade'],['müde','fatigué(e)'],['gestresst','stressé(e)'],['Warum?','Pourquoi ?'],['verliebt','amoureux'],['zwanzig','20'],['dreißig','30'],['sechzehn','16'],['siebzig','70'],['zweiundfünfzig','52'],['achtundvierzig','48']].concat(PAIRS2,PAIRS3);
+const PAIRS=[['der Vater','le père'],['die Mutter','la mère'],['die Eltern','les parents'],['der Sohn','le fils'],['die Tochter','la fille'],['der Bruder','le frère'],['die Schwester','la sœur'],['die Kinder','les enfants'],['der Großvater','le grand-père'],['die Großmutter','la grand-mère'],['die Großeltern','les grands-parents'],['krank','malade'],['müde','fatigué(e)'],['gestresst','stressé(e)'],['Warum?','Pourquoi ?'],['verliebt','amoureux'],['zwanzig','20'],['dreißig','30'],['sechzehn','16'],['siebzig','70'],['zweiundfünfzig','52'],['achtundvierzig','48']].concat(PAIRS2,PAIRS3,PAIRS4);
 let mem=null;
 function startMemory(){
   const pairs=sample(PAIRS,6);
