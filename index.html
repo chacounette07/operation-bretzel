@@ -84,6 +84,21 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.05;
 .rank-fr{font-weight:700;color:var(--muted);font-size:14px}
 .xpbar{grid-column:1/-1;margin-top:10px;height:22px;border:3px solid var(--ink);border-radius:999px;background:var(--paper);overflow:hidden;position:relative}
 .xpbar i{position:absolute;inset:0 auto 0 0;background:repeating-linear-gradient(-45deg,var(--gold) 0 10px,#FFD83D 10px 20px);border-right:3px solid var(--ink)}
+.ranks{grid-column:1/-1;margin-top:12px}
+.ranks summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:7px;border:2.5px solid var(--ink);border-radius:999px;padding:5px 13px;background:var(--paper);font-weight:900;font-size:14px;box-shadow:3px 3px 0 var(--ink)}
+.ranks summary::-webkit-details-marker{display:none}
+.ranks summary .rk{background:var(--ink);color:var(--paper);border-radius:999px;padding:1px 8px;font-size:12.5px;font-variant-numeric:tabular-nums}
+.ranks[open] summary{background:var(--gold)}
+.ranks ol{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:6px}
+.ranks li{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:8px;border:2px solid var(--ink);border-radius:12px;padding:5px 10px;background:var(--paper)}
+.ranks li .e{font-size:23px;text-align:center;line-height:1}
+.ranks li b{display:block;font-family:var(--f-display);font-weight:400;font-size:17px;line-height:1.1}
+.ranks li small{display:block;font-weight:700;color:var(--muted);font-size:12.5px;line-height:1.2}
+.ranks li .x{font-weight:900;font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ranks li.got{background:var(--gold-soft)}
+.ranks li.cur{background:var(--gold);box-shadow:3px 3px 0 var(--ink)}
+.ranks li.lock{border-style:dashed;color:var(--muted)}
+.ranks li.lock .e{filter:grayscale(1);opacity:.55}
 .xpline{grid-column:1/-1;display:flex;justify-content:space-between;font-weight:800;font-size:13.5px;margin-top:4px;font-variant-numeric:tabular-nums}
 .pstats{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .pill{border:2.5px solid var(--ink);border-radius:999px;padding:2px 10px;font-weight:800;font-size:13.5px;background:var(--paper);font-variant-numeric:tabular-nums}
@@ -1175,7 +1190,17 @@ const RANKS=[
   {xp:550,de:'Schnitzel',fr:'escalope panée',emo:'🍖'},
   {xp:850,de:'Kirschtorte',fr:'gâteau forêt-noire',emo:'🍰'},
   {xp:1250,de:'Deutsch-Profi',fr:'pro de l\'allemand',emo:'😎'},
-  {xp:1800,de:'Legende',fr:'légende vivante',emo:'🏆'}
+  {xp:1800,de:'Legende',fr:'légende vivante',emo:'🏆'},
+  {xp:2500,de:'Superstar',fr:'superstar',emo:'🌟'},
+  {xp:3300,de:'Ritter',fr:'chevalier',emo:'🛡️'},
+  {xp:4200,de:'Zauberer',fr:'magicien',emo:'🧙'},
+  {xp:5200,de:'Drachenreiter',fr:'cavalier de dragon',emo:'🐉'},
+  {xp:6400,de:'Weltmeister',fr:'champion du monde',emo:'🏅'},
+  {xp:7800,de:'Astronaut',fr:'astronaute',emo:'🚀'},
+  {xp:9500,de:'Superheld',fr:'super-héros',emo:'🦸'},
+  {xp:11500,de:'Genie',fr:'génie',emo:'🧠'},
+  {xp:14000,de:'Großmeister',fr:'grand maître (comme aux échecs)',emo:'♟️'},
+  {xp:17000,de:'Bretzel-Kaiser',fr:'empereur du bretzel',emo:'👑'}
 ];
 const rankIdx=xp=>{let i=0;RANKS.forEach((r,j)=>{if(xp>=r.xp)i=j;});return i;};
 
@@ -1265,7 +1290,7 @@ function renderHome(){
     ${state.seenIntro?'':`<section class="panel intro"><h2>Comment ça marche ?</h2><ol>
       <li><b class="n">1</b><span>Choisis une mission : 10 questions sur ton cours.</span></li>
       <li><b class="n">2</b><span>Chaque erreur devient un fantôme <span class="emo">👻</span> qui revient quelques questions plus tard… puis dans les missions suivantes.</span></li>
-      <li><b class="n">3</b><span>Réponds juste deux fois et il disparaît <span class="emo">💥</span>. Tu gagnes des XP et tu montes de rang, de patate à légende.</span></li>
+      <li><b class="n">3</b><span>Réponds juste deux fois et il disparaît <span class="emo">💥</span>. Tu gagnes des XP et tu montes de rang : ${RANKS.length} rangs, de la patate à l'empereur du bretzel !</span></li>
     </ol><button class="btn dark" data-act="intro-ok">C'est parti !</button></section>`}
     <section class="panel player" aria-label="Ton rang">
       <div class="rank-emo"><span class="emo">${r.emo}</span></div>
@@ -1274,6 +1299,9 @@ function renderHome(){
       <div class="xpbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-label="Progression vers le rang suivant"><i style="width:${pct}%"></i></div>
       <div class="xpline"><span>${state.xp} XP</span><span>${nx?`encore ${nx.xp-state.xp} XP pour ${esc(nx.de)} <span class="emo">${nx.emo}</span>`:'Rang maximum !'}</span></div>
       <div class="pstats"><span class="pill">✅ ${state.stats.correct} ${state.stats.correct>1?'bonnes réponses':'bonne réponse'}</span><span class="pill">🎯 ${acc} % de réussite</span><span class="pill">💥 ${state.stats.slain} ${state.stats.slain>1?'fantômes vaincus':'fantôme vaincu'}</span></div>
+      <details class="ranks"><summary><span class="emo">🏅</span> Tous les rangs <span class="rk">${ri+1} / ${RANKS.length}</span></summary>
+        <ol>${RANKS.map((x,j)=>`<li class="${j<ri?'got':j===ri?'cur':'lock'}"><span class="e emo">${x.emo}</span><span><b>${esc(x.de)}</b><small>${esc(x.fr)}</small></span><span class="x">${j<ri?'✓':j===ri?'tu es ici':`🔒 ${x.xp} XP`}</span></li>`).join('')}</ol>
+      </details>
     </section>
     ${guestPanel()}
     ${gh.length?`<section class="panel ghostcard"><div class="ghostrow" aria-hidden="true">${gh.slice(0,8).map(()=>'<span class="emo">👻</span>').join('')}</div>
