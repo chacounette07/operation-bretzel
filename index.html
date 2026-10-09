@@ -41,6 +41,7 @@
   --t-plur:#4FC3F7;
   --t-ctrl:#FFE14D;
   --t-patch:#FFADAD;
+  --t-dict:#7FD1AE;
   --f-display:'Lilita One','Arial Rounded MT Bold','Trebuchet MS',sans-serif;
   --f-body:'Nunito','Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
   --outline:3px 0 0 var(--ink),-3px 0 0 var(--ink),0 3px 0 var(--ink),0 -3px 0 var(--ink),2px 2px 0 var(--ink),-2px -2px 0 var(--ink),2px -2px 0 var(--ink),-2px 2px 0 var(--ink);
@@ -308,6 +309,67 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.05;
 .topbar h2{font-size:24px}
 @media (max-width:380px){.opts.two{grid-template-columns:1fr}.worlds{gap:10px}.wt .h{font-size:18px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* ---------- grosse mise à jour : série, badges, boss, nouveautés ---------- */
+.zz{opacity:.85}
+.streak{background:linear-gradient(135deg,#FFF3BF,#FFE0C2)}
+.sk-top{display:flex;align-items:center;gap:12px}
+.flame{font-size:44px;line-height:1;filter:drop-shadow(2px 2px 0 var(--ink))}
+.flame.off{filter:grayscale(1);opacity:.45}
+.sk-txt{flex:1;min-width:0}
+.sk-n{font-family:var(--f-display);font-size:24px;line-height:1.05}
+.sk-d{font-weight:700;font-size:14px;color:var(--muted);margin-top:3px;line-height:1.3}
+.sk-best{flex:none;text-align:center;font-weight:800;font-size:12px;border:2.5px solid var(--ink);border-radius:12px;background:var(--paper);padding:4px 8px;line-height:1.15}
+.sk-best b{font-family:var(--f-display);font-weight:400;font-size:20px}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin:12px 0 14px}
+.week>span{display:flex;flex-direction:column;align-items:center;gap:3px;border:2px solid var(--ink);border-radius:12px;background:var(--paper);padding:4px 0 5px;font-size:16px;line-height:1;font-weight:900;color:var(--muted)}
+.week>span i{font-style:normal;font-weight:900;font-size:11px;color:var(--muted)}
+.week>span.on{background:var(--gold);color:var(--ink)}
+.week>span.today{box-shadow:0 0 0 3px var(--red)}
+.dailyres{text-align:center;background:var(--gold-soft)}
+.dailyres>.emo{font-size:40px;line-height:1}
+.dailyres h3{font-size:22px;margin:6px 0 0}
+.dailyres p{margin:6px 0 0;font-weight:700}
+.badges summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-size:21px;line-height:1.1}
+.badges summary::-webkit-details-marker{display:none}
+.badges summary .rk{margin-left:auto;font-family:var(--f-body);font-weight:900;font-size:13px;background:var(--ink);color:var(--paper);border-radius:999px;padding:2px 9px;font-variant-numeric:tabular-nums}
+.badges summary:after{content:'▾';font-size:18px}
+.badges[open] summary:after{content:'▴'}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;margin-top:12px}
+.bdg{border:2.5px solid var(--ink);border-radius:14px;padding:8px 7px 9px;text-align:center;background:var(--gold-soft);display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+.bdg .emo{font-size:30px;line-height:1.1}
+.bdg b{font-family:var(--f-display);font-weight:400;font-size:16px;line-height:1.1;overflow-wrap:anywhere}
+.bdg small{font-weight:700;font-size:12px;color:var(--muted);line-height:1.25}
+.bdg.off{background:var(--paper);border-style:dashed}
+.bdg.off .emo{filter:grayscale(1);opacity:.4}
+.newbadge{background:var(--gold-soft)}
+.newbadge h3{font-size:22px}
+.wt.bosst .band{background:linear-gradient(135deg,#2B1B3D,#6B1E3A)}
+.wt.bosst .band .emo{font-size:36px;filter:drop-shadow(2px 2px 0 #000)}
+.bpv{font-weight:900;font-size:13px;background:var(--red);color:#fff;border:2.5px solid var(--ink);border-radius:999px;padding:2px 9px;white-space:nowrap}
+.bossbar{flex:1;display:flex;align-items:center;gap:8px;min-width:0}
+.bemo{font-size:30px;line-height:1;flex:none}
+.bemo.hit{animation:hit .45s}
+@keyframes hit{20%{transform:translateX(-5px) rotate(-12deg) scale(.88)}45%{transform:translateX(5px) rotate(10deg)}70%{transform:translateX(-3px)}100%{transform:none}}
+.bhp{flex:1;min-width:56px;height:24px;border:3px solid var(--ink);border-radius:999px;background:var(--paper);position:relative;overflow:hidden}
+.bhp i{position:absolute;inset:0 auto 0 0;background:repeating-linear-gradient(-45deg,#E4312B 0 10px,#F25C54 10px 20px);transition:width .45s ease-out}
+.bhp span{position:relative;z-index:1;display:block;text-align:center;font-weight:900;font-size:12.5px;line-height:18px;font-variant-numeric:tabular-nums}
+.hearts{flex:none;font-size:15px;white-space:nowrap;letter-spacing:-1px}
+.hearts.lose{animation:shake .4s}
+.bosshello{margin-top:12px;background:#2B1B3D;color:#fff;border:3px solid var(--ink);border-radius:16px;padding:8px 12px;font-weight:700;font-size:14.5px;line-height:1.35}
+.bosshello .emo{font-size:22px}
+.bossbig{font-size:84px;line-height:1;margin:0}
+.bossbig.down .emo{display:inline-block;animation:down 1.2s ease-in forwards}
+@keyframes down{30%{transform:rotate(-15deg)}100%{transform:rotate(90deg) translateY(12px);opacity:.4;filter:grayscale(1)}}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(20,16,10,.55);display:grid;place-items:center;padding:16px;animation:fadein .2s}
+.modal-in{width:min(30rem,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--paper);border:3px solid var(--ink);border-radius:22px;box-shadow:8px 8px 0 var(--red);padding:18px 18px 16px;animation:popin .3s}
+.newstag{display:inline-block;background:var(--red);color:#fff;font-weight:900;font-size:13px;border-radius:999px;padding:3px 11px;transform:rotate(-3deg);border:2.5px solid var(--ink)}
+.modal-in h2{font-size:30px;margin:10px 0 8px}
+.newslist{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:10px}
+.newslist li{display:grid;grid-template-columns:34px 1fr;gap:8px;align-items:start;font-weight:700;font-size:15px;line-height:1.35}
+.newslist li>.emo{font-size:26px;line-height:1.1}
+@keyframes fadein{from{opacity:0}}
+@keyframes popin{from{transform:scale(.85) translateY(20px);opacity:0}}
+@media (prefers-reduced-motion: reduce){.modal,.modal-in,.bemo.hit,.hearts.lose,.bossbig.down .emo{animation:none}}
 </style>
 </head>
 <body>
@@ -947,10 +1009,111 @@ S('pr.stief','pr','mcq',{ask:'Comment se prononce « Stiefvater » ?',big:'Stief
 /* ---------- Memory : nouvelles paires ---------- */
 const PAIRS4=[['die Patchworkfamilie','la famille recomposée'],['die Stiefmutter','la belle-mère'],['der Stiefvater','le beau-père'],['der Halbbruder','le demi-frère'],['die Halbschwester','la demi-sœur'],['ich habe','j\'ai'],['wir haben','nous avons']];
 
+/* =========================================================
+   Grosse mise à jour : fantômes malins, dictée, série de jours, badges, boss
+   ========================================================= */
+/* ---------- le temps (jour du calendrier, heure locale) ---------- */
+const DAY=86400000;
+const dayStart=(n=0)=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);return d.getTime();};
+const ymd=t=>{const d=new Date(t);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+const today=()=>ymd(Date.now());
+const ymdDate=s=>{const [y,m,d]=String(s).split('-').map(Number);return new Date(y,m-1,d,12);};
+const ymdShift=(s,n)=>{const d=ymdDate(s);d.setDate(d.getDate()+n);return ymd(d.getTime());};
+const daysFromToday=t=>{const d=new Date(t);d.setHours(0,0,0,0);return Math.round((d.getTime()-dayStart(0))/DAY);};
+function whenTxt(t){const d=daysFromToday(t);if(d<=0)return 'aujourd\'hui';if(d===1)return 'demain';if(d===7)return 'dans une semaine';return `dans ${d} jours`;}
+
+/* ---------- fantômes malins : ils reviennent le lendemain, 3 jours après, puis une semaine après ---------- */
+const GHOST_GAPS=[1,3,7];
+const gStage=g=>g&&g.stage!=null?g.stage:(g&&g.hp===1?1:0);
+const isDue=g=>!(g&&g.due>Date.now());
+const dueGhostIds=()=>ghostIds().filter(id=>isDue(state.ghosts[id]));
+const nextDue=()=>{const t=Object.values(state.ghosts).filter(g=>!isDue(g)).map(g=>g.due);return t.length?Math.min(...t):0;};
+/* champs à garder si une ancienne version du jeu a renvoyé une progression sans eux */
+const KEEP_KEYS=['streak','badges','boss','news'];
+
+/* ---------- les leçons les plus récentes (défi du jour, dictée) ---------- */
+const RECENT_W=['patch','plur','meine'];
+
+/* ---------- dictée : on entend un mot, on l'écrit ---------- */
+Object.assign(WORLDS,{dict:{name:'Dictée',sub:'Écoute un mot ou une phrase en allemand et écris-le',emo:'✍️',col:'var(--t-dict)'}});
+const DICT_RAW=[
+  ['moi','Wie heißt du?','Comment tu t\'appelles ?'],['moi','Ich heiße Tina.','Je m\'appelle Tina.'],['moi','Wo wohnst du?','Où habites-tu ?'],['moi','Ich wohne in Paris.','J\'habite à Paris.'],
+  ['moi','Woher kommst du?','D\'où viens-tu ?'],['moi','Wie alt bist du?','Quel âge as-tu ?'],['moi','Ich bin zwölf.','J\'ai douze ans.'],['moi','Ich spreche Deutsch.','Je parle allemand.'],
+  ['land','Deutschland','l\'Allemagne'],['land','Österreich','l\'Autriche'],['land','die Schweiz','la Suisse'],['land','Frankreich','la France'],
+  ['land','schwarz','noir'],['land','weiß','blanc'],['land','grün','vert'],['land','gelb','jaune'],
+  ['hobby','schwimmen','nager'],['hobby','tanzen','danser'],['hobby','lesen','lire'],['hobby','malen','dessiner'],
+  ['hobby','Ich spiele Klavier.','Je joue du piano.'],['hobby','am Montag','le lundi'],['hobby','am Mittwoch','le mercredi'],['hobby','am Donnerstag','le jeudi'],
+  ['konj','du spielst','tu joues'],['konj','er wohnt','il habite'],['konj','du liest','tu lis'],['konj','er fährt','il va (en voiture, à vélo…)'],['konj','du bist','tu es'],
+  ['wg','Wie geht es dir?','Comment vas-tu ?'],['wg','Mir geht es gut.','Je vais bien.'],['wg','Danke, prima!','Merci, super !'],['wg','Wie geht es Ihnen?','Comment allez-vous ?'],['wg','Ich bin müde.','Je suis fatigué(e).'],
+  ['fam','der Vater','le père'],['fam','die Mutter','la mère'],['fam','die Eltern','les parents'],['fam','der Bruder','le frère'],['fam','die Schwester','la sœur'],
+  ['fam','die Großeltern','les grands-parents'],['fam','die Kinder','les enfants'],['fam','die Tochter','la fille (de ses parents)'],['fam','der Sohn','le fils'],
+  ['num','zwölf','12'],['num','dreizehn','13'],['num','zwanzig','20'],['num','dreißig','30'],['num','sechzig','60'],['num','siebzig','70'],
+  ['num','einundzwanzig','21'],['num','zweiundfünfzig','52'],['num','achtundvierzig','48'],
+  ['cast','Luna ist verliebt.','Luna est amoureuse.'],['cast','Kurt ist zweiundfünfzig.','Kurt a 52 ans.'],
+  ['meine','Ich habe einen Bruder.','J\'ai un frère.'],['meine','Ich habe keine Schwester.','Je n\'ai pas de sœur.'],['meine','die Geschwister','les frères et sœurs'],
+  ['meine','Ich bin ein Einzelkind.','Je suis enfant unique.'],['meine','meine Mutter','ma mère'],['meine','mein Vater','mon père'],
+  ['plur','wir spielen','nous jouons'],['plur','sie schwimmen','ils / elles nagent'],['plur','wir sind','nous sommes'],['plur','ich mag','j\'aime'],['plur','Wir mögen Sport.','Nous aimons le sport.'],
+  ['patch','die Patchworkfamilie','la famille recomposée'],['patch','der Stiefvater','le beau-père'],['patch','die Stiefmutter','la belle-mère'],['patch','der Halbbruder','le demi-frère'],['patch','die Halbschwester','la demi-sœur']
+];
+const dslug=s=>String(s).toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const DICT=DICT_RAW.map(([w,de,fr])=>({k:dslug(de),w,de,fr}));
+const DICTK=Object.fromEntries(DICT.map(d=>[d.k,d]));
+function dictTip(de){
+  if(/ß/.test(de))return 'ß se dit « ss ». Sur le clavier du jeu, il y a une touche ß (sinon, écris ss).';
+  if(/[äöü]/i.test(de))return 'Pense aux trémas : ä se dit « è », ö se dit « eu », ü se dit « u ».';
+  if(/\b(der|die|mein|meine|einen|keine) [A-ZÄÖÜ]/.test(de)||/^[A-ZÄÖÜ][a-zäöüß]+$/.test(de))return 'En allemand, tous les noms prennent une majuscule.';
+  if(/ie/.test(de))return 'ie se dit « i » (et ei se dit « aï »).';
+  if(/ei/.test(de))return 'ei se dit « aï ».';
+  if(/w/i.test(de))return 'w se dit « v ».';
+  if(/z/.test(de))return 'z se dit « ts ».';
+  return '';
+}
+GEN['dict.w']=k=>{const d=DICTK[k];if(!d)return null;
+  if(!Voice.ok)return{kind:'type',dict:true,ask:'Pas de voix allemande sur cet appareil : écris en allemand…',big:d.fr,accept:[d.de],say:d.de,why:`<b>${esc(d.de)}</b> = ${esc(d.fr)}.`,tip:dictTip(d.de)};
+  return{kind:'type',dict:true,ask:'Dictée : écoute, puis écris en allemand.',listen:d.de,accept:[d.de],say:d.de,why:`<b>${esc(d.de)}</b> = ${esc(d.fr)}.`,tip:dictTip(d.de)};};
+
+/* ---------- badges ---------- */
+const BADGES=[
+  {id:'start',emo:'🎒',name:'Los geht\'s!',desc:'Finir ta première mission',test:s=>s.stats.rounds>=1},
+  {id:'ghost1',emo:'👻',name:'Geisterjäger',desc:'Vaincre ton premier fantôme',test:s=>s.stats.slain>=1},
+  {id:'ghost10',emo:'🔦',name:'Ghostbuster',desc:'Vaincre 10 fantômes',test:s=>s.stats.slain>=10},
+  {id:'ghost50',emo:'🏰',name:'Geisterschloss',desc:'Vaincre 50 fantômes',test:s=>s.stats.slain>=50},
+  {id:'combo5',emo:'🔥',name:'Feuer!',desc:'Faire un combo x5',test:s=>(s.best.combo||0)>=5},
+  {id:'combo10',emo:'☄️',name:'Komet',desc:'Faire un combo x10',test:s=>(s.best.combo||0)>=10},
+  {id:'combo20',emo:'🌋',name:'Vulkan',desc:'Faire un combo x20',test:s=>(s.best.combo||0)>=20},
+  {id:'perfekt',emo:'⭐',name:'Perfekt!',desc:'Avoir 3 étoiles à une mission',test:s=>Object.values(s.stars).some(n=>n>=3)},
+  {id:'thema1',emo:'🙋',name:'Thema 1 : top !',desc:'3 étoiles à toutes les missions du Thema 1',test:s=>THEMES[0].worlds.every(w=>(s.stars[w]||0)>=3)},
+  {id:'thema2',emo:'👨‍👩‍👧‍👦',name:'Thema 2 : top !',desc:'3 étoiles à toutes les missions du Thema 2',test:s=>THEMES[1].worlds.every(w=>(s.stars[w]||0)>=3)},
+  {id:'explorer',emo:'🗺️',name:'Entdecker',desc:'Jouer toutes les missions des Themas',test:s=>THEMES.every(t=>t.worlds.every(w=>w in s.stars))},
+  {id:'daily1',emo:'📅',name:'Tag eins',desc:'Réussir ton premier défi du jour',test:s=>(s.stats.daily||0)>=1},
+  {id:'streak3',emo:'🕯️',name:'Drei Tage',desc:'Une série de 3 jours',test:s=>(s.streak.best||0)>=3},
+  {id:'streak7',emo:'🗓️',name:'Eine Woche!',desc:'Une série de 7 jours',test:s=>(s.streak.best||0)>=7},
+  {id:'streak30',emo:'🌞',name:'Ein Monat!',desc:'Une série de 30 jours',test:s=>(s.streak.best||0)>=30},
+  {id:'blitz10',emo:'⚡',name:'Blitz',desc:'10 bonnes réponses au Blitz',test:s=>(s.best.blitz||0)>=10},
+  {id:'blitz20',emo:'🌩️',name:'Donnerwetter!',desc:'20 bonnes réponses au Blitz',test:s=>(s.best.blitz||0)>=20},
+  {id:'memory',emo:'🐘',name:'Elefant',desc:'Finir le Memory en 10 coups ou moins',test:s=>s.best.memory>0&&s.best.memory<=10},
+  {id:'dict10',emo:'✍️',name:'Diktat-Profi',desc:'Réussir 10 dictées',test:s=>(s.stats.dict||0)>=10},
+  {id:'dict50',emo:'🖋️',name:'Schreibmeister',desc:'Réussir 50 dictées',test:s=>(s.stats.dict||0)>=50},
+  {id:'boss1',emo:'🧛',name:'Graf besiegt',desc:'Battre le boss du Thema 1',test:s=>((s.boss.t1||{}).wins||0)>=1},
+  {id:'boss2',emo:'🐲',name:'Hydra besiegt',desc:'Battre le boss du Thema 2',test:s=>((s.boss.t2||{}).wins||0)>=1},
+  {id:'c100',emo:'💯',name:'Hundert!',desc:'100 bonnes réponses',test:s=>s.stats.correct>=100},
+  {id:'c1000',emo:'🧠',name:'Tausend!',desc:'1 000 bonnes réponses',test:s=>s.stats.correct>=1000},
+  {id:'legende',emo:'🏆',name:'Legende',desc:'Atteindre le rang Legende (1 800 XP)',test:s=>s.xp>=1800}
+];
+
+/* ---------- boss de fin de Thema ---------- */
+const BOSSES={
+  t1:{theme:0,name:'Graf Grammatik',fr:'le comte Grammaire',emo:'🧛',hp:12,hello:'Muahaha ! Personne ne conjugue mieux que moi !'},
+  t2:{theme:1,name:'Die Familien-Hydra',fr:'l\'hydre de la famille',emo:'🐲',hp:14,hello:'Une tête pour chaque membre de la famille… Essaie donc de toutes les couper !'}
+};
+
+/* ---------- le pop-up des nouveautés, une seule fois ---------- */
+const NEWS_ID='2026-10-grosse-maj';
+
 function kindOf(id){
   if(STATIC[id])return STATIC[id].kind;
   const k=id.split('.').slice(0,2).join('.');
-  return {'fam.type':'type','num.type':'type','num.dig':'type','num.build':'build','num.listen':'listen','pr.listen':'listen','konj.t':'type','plur.t':'type','patch.type':'type'}[k]||'mcq';
+  return {'fam.type':'type','num.type':'type','num.dig':'type','num.build':'build','num.listen':'listen','pr.listen':'listen','konj.t':'type','plur.t':'type','patch.type':'type','dict.w':'type'}[k]||'mcq';
 }
 function getQ(id){
   let q;
@@ -972,7 +1135,7 @@ function answerText(q){
    État + sauvegarde
    ========================================================= */
 const KEY='operation-bretzel-v1';
-const fresh=()=>({v:1,xp:0,stars:{},ghosts:{},best:{blitz:0,memory:0},stats:{answered:0,correct:0,rounds:0,slain:0},settings:{sound:true,voice:true},seenIntro:false,updatedAt:0,rev:0,syncedRev:0,syncBase:0});
+const fresh=()=>({v:1,xp:0,stars:{},ghosts:{},best:{blitz:0,memory:0,combo:0},stats:{answered:0,correct:0,rounds:0,slain:0,dict:0,daily:0,boss:0},settings:{sound:true,voice:true},seenIntro:false,streak:{days:0,best:0,last:''},badges:{},boss:{},news:'',updatedAt:0,rev:0,syncedRev:0,syncBase:0});
 function merge(base,o){
   if(!o||typeof o!=='object')return base;
   for(const k of Object.keys(base)){
@@ -1010,11 +1173,17 @@ function combine(a,b){
   const o=merge(fresh(),JSON.parse(JSON.stringify(a)));
   o.xp=(a.xp||0)+(b.xp||0);
   for(const [w,n] of Object.entries(b.stars||{}))o.stars[w]=Math.max(o.stars[w]||0,n||0);
-  for(const [id,g] of Object.entries(b.ghosts||{})){const c=o.ghosts[id];o.ghosts[id]=c?Object.assign({},c,{fails:Math.max(c.fails||1,g.fails||1),hp:Math.min(c.hp||2,g.hp||2)}):g;}
+  for(const [id,g] of Object.entries(b.ghosts||{})){const c=o.ghosts[id];o.ghosts[id]=c?Object.assign({},c,{fails:Math.max(c.fails||1,g.fails||1),hp:Math.min(c.hp||2,g.hp||2),stage:Math.min(gStage(c),gStage(g)),due:Math.min(c.due||0,g.due||0)}):g;}
   o.best.blitz=Math.max(o.best.blitz||0,(b.best&&b.best.blitz)||0);
   const m=[o.best.memory,b.best&&b.best.memory].filter(x=>x>0);o.best.memory=m.length?Math.min(...m):0;
   for(const k of Object.keys(o.stats))o.stats[k]=(o.stats[k]||0)+((b.stats&&b.stats[k])||0);
   o.seenIntro=!!(a.seenIntro||b.seenIntro);
+  o.best.combo=Math.max(o.best.combo||0,(b.best&&b.best.combo)||0);
+  const sa=a.streak||{},sb=b.streak||{},ss=(sb.last||'')>(sa.last||'')?sb:sa;
+  o.streak={days:ss.days||0,last:ss.last||'',best:Math.max(sa.best||0,sb.best||0,ss.days||0)};
+  o.badges=Object.assign({},b.badges||{},a.badges||{});
+  for(const [k,v] of Object.entries(b.boss||{})){const c=o.boss[k]||{};o.boss[k]={wins:Math.max(c.wins||0,v.wins||0),tries:Math.max(c.tries||0,v.tries||0)};}
+  o.news=a.news||b.news||'';
   return o;
 }
 
@@ -1114,7 +1283,7 @@ function syncFromCloud(){
       Sync.pulled=true;Sync.err='';Sync.lastOk=Date.now();
       if(!r||!r.progress){await Sync.push();return;}
       const Rt=r.updatedAt||0,local=state;
-      const take=(x,dirty)=>{x.settings=Object.assign({},fresh().settings,local.settings);x.syncBase=Rt;x.rev=dirty?1:0;x.syncedRev=0;state=x;writeLocal();refresh();};
+      const take=(x,dirty)=>{for(const k of KEEP_KEYS)if(r.progress&&r.progress[k]===undefined&&local[k]!==undefined)x[k]=JSON.parse(JSON.stringify(local[k]));x.settings=Object.assign({},fresh().settings,local.settings);x.syncBase=Rt;x.rev=dirty?1:0;x.syncedRev=0;state=x;writeLocal();refresh();};
       if(!local.syncBase){
         // Premier contact de cet appareil avec ce compte : ce qui a été joué ici s'ajoute à la version en ligne.
         if(isDirty()&&hasProgress(local)){take(combine(merge(fresh(),r.progress),local),true);await Sync.push();}
@@ -1217,8 +1386,8 @@ const Voice={voice:null,ok:false,
     pickV();
     try{speechSynthesis.addEventListener('voiceschanged',pickV);}catch(e){}
   },
-  say(text,slow){
-    if(!this.ok||!state.settings.voice||!text)return;
+  say(text,slow,force){
+    if(!this.ok||(!state.settings.voice&&!force)||!text)return;
     try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.voice=this.voice;u.lang=this.voice.lang;u.rate=slow?.6:.92;speechSynthesis.speak(u);}catch(e){}
   }
 };
@@ -1270,9 +1439,10 @@ function show(name){
 /* ---------- QG ---------- */
 let resetAsk=false;
 function renderHome(){
+  if(checkBadges().length)save();
   const ri=rankIdx(state.xp),r=RANKS[ri],nx=RANKS[ri+1];
   const pct=nx?Math.round(100*(state.xp-r.xp)/(nx.xp-r.xp)):100;
-  const gh=ghostIds();
+  const gh=dueGhostIds(),ghAll=ghostIds();
   const acc=state.stats.answered?Math.round(100*state.stats.correct/state.stats.answered):0;
   const worldTile=w=>{const W=WORLDS[w];const g=gh.filter(id=>inWorld(state.ghosts[id].world,w)).length;
     return `<button class="wt" data-act="world" data-w="${w}" style="--c:${W.col}">
@@ -1283,14 +1453,14 @@ function renderHome(){
     <div class="logo-top"><span class="tag">Allemand, Thema 1 et 2</span>
       <div class="tr">${accChip()}<button class="icon-btn" data-act="sound" aria-pressed="${state.settings.sound}" aria-label="${state.settings.sound?'Couper les sons':'Activer les sons'}"><span class="emo">${state.settings.sound?'🔊':'🔇'}</span></button></div></div>
     <h1 class="title">Opération<br>Bretzel <span class="pretzel emo">🥨</span></h1>
-    <p class="pitch">Chaque erreur devient un fantôme <span class="emo">👻</span>. Il revient te hanter jusqu'à ce que tu le battes deux fois.</p>
+    <p class="pitch">Chaque erreur devient un fantôme <span class="emo">👻</span>. Il revient te hanter le lendemain, 3 jours après et une semaine après, jusqu'à ce que tu le battes.</p>
   </header>
   <div class="stack">
     ${noticePanels()}
     ${state.seenIntro?'':`<section class="panel intro"><h2>Comment ça marche ?</h2><ol>
       <li><b class="n">1</b><span>Choisis une mission : 10 questions sur ton cours.</span></li>
-      <li><b class="n">2</b><span>Chaque erreur devient un fantôme <span class="emo">👻</span> qui revient quelques questions plus tard… puis dans les missions suivantes.</span></li>
-      <li><b class="n">3</b><span>Réponds juste deux fois et il disparaît <span class="emo">💥</span>. Tu gagnes des XP et tu montes de rang : ${RANKS.length} rangs, de la patate à l'empereur du bretzel !</span></li>
+      <li><b class="n">2</b><span>Chaque erreur devient un fantôme <span class="emo">👻</span> qui revient quelques questions plus tard, puis le lendemain, 3 jours après et une semaine après.</span></li>
+      <li><b class="n">3</b><span>Bats-le à chaque retour et il disparaît <span class="emo">💥</span>. Tu gagnes des XP et tu montes de rang : ${RANKS.length} rangs, de la patate à l'empereur du bretzel !</span></li>
     </ol><button class="btn dark" data-act="intro-ok">C'est parti !</button></section>`}
     <section class="panel player" aria-label="Ton rang">
       <div class="rank-emo"><span class="emo">${r.emo}</span></div>
@@ -1303,17 +1473,16 @@ function renderHome(){
         <ol>${RANKS.map((x,j)=>`<li class="${j<ri?'got':j===ri?'cur':'lock'}"><span class="e emo">${x.emo}</span><span><b>${esc(x.de)}</b><small>${esc(x.fr)}</small></span><span class="x">${j<ri?'✓':j===ri?'tu es ici':`🔒 ${x.xp} XP`}</span></li>`).join('')}</ol>
       </details>
     </section>
+    ${streakPanel()}
+    ${badgesPanel()}
     ${guestPanel()}
-    ${gh.length?`<section class="panel ghostcard"><div class="ghostrow" aria-hidden="true">${gh.slice(0,8).map(()=>'<span class="emo">👻</span>').join('')}</div>
-      <h2>${gh.length} fantôme${gh.length>1?'s':''} te hante${gh.length>1?'nt':''} !</h2>
-      <p>Ce sont tes erreurs. Bats chacun deux fois pour le faire disparaître (+15 XP par fantôme).</p>
-      <button class="btn full" data-act="ghosts">Chasser les fantômes <span class="emo">👻</span></button></section>`
-    :`<section class="panel empty"><h2>Aucun fantôme en vue <span class="emo">🏰</span></h2><p>Lance une mission : chaque erreur deviendra un fantôme à chasser ici.</p></section>`}
+    ${ghostPanel(gh,ghAll)}
   </div>
-  ${THEMES.map(t=>`<h2 class="h2">${nb(esc(t.title))}</h2><p class="h2sub">${esc(t.sub)}</p><div class="worlds">${t.worlds.map(worldTile).join('')}</div>`).join('')}
+  ${THEMES.map((t,ti)=>`<h2 class="h2">${nb(esc(t.title))}</h2><p class="h2sub">${esc(t.sub)}</p><div class="worlds">${t.worlds.map(worldTile).join('')}${bossTile(ti)}</div>`).join('')}
   <h2 class="h2">Pour tout réviser</h2>
   <div class="worlds">
     ${worldTile('exam')}
+    ${worldTile('dict')}
     ${worldTile('pr')}
     <button class="wt" data-act="blitz" style="--c:var(--t-blitz)"><span class="band"><span class="emo">⚡</span></span>
       <span class="body"><span class="h">Blitz 60 s</span><span class="d">Un max de bonnes réponses en une minute.</span><span class="best">Record : ${state.best.blitz}</span></span></button>
@@ -1330,6 +1499,7 @@ function renderHome(){
     <div class="reset" id="reset">${resetAsk?`Tout effacer (XP, étoiles, fantômes) ? <button class="btn white" style="font-size:15px;padding:5px 12px" data-act="reset-yes">Oui, effacer</button> <button class="link" data-act="reset-no">Annuler</button>`:`<button class="link" data-act="reset">Recommencer à zéro</button>`}</div>
   </footer>`;
   renderSave();
+  maybeNews();
 }
 function saveText(){
   if(!Acc.on){
@@ -1545,6 +1715,10 @@ function pickWorld(w,n,exclude){
     const g2=gen.filter(ok);
     return shuffle([...g2,...pickStatics(w,n-g2.length,exclude,{type:1})]).slice(0,n);
   }
+  if(w==='dict'){
+    const rec=shuffle(DICT.filter(d=>RECENT_W.includes(d.w))),old=shuffle(DICT.filter(d=>!RECENT_W.includes(d.w)));
+    return shuffle([...rec.slice(0,4),...old].map(d=>'dict.w.'+d.k).filter(ok).slice(0,n));
+  }
   if(w==='patch'){
     const ws=shuffle(PATCH.map(f=>f.k));
     const gen=['fr2de','de2fr','gen','type'].map((k,i)=>`patch.${k}.${ws[i]}`);
@@ -1583,22 +1757,23 @@ function newRun(mode,world,items){
   return{mode,world,queue:items,i:0,first:{},wrongList:[],combo:0,maxCombo:0,xp:0,newGhosts:0,slain:0,reasked:new Set(),rank0:rankIdx(state.xp),answered:false,quit:false};
 }
 function startWorld(w){
-  const g=ghostIds().filter(id=>inWorld(state.ghosts[id].world,w)).slice(0,3);
+  const g=dueGhostIds().filter(id=>inWorld(state.ghosts[id].world,w)).slice(0,3);
   const ids=shuffle([...g,...pickWorld(w,10-g.length,g)]);
   run=newRun('world',w,toItems(ids));
   show('play');renderQ();
 }
 function startGhosts(){
-  const ids=ghostIds().slice(0,10);if(!ids.length){renderHome();return;}
+  const ids=dueGhostIds().slice(0,10);if(!ids.length){renderHome();return;}
   run=newRun('ghosts',null,toItems(shuffle(ids)));
   if(!run.queue.length){save();renderHome();return;}
   show('play');renderQ();
 }
 function progHtml(){
-  if(run.mode==='blitz')return '';
+  if(run.mode==='blitz'||run.mode==='boss')return '';
   return run.queue.map((it,i)=>{let c='';if(i<run.i||(i===run.i&&run.answered))c=it.res===true?'ok':(it.res===false?'ko':'');else if(i===run.i)c='cur';return `<span class="seg ${c}"></span>`;}).join('');
 }
 function topbar(){
+  if(run.mode==='boss')return bossTopbar();
   const blitz=run.mode==='blitz';
   return `<div class="topbar">
     <button class="icon-btn" data-act="quit" aria-label="Quitter la mission">✕</button>
@@ -1611,7 +1786,7 @@ function renderQ(){
   const it=run.queue[run.i];const q=it.q;const W=WORLDS[q.world]||WORLDS.cast;
   run.answered=false;run.pick=[];
   const isGhost=!!state.ghosts[it.id];
-  const badge=it.reask?'<span class="gbadge">👻 Le fantôme revient !</span>':(isGhost?`<span class="gbadge">👻 Fantôme ${state.ghosts[it.id].hp===1?'(plus qu\'une vie)':''}</span>`:'');
+  const badge=it.reask?'<span class="gbadge">👻 Le fantôme revient !</span>':(isGhost?`<span class="gbadge">👻 Fantôme${isDue(state.ghosts[it.id])?` · retour ${gStage(state.ghosts[it.id])+1}/3`:''}</span>`:'');
   const kindLabel={mcq:'',tf:'',type:'Écris',build:'Construis',listen:'Écoute'}[q.kind];
   let bigCls='big';if(q.bigNum)bigCls+=' num';else if(q.bigEmoji)bigCls+=' emoji';else if(String(q.big||'').length>26)bigCls+=' long';
   let bigInner='';
@@ -1636,17 +1811,17 @@ function renderQ(){
       <div class="bank ${q.stack?'stack':''}" id="bank">${q.tiles.map((t,i)=>`<button class="tile" data-act="tile" data-i="${i}">${fmt(t,'de')}</button>`).join('')}</div>
       <button class="btn dark full go" id="go" data-act="build-go" disabled>Valider</button>`;
   }
-  const listenUI=q.kind==='listen'?`<div class="listen"><button class="btn" data-act="listen"><span class="emo">🔊</span> Écouter</button><button class="btn white" data-act="listen-slow"><span class="emo">🐢</span> Lentement</button></div>`:'';
+  const listenUI=q.listen?`<div class="listen"><button class="btn" data-act="listen"><span class="emo">🔊</span> Écouter</button><button class="btn white" data-act="listen-slow"><span class="emo">🐢</span> Lentement</button></div>`:'';
   SCR.play.innerHTML=`${topbar()}
   <article class="qcard" style="--c:${W.col}">
     <div class="qtop"><span class="wchip">${W.emo} ${nb(esc(W.name))}</span>${kindLabel?`<span class="wchip" style="--c:var(--paper)">${kindLabel}</span>`:''}${badge}</div>
     <p class="ask">${nb(esc(q.ask||''))}</p>
-    ${q.kind==='listen'?listenUI:`<div class="bigrow"><p class="${bigCls}">${bigInner}</p>${bigSay}</div>`}
+    ${q.listen?listenUI:`<div class="bigrow"><p class="${bigCls}">${bigInner}</p>${bigSay}</div>`}
     ${body}
     <div id="flash"></div>
   </article>`;
   if(q.kind==='type'){const inp=$('#ans');setTimeout(()=>{try{inp.focus({preventScroll:true});}catch(e){}},60);}
-  if(q.kind==='listen')setTimeout(()=>Voice.say(q.listen),250);
+  if(q.listen)setTimeout(()=>Voice.say(q.listen,false,true),250);
 }
 
 /* ---------- Réponse ---------- */
@@ -1668,28 +1843,33 @@ function onAnswer(ok,info={}){
   let gain=0,ghostLine='',extra='';
   const had=state.ghosts[id];
   if(ok){
-    run.combo++;run.maxCombo=Math.max(run.maxCombo,run.combo);
+    run.combo++;run.maxCombo=Math.max(run.maxCombo,run.combo);state.best.combo=Math.max(state.best.combo||0,run.combo);
+    if(q.dict)state.stats.dict=(state.stats.dict||0)+1;
     gain=10+Math.min(10,2*(run.combo-1));
     if(had){
-      had.hp=(had.hp||2)-1;
-      if(had.hp<=0){delete state.ghosts[id];run.slain++;state.stats.slain++;gain+=15;ghostLine='💥 Fantôme vaincu ! +15 XP';Sfx.play('ghost');confetti(30);}
-      else ghostLine='👻 Touché ! Encore une bonne réponse, dans une prochaine mission, et il disparaît.';
+      if(isDue(had)&&!it.reask){
+        const st=gStage(had)+1;
+        if(st>=GHOST_GAPS.length){delete state.ghosts[id];run.slain++;state.stats.slain++;gain+=15;ghostLine='💥 Fantôme vaincu pour de bon ! +15 XP';Sfx.play('ghost');confetti(30);}
+        else{Object.assign(had,{stage:st,due:dayStart(GHOST_GAPS[st]),hp:st>=GHOST_GAPS.length-1?1:2,u:Date.now()});gain+=5;const left=GHOST_GAPS.length-st;
+          ghostLine=`👻 Touché ! (+5 XP) Il reviendra ${whenTxt(had.due)} : encore ${left} victoire${left>1?'s':''} et il disparaît.`;}
+      }else ghostLine=`👻 Bien joué ! Le fantôme reviendra ${whenTxt(had.due)} pour vérifier que tu t'en souviens.`;
     }
     if([3,5,8,10,15].includes(run.combo)){extra=run.combo>=8?`🔥 Combo x${run.combo} : Unglaublich ! (= incroyable)`:`🔥 Combo x${run.combo} !`;Sfx.play('combo');}
     else if(!ghostLine)Sfx.play('good');
   }else{
     run.combo=0;
-    state.ghosts[id]={hp:2,fails:((had&&had.fails)||0)+1,world:q.world,t:Date.now()};
+    state.ghosts[id]={hp:2,fails:((had&&had.fails)||0)+1,world:q.world,t:Date.now(),stage:0,due:dayStart(GHOST_GAPS[0]),u:Date.now()};
     if(!had)run.newGhosts++;
     if(run.mode!=='blitz'&&!run.reasked.has(id)){
       run.reasked.add(id);
       const pos=Math.min(run.i+4,run.queue.length);
       run.queue.splice(pos,0,{id,q:getQ(id),reask:true});
-      ghostLine='👻 Un fantôme est né ! Il revient dans quelques questions… et encore plus tard.';
-    }else ghostLine='👻 Toujours là ! Ce fantôme reviendra dans une prochaine mission.';
+      ghostLine='👻 Un fantôme est né ! Il revient dans quelques questions, puis demain, dans 3 jours et dans une semaine.';
+    }else ghostLine='👻 Fantôme ! Il reviendra demain pour une revanche.';
     Sfx.play('bad');
   }
   run.xp+=gain;state.xp+=gain;
+  if(run.mode==='boss')extra=(extra?extra+'<br>':'')+bossHit(ok);
   const rNow=rankIdx(state.xp);
   if(rNow>run.rank0){extra=(extra?extra+'<br>':'')+`🎉 Nouveau rang : ${esc(RANKS[rNow].de)} ${RANKS[rNow].emo} (= ${esc(RANKS[rNow].fr)})`;run.rank0=rNow;run.rankUp=rNow;Sfx.play('rank');confetti();}
   save();
@@ -1727,7 +1907,9 @@ function showSheet(ok,gain,q,info,ghostLine,extra){
 function hideSheet(){const s=$('#sheet');s.classList.remove('on');s.hidden=true;s.innerHTML='';$('#app').style.paddingBottom='';}
 function cont(){
   hideSheet();
+  if(run.mode==='boss'&&(run.boss.hp<=0||run.boss.lives<=0))return bossEnd();
   run.i++;
+  if(run.mode==='boss'&&run.i>=run.queue.length)bossRefill();
   if(run.i>=run.queue.length)finish();else{renderQ();window.scrollTo(0,0);}
 }
 function markOpts(correctIdx,chosenIdx){
@@ -1742,10 +1924,12 @@ function finish(){
   const stars=pct>=.9?3:pct>=.7?2:pct>=.4?1:0;
   let bonus=0;
   if(run.mode!=='blitz'&&total>=5){bonus+=20;if(stars===3)bonus+=20;}
+  if(run.mode==='daily'){run.daily=dailyDone();bonus+=run.daily.bonus;}
   run.xp+=bonus;state.xp+=bonus;
   if(run.mode==='world')state.stars[run.world]=Math.max(state.stars[run.world]||0,stars);
   state.stats.rounds++;
   const rNow=rankIdx(state.xp);if(rNow>run.rank0){run.rankUp=rNow;run.rank0=rNow;}
+  run.newBadges=checkBadges();
   save();Sync.flush();
   renderResult({good,total,stars,pct,bonus});
 }
@@ -1757,15 +1941,17 @@ function verdict(pct){
   return['Kopf hoch !','garde la tête haute','L\'allemand s\'apprend en se trompant. Tes fantômes vont t\'aider.'];
 }
 function renderResult(r){
-  const v=verdict(r.pct);const gh=ghostIds().length;
+  const v=verdict(r.pct);const gh=dueGhostIds().length,ghAll=ghostIds().length;
   const wrong=run.queue.filter(it=>!it.reask&&run.first[it.id]===false);
   const seen=new Set();const uniq=wrong.filter(it=>!seen.has(it.id)&&seen.add(it.id));
   SCR.result.innerHTML=`<div class="res">
     <div class="res-hero"><h2>${v[0]}</h2><p class="tr">(= ${v[1]})</p>${starsBig(r.stars)}<p class="quip">${nb(esc(v[2]))}</p></div>
     <div class="stats"><div class="stat"><b>${r.good}/${r.total}</b><span>du premier coup</span></div><div class="stat"><b>+${run.xp}</b><span>XP gagnés</span></div><div class="stat"><b>x${run.maxCombo}</b><span>meilleur combo</span></div></div>
     ${run.rankUp!=null?`<section class="panel rankup"><span class="emo">${RANKS[run.rankUp].emo}</span><h3>Nouveau rang : ${esc(RANKS[run.rankUp].de)} !</h3><p style="margin:4px 0 0;font-weight:800">= ${esc(RANKS[run.rankUp].fr)}</p></section>`:''}
+    ${run.daily?dailyHtml(run.daily):''}
+    ${newBadgesHtml(run.newBadges)}
     <section class="panel"><h3 style="font-size:22px"><span class="emo">👻</span> Bilan fantômes</h3>
-      <p style="margin:6px 0 0;font-weight:700">${run.newGhosts?`${run.newGhosts} nouveau${run.newGhosts>1?'x':''} fantôme${run.newGhosts>1?'s':''}. `:'Aucun nouveau fantôme. '}${run.slain?`${run.slain} vaincu${run.slain>1?'s':''} ! `:''}Il en reste ${gh} à chasser.</p></section>
+      <p style="margin:6px 0 0;font-weight:700">${run.newGhosts?`${run.newGhosts} nouveau${run.newGhosts>1?'x':''} fantôme${run.newGhosts>1?'s':''}. `:'Aucun nouveau fantôme. '}${run.slain?`${run.slain} vaincu${run.slain>1?'s':''} ! `:''}${ghAll?`Il en reste ${ghAll}${gh?`, dont ${gh} à chasser aujourd'hui`:', qui reviendront plus tard'}.`:'Plus aucun fantôme !'}</p></section>
     ${uniq.length?`<section class="panel review"><h3>À revoir</h3><ul>${uniq.map(it=>{const q=it.q;const a=answerText(q);return `<li><span class="q">${nb(esc(q.ask||''))} ${q.kind==='listen'?'(écoute)':(q.big!=null?`<b>${q.bigLang==='de'?fmtDe(q.big):nb(esc(q.big))}</b>`:'')}</span><span class="a">${q.optLang==='num'||q.kind==='tf'?esc(a):fmtDe(a)} ${sayBtn(q.say)}</span></li>`;}).join('')}</ul></section>`:''}
     <div class="actions">
       ${run.mode==='world'?`<button class="btn full" data-act="world" data-w="${run.world}">Rejouer cette mission</button>`:''}
@@ -1776,6 +1962,164 @@ function renderResult(r){
   if(r.stars===3||run.rankUp!=null)confetti();
 }
 const starsBig=n=>`<div class="bigstars stars" aria-label="${n} étoile${n>1?'s':''} sur 3">${[0,1,2].map(i=>`<span class="${i<n?'on':'off'}">★</span>`).join('')}</div>`;
+
+/* ---------- Fantômes : panneau du QG ---------- */
+function ghostPanel(gd,all){
+  if(!all.length)return `<section class="panel empty"><h2>Aucun fantôme en vue <span class="emo">🏰</span></h2><p>Lance une mission : chaque erreur deviendra un fantôme à chasser ici.</p></section>`;
+  const later=all.length-gd.length,nd=nextDue();
+  return `<section class="panel ghostcard"><div class="ghostrow" aria-hidden="true">${gd.slice(0,8).map(()=>'<span class="emo">👻</span>').join('')}${later?'<span class="emo zz">💤</span>':''}</div>
+    <h2>${gd.length?`${gd.length} fantôme${gd.length>1?'s':''} à chasser aujourd'hui !`:'Tes fantômes dorment…'}</h2>
+    <p>Un fantôme revient <b>le lendemain</b>, puis <b>3 jours après</b>, puis <b>une semaine après</b>. Bats-le à chaque retour et il disparaît pour de bon (+15 XP).${later?` ${later} autre${later>1?'s':''} reviendr${later>1?'ont':'a'} plus tard (prochain retour : ${whenTxt(nd)}).`:''}</p>
+    ${gd.length?`<button class="btn full" data-act="ghosts">Chasser les fantômes (${gd.length}) <span class="emo">👻</span></button>`:''}</section>`;
+}
+
+/* ---------- Série de jours + défi du jour ---------- */
+function streakView(){
+  const s=state.streak||{},t=today(),y=ymdShift(t,-1);
+  const alive=s.last===t||s.last===y,days=alive?(s.days||0):0,done=s.last===t;
+  const start=alive&&days?ymdShift(s.last,-(days-1)):'';
+  const week=[...Array(7)].map((_,i)=>{const d=ymdShift(t,i-6);return{d,l:'DLMMJVS'[ymdDate(d).getDay()],on:!!(start&&d>=start&&d<=s.last),today:d===t};});
+  return{days,done,best:s.best||0,week,nextBonus:20+5*Math.min(done?days:days+1,10)};
+}
+function streakPanel(){
+  const v=streakView();
+  return `<section class="panel streak" aria-label="Ta série de jours">
+    <div class="sk-top"><span class="flame emo ${v.days?'':'off'}">🔥</span>
+      <div class="sk-txt"><div class="sk-n">${v.days} jour${v.days>1?'s':''} d'affilée</div>
+        <div class="sk-d">${v.done?'Défi du jour réussi ! Reviens demain pour garder ta flamme.':v.days?'Fais le défi du jour (5 questions) pour garder ta flamme !':'Fais le défi du jour (5 questions) pour allumer ta flamme !'}</div></div>
+      <span class="sk-best">Record<br><b>${v.best}</b></span></div>
+    <div class="week" aria-hidden="true">${v.week.map(d=>`<span class="${d.on?'on':''}${d.today?' today':''}"><i>${d.l}</i>${d.on?'<span class="emo">🔥</span>':'·'}</span>`).join('')}</div>
+    <button class="btn ${v.done?'white':''} full" data-act="daily">${v.done?'Rejouer le défi (sans bonus)':`Défi du jour : +${v.nextBonus} XP`}</button>
+  </section>`;
+}
+function startDaily(){
+  const all=THEMES.flatMap(t=>t.worlds);
+  const ids=dueGhostIds().slice(0,2);
+  const plan=[RECENT_W[0],pick(RECENT_W.slice(1)),pick(all.filter(w=>!RECENT_W.includes(w)))];
+  if(Voice.ok)plan.push('dict');
+  for(const w of plan){if(ids.length>=5)break;ids.push(...pickWorld(w,1,ids));}
+  let guard=0;while(ids.length<5&&guard++<30)ids.push(...pickWorld(pick(all),1,ids));
+  run=newRun('daily',null,toItems(shuffle([...new Set(ids)].slice(0,5))));
+  if(!run.queue.length){run=null;renderHome();return;}
+  show('play');renderQ();
+}
+function dailyDone(){
+  const s=state.streak=Object.assign({days:0,best:0,last:''},state.streak),t=today();
+  if(s.last===t)return{days:s.days,bonus:0,again:true};
+  s.days=s.last===ymdShift(t,-1)?(s.days||0)+1:1;s.last=t;s.best=Math.max(s.best||0,s.days);
+  state.stats.daily=(state.stats.daily||0)+1;
+  return{days:s.days,bonus:20+5*Math.min(s.days,10),again:false};
+}
+const dailyHtml=d=>`<section class="panel dailyres"><span class="emo">🔥</span><h3>${d.again?'Défi déjà réussi aujourd\'hui':`Série : ${d.days} jour${d.days>1?'s':''} d'affilée !`}</h3><p>${d.again?'Bon entraînement ! Le prochain défi arrive demain.':`+${d.bonus} XP de bonus. Reviens demain pour continuer ta série.`}</p></section>`;
+
+/* ---------- Badges ---------- */
+function checkBadges(){
+  state.badges=state.badges||{};const out=[];
+  for(const b of BADGES){if(state.badges[b.id])continue;let ok=false;try{ok=!!b.test(state);}catch(e){}if(ok){state.badges[b.id]=Date.now();out.push(b);}}
+  return out;
+}
+const badgeCard=(b,on)=>`<div class="bdg ${on?'on':'off'}"><span class="emo">${b.emo}</span><b>${esc(b.name)}</b><small>${esc(b.desc)}</small></div>`;
+function badgesPanel(){
+  const got=state.badges||{},n=BADGES.filter(b=>got[b.id]).length;
+  return `<details class="panel badges"><summary><span class="emo">🏅</span> Mes badges <span class="rk">${n} / ${BADGES.length}</span></summary>
+    <div class="bgrid">${BADGES.map(b=>badgeCard(b,!!got[b.id])).join('')}</div></details>`;
+}
+const newBadgesHtml=list=>list&&list.length?`<section class="panel newbadge"><h3><span class="emo">🏅</span> ${list.length>1?'Nouveaux badges !':'Nouveau badge !'}</h3><div class="bgrid">${list.map(b=>badgeCard(b,true)).join('')}</div></section>`:'';
+
+/* ---------- Boss de fin de Thema ---------- */
+const heartsHtml=()=>'❤️'.repeat(run.boss.lives)+'🖤'.repeat(run.boss.maxLives-run.boss.lives);
+function bossTile(ti){
+  const k='t'+(ti+1),B=BOSSES[k];if(!B)return '';const s=state.boss[k]||{};
+  return `<button class="wt bosst" data-act="boss" data-b="${k}" style="--c:#3A1F4F">
+    <span class="band"><span class="emo">${B.emo}</span><span class="bpv">${B.hp} PV</span></span>
+    <span class="body"><span class="h">Boss : ${nb(esc(B.name))}</span><span class="d">${s.wins?`Vaincu ${s.wins} fois 🏆 Rejoue pour gagner encore des XP.`:`Le boss du ${nb(esc(THEMES[B.theme].title.split(' : ')[0]))} : bats-le avec les questions de tout le Thema. Tu as 3 vies.`}</span></span></button>`;
+}
+function startBoss(k){
+  const B=BOSSES[k];if(!B)return;
+  run=newRun('boss',null,[]);run.boss={k,hp:B.hp,max:B.hp,lives:3,maxLives:3};
+  bossRefill();
+  if(!run.queue.length){run=null;renderHome();return;}
+  show('play');renderQ();
+}
+function bossRefill(){
+  const B=BOSSES[run.boss.k],ws=THEMES[B.theme].worlds,seen=run.queue.map(it=>it.id);
+  const ids=dueGhostIds().filter(id=>ws.includes(state.ghosts[id].world)&&!seen.includes(id)).slice(0,3);
+  for(const w of shuffle(ws))ids.push(...pickWorld(w,3,[...seen,...ids]));
+  run.queue.push(...toItems(shuffle([...new Set(ids)])));
+}
+function bossTopbar(){
+  const b=run.boss,B=BOSSES[b.k];
+  return `<div class="topbar">
+    <button class="icon-btn" data-act="quit" aria-label="Quitter le combat">✕</button>
+    <div class="bossbar"><span class="bemo emo" id="bemo">${B.emo}</span>
+      <div class="bhp" role="progressbar" aria-label="Vie de ${esc(B.name)}" aria-valuemin="0" aria-valuemax="${b.max}" aria-valuenow="${b.hp}"><i id="bhp" style="width:${100*b.hp/b.max}%"></i><span id="bhpt">${b.hp} PV</span></div>
+      <span class="hearts" id="hearts" aria-label="${b.lives} vie${b.lives>1?'s':''}">${heartsHtml()}</span></div>
+    <span class="combo" id="combo" ${run.combo>=2?'':'hidden'}>🔥 x${run.combo}</span>
+  </div>
+  <div id="quitbox"></div>${run.i===0?`<div class="bosshello"><span class="emo">${B.emo}</span> <b>${esc(B.name)}</b> : « ${esc(B.hello)} »</div>`:''}`;
+}
+function bossHit(ok){
+  const b=run.boss,B=BOSSES[b.k];let line;
+  if(ok){
+    const d=run.combo>=3?2:1;b.hp=Math.max(0,b.hp-d);
+    line=d>1?`⚔️ Coup critique grâce à ton combo : ${esc(B.name)} perd ${d} PV !`:`⚔️ ${esc(B.name)} perd 1 PV.`;
+    const e=$('#bemo');if(e){e.classList.remove('hit');void e.offsetWidth;e.classList.add('hit');}
+  }else{
+    b.lives=Math.max(0,b.lives-1);
+    line=b.lives?`💔 ${esc(B.name)} t'a touché : il te reste ${b.lives} vie${b.lives>1?'s':''}.`:`💔 ${esc(B.name)} t'a eu… plus de vie !`;
+    const h=$('#hearts');if(h){h.classList.remove('lose');void h.offsetWidth;h.classList.add('lose');}
+  }
+  const i=$('#bhp');if(i)i.style.width=(100*b.hp/b.max)+'%';
+  const t=$('#bhpt');if(t)t.textContent=b.hp+' PV';
+  const h=$('#hearts');if(h){h.textContent=heartsHtml();h.setAttribute('aria-label',`${b.lives} vie${b.lives>1?'s':''}`);}
+  if(b.hp<=0)line+=`<br>🏆 ${esc(B.name)} est vaincu !`;
+  return line;
+}
+function bossEnd(){
+  const b=run.boss,B=BOSSES[b.k],win=b.hp<=0;
+  const s=state.boss[b.k]=Object.assign({wins:0,tries:0},state.boss[b.k]);s.tries++;
+  let bonus=0;if(win){bonus=s.wins?40:100;s.wins++;state.stats.boss=(state.stats.boss||0)+1;}
+  run.xp+=bonus;state.xp+=bonus;state.stats.rounds++;
+  const rNow=rankIdx(state.xp);if(rNow>run.rank0){run.rankUp=rNow;}
+  const newB=checkBadges();
+  save();Sync.flush();
+  const gh=dueGhostIds().length;
+  SCR.result.innerHTML=`<div class="res">
+    <div class="res-hero"><p class="bossbig ${win?'down':''}"><span class="emo">${B.emo}</span></p><h2>${win?'Sieg !':'Verloren…'}</h2><p class="tr">(= ${win?'victoire':'perdu'})</p>
+      <p class="quip">${win?`Tu as battu ${esc(B.name)} (${esc(B.fr)}) ! +${bonus} XP de récompense.`:`${esc(B.name)} a gagné cette fois. Il lui restait ${b.hp} PV sur ${b.max} : prends ta revanche !`}</p></div>
+    <div class="stats"><div class="stat"><b>${b.max-b.hp}/${b.max}</b><span>PV enlevés</span></div><div class="stat"><b>+${run.xp}</b><span>XP gagnés</span></div><div class="stat"><b>x${run.maxCombo}</b><span>meilleur combo</span></div></div>
+    ${run.rankUp!=null?`<section class="panel rankup"><span class="emo">${RANKS[run.rankUp].emo}</span><h3>Nouveau rang : ${esc(RANKS[run.rankUp].de)} !</h3><p style="margin:4px 0 0;font-weight:800">= ${esc(RANKS[run.rankUp].fr)}</p></section>`:''}
+    ${newBadgesHtml(newB)}
+    <div class="actions">
+      <button class="btn full" data-act="boss" data-b="${b.k}">${win?'Rejouer le combat':'Revanche !'}</button>
+      ${gh?`<button class="btn dark full" data-act="ghosts">Chasser les fantômes (${gh}) <span class="emo">👻</span></button>`:''}
+      <button class="btn white full" data-act="home">Retour au QG</button></div></div>`;
+  show('result');if(win)confetti(90);
+}
+
+/* ---------- Pop-up des nouveautés (une seule fois) ---------- */
+function newsHtml(){
+  const n=Object.keys(state.badges||{}).length;
+  return `<div class="modal" id="news" role="dialog" aria-modal="true" aria-labelledby="news-t"><div class="modal-in">
+    <span class="newstag">Nouvelle version</span>
+    <h2 id="news-t">Quoi de neuf ? <span class="emo">🎁</span></h2>
+    <ul class="newslist">
+      <li><span class="emo">👻</span><span><b>Fantômes malins</b> : un mot raté revient le lendemain, puis 3 jours après, puis une semaine après. Bats-le à chaque retour !</span></li>
+      <li><span class="emo">✍️</span><span><b>Dictée</b> : écoute un mot en allemand et écris-le.</span></li>
+      <li><span class="emo">🔥</span><span><b>Série de jours</b> : fais le défi du jour (5 questions) tous les jours pour garder ta flamme et gagner des XP bonus.</span></li>
+      <li><span class="emo">🏅</span><span><b>${BADGES.length} badges</b> à collectionner${n?` : tu en as déjà ${n} !`:'.'}</span></li>
+      <li><span class="emo">🐲</span><span><b>2 boss</b> t'attendent à la fin du Thema 1 et du Thema 2. Tu as 3 vies pour les battre !</span></li>
+    </ul>
+    <button class="btn dark full" data-act="news-ok" id="news-ok">C'est parti !</button></div></div>`;
+}
+function maybeNews(){
+  if(screen!=='home'||!state.seenIntro||state.news===NEWS_ID||$('#news'))return;
+  document.body.insertAdjacentHTML('beforeend',newsHtml());
+  setTimeout(()=>{try{$('#news-ok').focus();}catch(e){}},60);
+}
+function closeNews(){state.news=NEWS_ID;save();const m=$('#news');if(m)m.remove();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#news'))closeNews();});
+document.addEventListener('click',e=>{if(e.target&&e.target.id==='news')closeNews();});
 
 /* ---------- Blitz ---------- */
 function blitzPool(){
@@ -1822,14 +2166,16 @@ function blitzEnd(){
   const best=state.best.blitz||0;const rec=run.score>best;if(rec)state.best.blitz=run.score;
   const bonus=run.score*5;run.xp+=bonus;state.xp+=bonus;state.stats.rounds++;
   const rNow=rankIdx(state.xp);if(rNow>run.rank0){run.rankUp=rNow;}
+  run.newBadges=checkBadges();
   save();Sync.flush();
-  const gh=ghostIds().length;
+  const gh=dueGhostIds().length;
   SCR.result.innerHTML=`<div class="res">
     <div class="res-hero"><h2>${run.score>=15?'Blitzschnell !':'Zeit ist um !'}</h2><p class="tr">(= ${run.score>=15?'rapide comme l\'éclair':'le temps est écoulé'})</p>
       <p class="bigstars" style="font-family:var(--f-display);color:var(--paper);text-shadow:var(--outline)">⚡ ${run.score}</p>
       <p class="quip">${rec?'🏆 Nouveau record !':`Record à battre : ${best}`}</p></div>
     <div class="stats"><div class="stat"><b>${run.score}</b><span>bonnes réponses</span></div><div class="stat"><b>+${run.xp}</b><span>XP gagnés</span></div><div class="stat"><b>x${run.maxCombo}</b><span>meilleur combo</span></div></div>
     ${run.rankUp!=null?`<section class="panel rankup"><span class="emo">${RANKS[run.rankUp].emo}</span><h3>Nouveau rang : ${esc(RANKS[run.rankUp].de)} !</h3></section>`:''}
+    ${newBadgesHtml(run.newBadges)}
     <div class="actions">
       <button class="btn full" data-act="blitz">Rejouer le Blitz</button>
       ${gh?`<button class="btn dark full" data-act="ghosts">Chasser les fantômes (${gh}) <span class="emo">👻</span></button>`:''}
@@ -1872,11 +2218,12 @@ function memFlip(i){
 }
 function memEnd(){
   const best=state.best.memory||0;const rec=!best||mem.moves<best;if(rec)state.best.memory=mem.moves;
-  const r0=rankIdx(state.xp);state.xp+=30;const r1=rankIdx(state.xp);save();Sync.flush();
+  const r0=rankIdx(state.xp);state.xp+=30;const r1=rankIdx(state.xp);const newB=checkBadges();save();Sync.flush();
   Sfx.play(r1>r0?'rank':'ghost');confetti();
   SCR.result.innerHTML=`<div class="res"><div class="res-hero"><h2>Geschafft !</h2><p class="tr">(= réussi)</p><p class="quip">6 paires en ${mem.moves} coups. ${rec?'🏆 Nouveau record !':`Record : ${best} coups.`}</p></div>
     <section class="panel review"><h3>Les paires de cette partie</h3><ul>${mem.pairs.map(p=>`<li><span class="a">${fmtDe(p[0])} = ${nb(esc(p[1]))} ${sayBtn(p[0])}</span></li>`).join('')}</ul></section>
     ${r1>r0?`<section class="panel rankup"><span class="emo">${RANKS[r1].emo}</span><h3>Nouveau rang : ${esc(RANKS[r1].de)} !</h3></section>`:''}
+    ${newBadgesHtml(newB)}
     <div class="actions"><button class="btn full" data-act="memory">Rejouer (+30 XP)</button><button class="btn white full" data-act="home">Retour au QG</button></div></div>`;
   show('result');
 }
@@ -1886,16 +2233,19 @@ function memEnd(){
    ========================================================= */
 function quitNow(){if(run&&run.timer){clearInterval(run.timer);run.timer=null;}run=null;Sync.flush();show('home');renderHome();}
 const ACT={
-  'intro-ok'(){state.seenIntro=true;save();renderHome();},
+  'intro-ok'(){state.seenIntro=true;state.news=NEWS_ID;save();renderHome();},
   sound(){state.settings.sound=!state.settings.sound;save();renderHome();if(state.settings.sound)Sfx.play('good');},
   voice(){state.settings.voice=!state.settings.voice;save();renderHome();if(state.settings.voice)Voice.say('Hallo! Wie geht es Ihnen?');},
   reset(){resetAsk=true;renderHome();},
   'reset-no'(){resetAsk=false;renderHome();},
-  'reset-yes'(){resetAsk=false;const s=state.settings;state=fresh();state.settings=s;state.seenIntro=true;save();Sync.flush();renderHome();},
+  'reset-yes'(){resetAsk=false;const s=state.settings;state=fresh();state.settings=s;state.seenIntro=true;state.news=NEWS_ID;save();Sync.flush();renderHome();},
   world(a){startWorld(a.dataset.w);},
   ghosts(){startGhosts();},
   blitz(){startBlitz();},
   memory(){startMemory();},
+  daily(){startDaily();},
+  boss(a){startBoss(a.dataset.b);},
+  'news-ok'(){closeNews();},
   home(){quitNow();},
   quit(){
     const box=$('#quitbox');if(!box||(run&&run.mode==='blitz'))return quitNow();
@@ -1904,8 +2254,8 @@ const ACT={
   },
   'quit-no'(){const box=$('#quitbox');if(box)box.innerHTML='';},
   say(a){Voice.say(a.dataset.say);},
-  listen(){const q=run&&run.queue[run.i]&&run.queue[run.i].q;if(q)Voice.say(q.listen);},
-  'listen-slow'(){const q=run&&run.queue[run.i]&&run.queue[run.i].q;if(q)Voice.say(q.listen,true);},
+  listen(){const q=run&&run.queue[run.i]&&run.queue[run.i].q;if(q)Voice.say(q.listen,false,true);},
+  'listen-slow'(){const q=run&&run.queue[run.i]&&run.queue[run.i].q;if(q)Voice.say(q.listen,true,true);},
   opt(a){
     if(!run||run.answered)return;const q=run.queue[run.i].q;const i=+a.dataset.i;
     const ci=q.opts.findIndex(o=>String(o)===String(q.answer));
