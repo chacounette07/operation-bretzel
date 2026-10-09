@@ -370,6 +370,94 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.05;
 @keyframes fadein{from{opacity:0}}
 @keyframes popin{from{transform:scale(.85) translateY(20px);opacity:0}}
 @media (prefers-reduced-motion: reduce){.modal,.modal-in,.bemo.hit,.hearts.lose,.bossbig.down .emo{animation:none}}
+/* ---------- carte d'aventure + boutique + avatar ---------- */
+.coins{font-family:var(--f-display);font-size:18px;background:var(--gold);border:2.5px solid var(--ink);border-radius:999px;padding:2px 10px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.avatar{--av:68px;position:relative;display:inline-grid;place-items:center;width:var(--av);height:var(--av);flex:none;border-radius:50%;border:3px solid var(--ink);background:var(--gold-soft);box-shadow:3px 3px 0 var(--ink)}
+.avatar.big{--av:92px}
+.avatar.mini{--av:40px;border-width:2.5px;box-shadow:2px 2px 0 var(--ink)}
+.a-char{font-size:calc(var(--av) * .6);line-height:1}
+.a-hat{position:absolute;left:50%;top:calc(var(--av) * -.26);transform:translateX(-50%) rotate(-10deg);font-size:calc(var(--av) * .44);line-height:1;filter:drop-shadow(1px 1px 0 rgba(0,0,0,.35))}
+.a-acc{position:absolute;right:calc(var(--av) * -.16);bottom:calc(var(--av) * -.1);font-size:calc(var(--av) * .4);line-height:1;filter:drop-shadow(1px 1px 0 rgba(0,0,0,.35))}
+.rank-av{grid-row:span 2;position:relative;align-self:center;margin-top:8px}
+.rank-badge{position:absolute;left:-10px;bottom:-8px;width:32px;height:32px;border-radius:50%;background:var(--paper);border:2.5px solid var(--ink);display:grid;place-items:center;font-size:18px}
+.pbtns{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.pbtns .btn{font-size:17px;padding:9px 6px 10px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;line-height:1.1;text-align:center}
+.coinline{margin:0;text-align:center;font-weight:800}
+.coinline .link{font-size:15px}
+/* boutique */
+.shophead{display:flex;align-items:center;gap:18px;padding-top:26px;margin-top:14px}
+.shophead h3{font-size:24px}
+.shophead p{margin:4px 0 0;font-weight:700;font-size:14.5px}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px}
+.sitem{appearance:none;border:3px solid var(--ink);border-radius:16px;background:var(--paper);box-shadow:4px 4px 0 var(--ink);padding:10px 6px 9px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;min-width:0;text-align:center}
+.sitem:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+.sitem>.emo{font-size:36px;line-height:1.1}
+.sitem b{font-size:13px;line-height:1.2;font-weight:800}
+.sitem .st{font-weight:900;font-size:13px;border-radius:999px;padding:1px 9px;border:2px solid var(--ink);background:var(--gold-soft);white-space:nowrap}
+.sitem .st.on{background:var(--good);color:#fff}
+.sitem .st.price{background:var(--gold)}
+.sitem .st.price.nope{background:#eee;color:var(--muted)}
+.sitem.on{background:var(--gold-soft);box-shadow:4px 4px 0 var(--good)}
+.sitem.nope{animation:shake .4s}
+.swatch{width:46px;height:46px;border-radius:12px;border:3px solid var(--ink);background:var(--sw)}
+.swatch.night{background:radial-gradient(circle,rgba(255,255,255,.85) 1px,transparent 1.7px) 0 0/10px 10px,#1F2A4D}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translate(-50%,160%);z-index:60;width:max-content;max-width:min(30rem,calc(100vw - 32px));background:var(--ink);color:var(--paper);border-radius:16px;padding:10px 16px;font-weight:800;box-shadow:4px 4px 0 var(--red);transition:transform .25s ease-out;pointer-events:none;text-align:center}
+.toast.on{transform:translate(-50%,0)}
+/* carte */
+.maphead{display:flex;align-items:flex-start;gap:16px;padding-top:24px;margin-top:14px}
+.maphead>div{flex:1;min-width:0}
+.maphead h3{font-size:22px}
+.maphead p{margin:4px 0 0;font-weight:700;font-size:14.5px}
+.maphead .msmall{font-size:12.5px;color:var(--muted);margin-top:8px}
+.maphead .xpbar{margin-top:10px}
+.mapbox{position:relative;margin:18px -4px 0;border:3px solid var(--ink);border-radius:24px;box-shadow:6px 6px 0 var(--ink);overflow:hidden;
+  background:radial-gradient(circle at 20% 12%,rgba(255,255,255,.5) 0 60px,transparent 61px),radial-gradient(circle at 85% 40%,rgba(255,255,255,.4) 0 80px,transparent 81px),radial-gradient(circle at 15% 72%,rgba(255,255,255,.35) 0 70px,transparent 71px),linear-gradient(180deg,#BFE9B4,#A4DCA2 45%,#A9D6EC 100%)}
+.mpath{position:absolute;inset:0;width:100%;height:100%}
+.mpath path{fill:none;stroke-width:9;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.mpath .todo{stroke:#fff;stroke-dasharray:2 16;opacity:.95}
+.mpath .done{stroke:var(--gold);stroke-width:10}
+.mband{position:absolute;left:10px;right:10px;display:flex;justify-content:center;z-index:2}
+.mband span{background:var(--ink);color:var(--gold);font-family:var(--f-display);font-size:16px;border-radius:999px;padding:4px 14px;box-shadow:3px 3px 0 rgba(0,0,0,.25);text-align:center}
+.mstop{appearance:none;position:absolute;left:0;right:0;height:100px;transform:translateY(-50%);background:none;border:none;padding:0;cursor:pointer;z-index:1}
+.mstop .pin{position:absolute;left:var(--x);top:50%;transform:translate(-50%,-50%);width:66px;height:66px;border-radius:50%;border:3px solid var(--ink);background:var(--paper);display:grid;place-items:center;box-shadow:4px 4px 0 var(--ink)}
+.mstop .pin>.emo{font-size:32px}
+.mstop.boss .pin{width:82px;height:82px;background:linear-gradient(135deg,#2B1B3D,#6B1E3A)}
+.mstop.boss .pin>.emo{font-size:42px}
+.mstop.done .pin{background:var(--gold)}
+.mstop.boss.done .pin{background:linear-gradient(135deg,#FFCC00,#FF8A1F)}
+.mstop.lock .pin{background:#DAD5C8}
+.mstop.lock .pin>.emo{filter:grayscale(1);opacity:.45}
+.mstop .lk{position:absolute;right:-6px;bottom:-6px;font-size:20px}
+.mstop .ok{position:absolute;right:-8px;top:-8px;width:26px;height:26px;border-radius:50%;background:var(--good);color:#fff;border:2.5px solid var(--ink);display:grid;place-items:center;font-weight:900;font-size:14px}
+.mstop.cur .pin{animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:4px 4px 0 var(--ink),0 0 0 9px rgba(228,49,43,.35)}}
+.mstop .me{position:absolute;left:50%;top:-36px;transform:translateX(-50%);animation:hop 1.4s ease-in-out infinite}
+@keyframes hop{50%{transform:translate(-50%,-6px)}}
+.mstop .mlab{position:absolute;top:50%;transform:translateY(-50%);max-width:220px;background:var(--paper);border:2.5px solid var(--ink);border-radius:14px;padding:6px 9px 7px;text-align:left;box-shadow:3px 3px 0 var(--ink);display:flex;flex-direction:column;gap:1px}
+.mstop.left .mlab{left:calc(var(--x) + 44px);width:calc(100% - var(--x) - 54px)}
+.mstop.right .mlab{right:calc(100% - var(--x) + 44px);width:calc(var(--x) - 54px)}
+.mstop.boss.left .mlab{left:calc(var(--x) + 52px);width:calc(100% - var(--x) - 62px)}
+.mstop.boss.right .mlab{right:calc(100% - var(--x) + 52px);width:calc(var(--x) - 62px)}
+.mlab b{font-family:var(--f-display);font-weight:400;font-size:17px;line-height:1.1;overflow-wrap:anywhere}
+.mlab>span{font-weight:700;font-size:12.5px;color:var(--muted);line-height:1.2}
+.mlab .mstat .stars{font-size:15px}
+.mlab .go{color:var(--red);font-weight:900}
+.mstop.lock .mlab{opacity:.78;border-style:dashed}
+.mstop.cur .mlab{background:var(--gold-soft)}
+.mend{position:absolute;left:12px;right:12px;text-align:center;font-weight:800;font-size:13.5px;color:var(--ink)}
+.mapnew{background:#DFF5D8}
+.mapnew h3{font-size:22px}
+.mapnew p{margin:6px 0 10px;font-weight:700}
+.newslist li.soon{background:var(--gold-soft);border:2.5px dashed var(--ink);border-radius:14px;padding:6px 8px}
+.newslist .new{display:inline-block;background:var(--red);color:#fff;border-radius:999px;font-size:11px;font-weight:900;padding:1px 7px;margin-left:4px;vertical-align:2px}
+/* fonds d'écran achetés à la boutique */
+html[data-bg="sky"],body[data-bg="sky"]:not(.paper){background-color:#8FD3FF}
+html[data-bg="mint"],body[data-bg="mint"]:not(.paper){background-color:#9BE8C8}
+html[data-bg="candy"],body[data-bg="candy"]:not(.paper){background-color:#FFB3D9}
+html[data-bg="night"]{background-color:#1F2A4D}
+body[data-bg="night"]:not(.paper){background-color:#1F2A4D;background-image:radial-gradient(circle,rgba(255,255,255,.6) 1px,transparent 1.7px),radial-gradient(circle,rgba(255,255,255,.25) 1px,transparent 1.6px);background-size:46px 46px,23px 23px;background-position:0 0,11px 13px}
+body[data-bg="night"]:not(.paper) :is(.h2,.h2sub,.pitch,.savenote,.reset,.reset .link,.res-hero .tr,.res-hero .quip,.coinline,.coinline .link){color:#F3EEDF}
+@media (prefers-reduced-motion: reduce){.mstop.cur .pin,.mstop .me{animation:none}}
 </style>
 </head>
 <body>
@@ -381,6 +469,8 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.05;
   <section id="scr-memory" hidden aria-label="Memory"></section>
   <section id="scr-auth" hidden aria-label="Connexion"></section>
   <section id="scr-account" hidden aria-label="Mon compte"></section>
+  <section id="scr-map" hidden aria-label="Carte d'aventure"></section>
+  <section id="scr-shop" hidden aria-label="Boutique"></section>
 </main>
 <div id="sheet" class="sheet" hidden role="dialog" aria-live="polite" aria-label="Correction"></div>
 
@@ -1108,7 +1198,65 @@ const BOSSES={
 };
 
 /* ---------- le pop-up des nouveautés, une seule fois ---------- */
-const NEWS_ID='2026-10-grosse-maj';
+const NEWS_ID='2026-10-carte-boutique';
+
+/* =========================================================
+   Carte d'aventure + boutique avec l'avatar
+   ========================================================= */
+/* ---------- la carte : une ville par mission, un boss au bout de chaque Thema ---------- */
+const MAP_STOPS=[
+  {id:'moi',w:'moi',city:'Berlin',emo:'🐻',fact:'La capitale de l\'Allemagne. Sur son drapeau : un ours !'},
+  {id:'land',w:'land',city:'Hamburg',emo:'⚓',fact:'Le grand port du nord. Ici, on se dit bonjour avec « Moin Moin ! »'},
+  {id:'hobby',w:'hobby',city:'Köln',emo:'⛪',fact:'Sa cathédrale, le Kölner Dom, mesure 157 mètres de haut.'},
+  {id:'konj',w:'konj',city:'Frankfurt',emo:'🏙️',fact:'La ville des gratte-ciel… et des saucisses de Francfort !'},
+  {id:'wg',w:'wg',city:'München',emo:'🥨',fact:'La capitale de la Bavière, où le bretzel est roi.'},
+  {id:'t1',boss:'t1',city:'Neuschwanstein',emo:'🏰',fact:'Le château qui a inspiré Disney… et le repaire du Graf Grammatik !'},
+  {id:'cast',w:'cast',city:'Wien',emo:'🎡',fact:'La capitale de l\'Autriche, avec sa grande roue : le Riesenrad.'},
+  {id:'fam',w:'fam',city:'Salzburg',emo:'🎻',fact:'La ville où Mozart est né.'},
+  {id:'meine',w:'meine',city:'Zürich',emo:'🏔️',fact:'La plus grande ville de Suisse, au bord d\'un grand lac.'},
+  {id:'num',w:'num',city:'Vaduz',emo:'🇱🇮',fact:'La capitale du Liechtenstein, un tout petit pays où l\'on parle allemand.'},
+  {id:'plur',w:'plur',city:'Dortmund',emo:'⚽',fact:'La ville du Borussia et de son « mur jaune » : près de 25 000 supporters debout !'},
+  {id:'patch',w:'patch',city:'Bremen',emo:'🐓',fact:'Les musiciens de Brême : un âne, un chien, un chat et un coq. Une vraie Patchworkfamilie !'},
+  {id:'t2',boss:'t2',city:'Drachenfels',emo:'🐉',fact:'Le « rocher du dragon », où le héros Siegfried aurait battu un dragon. La Hydra t\'y attend !'}
+];
+const MAP_BONUS=10;
+
+/* ---------- la boutique : 1 bretzel tous les 10 XP, + des bretzels pour chaque étape de la carte ---------- */
+const SHOP_CATS=[['char','Personnages'],['hat','Chapeaux'],['acc','Accessoires'],['bg','Fonds d\'écran']];
+const SHOP=[
+  {id:'bear',cat:'char',emo:'🐻',name:'L\'ours de Berlin',price:0},
+  {id:'fox',cat:'char',emo:'🦊',name:'Le renard',price:40},
+  {id:'cat',cat:'char',emo:'🐱',name:'Le chat',price:40},
+  {id:'dog',cat:'char',emo:'🐶',name:'Le chien',price:40},
+  {id:'frog',cat:'char',emo:'🐸',name:'La grenouille',price:60},
+  {id:'panda',cat:'char',emo:'🐼',name:'Le panda',price:60},
+  {id:'owl',cat:'char',emo:'🦉',name:'La chouette',price:80},
+  {id:'penguin',cat:'char',emo:'🐧',name:'Le pingouin',price:80},
+  {id:'robot',cat:'char',emo:'🤖',name:'Le robot',price:120},
+  {id:'alien',cat:'char',emo:'👽',name:'L\'extraterrestre',price:150},
+  {id:'unicorn',cat:'char',emo:'🦄',name:'La licorne',price:200},
+  {id:'dragon',cat:'char',emo:'🐲',name:'Le dragon',price:300},
+  {id:'cap',cat:'hat',emo:'🧢',name:'La casquette',price:30},
+  {id:'bow',cat:'hat',emo:'🎀',name:'Le nœud',price:30},
+  {id:'straw',cat:'hat',emo:'👒',name:'Le chapeau de paille',price:50},
+  {id:'tophat',cat:'hat',emo:'🎩',name:'Le haut-de-forme',price:80},
+  {id:'grad',cat:'hat',emo:'🎓',name:'Le chapeau de diplômé',price:120},
+  {id:'crown',cat:'hat',emo:'👑',name:'La couronne',price:250},
+  {id:'pretzel',cat:'acc',emo:'🥨',name:'Le bretzel',price:20},
+  {id:'balloon',cat:'acc',emo:'🎈',name:'Le ballon',price:30},
+  {id:'ball',cat:'acc',emo:'⚽',name:'Le ballon de foot',price:40},
+  {id:'icecream',cat:'acc',emo:'🍦',name:'La glace',price:40},
+  {id:'violin',cat:'acc',emo:'🎻',name:'Le violon (die Geige)',price:60},
+  {id:'skate',cat:'acc',emo:'🛹',name:'Le skate',price:80},
+  {id:'trophy',cat:'acc',emo:'🏆',name:'La coupe',price:150},
+  {id:'gold',cat:'bg',sw:'#FFCC00',name:'Bretzel doré',price:0},
+  {id:'sky',cat:'bg',sw:'#8FD3FF',name:'Ciel bleu',price:60},
+  {id:'mint',cat:'bg',sw:'#9BE8C8',name:'Menthe',price:60},
+  {id:'candy',cat:'bg',sw:'#FFB3D9',name:'Barbe à papa',price:80},
+  {id:'night',cat:'bg',sw:'#1F2A4D',name:'Nuit étoilée',price:150}
+];
+const SHOPK=Object.fromEntries(SHOP.map(x=>[x.id,x]));
+KEEP_KEYS.push('shop','mapDone','mapInit');
 
 function kindOf(id){
   if(STATIC[id])return STATIC[id].kind;
@@ -1135,7 +1283,7 @@ function answerText(q){
    État + sauvegarde
    ========================================================= */
 const KEY='operation-bretzel-v1';
-const fresh=()=>({v:1,xp:0,stars:{},ghosts:{},best:{blitz:0,memory:0,combo:0},stats:{answered:0,correct:0,rounds:0,slain:0,dict:0,daily:0,boss:0},settings:{sound:true,voice:true},seenIntro:false,streak:{days:0,best:0,last:''},badges:{},boss:{},news:'',updatedAt:0,rev:0,syncedRev:0,syncBase:0});
+const fresh=()=>({v:1,xp:0,stars:{},ghosts:{},best:{blitz:0,memory:0,combo:0},stats:{answered:0,correct:0,rounds:0,slain:0,dict:0,daily:0,boss:0},settings:{sound:true,voice:true},seenIntro:false,streak:{days:0,best:0,last:''},badges:{},boss:{},news:'',shop:{owned:{},spent:0,bonus:0,eq:{char:'bear',hat:'',acc:'',bg:'gold'}},mapDone:{},mapInit:false,updatedAt:0,rev:0,syncedRev:0,syncBase:0});
 function merge(base,o){
   if(!o||typeof o!=='object')return base;
   for(const k of Object.keys(base)){
@@ -1184,6 +1332,9 @@ function combine(a,b){
   o.badges=Object.assign({},b.badges||{},a.badges||{});
   for(const [k,v] of Object.entries(b.boss||{})){const c=o.boss[k]||{};o.boss[k]={wins:Math.max(c.wins||0,v.wins||0),tries:Math.max(c.tries||0,v.tries||0)};}
   o.news=a.news||b.news||'';
+  const pa=a.shop||{},pb=b.shop||{};
+  o.shop={owned:Object.assign({},pb.owned||{},pa.owned||{}),spent:(pa.spent||0)+(pb.spent||0),bonus:(pa.bonus||0)+(pb.bonus||0),eq:Object.assign({char:'bear',hat:'',acc:'',bg:'gold'},pb.eq||{},pa.eq||{})};
+  o.mapDone=Object.assign({},b.mapDone||{},a.mapDone||{});o.mapInit=!!(a.mapInit||b.mapInit);
   return o;
 }
 
@@ -1428,18 +1579,19 @@ const ghostIds=()=>Object.entries(state.ghosts).sort((a,b)=>(b[1].fails-a[1].fai
 /* =========================================================
    Écrans
    ========================================================= */
-const SCR={home:$('#scr-home'),play:$('#scr-play'),result:$('#scr-result'),memory:$('#scr-memory'),auth:$('#scr-auth'),account:$('#scr-account')};
+const SCR={home:$('#scr-home'),play:$('#scr-play'),result:$('#scr-result'),memory:$('#scr-memory'),auth:$('#scr-auth'),account:$('#scr-account'),map:$('#scr-map'),shop:$('#scr-shop')};
 let screen='home';
 function show(name){
   for(const [k,el] of Object.entries(SCR))el.hidden=k!==name;
-  screen=name;document.body.classList.toggle('paper',name==='play'||name==='memory');
+  screen=name;document.body.classList.toggle('paper',name==='play'||name==='memory');applyBg();
   hideSheet();window.scrollTo(0,0);
 }
 
 /* ---------- QG ---------- */
 let resetAsk=false;
 function renderHome(){
-  if(checkBadges().length)save();
+  {const nb1=checkBadges().length,init=!state.mapInit,nm=checkMap().length;if(nb1||nm||init)save();}
+  applyBg();
   const ri=rankIdx(state.xp),r=RANKS[ri],nx=RANKS[ri+1];
   const pct=nx?Math.round(100*(state.xp-r.xp)/(nx.xp-r.xp)):100;
   const gh=dueGhostIds(),ghAll=ghostIds();
@@ -1463,12 +1615,13 @@ function renderHome(){
       <li><b class="n">3</b><span>Bats-le à chaque retour et il disparaît <span class="emo">💥</span>. Tu gagnes des XP et tu montes de rang : ${RANKS.length} rangs, de la patate à l'empereur du bretzel !</span></li>
     </ol><button class="btn dark" data-act="intro-ok">C'est parti !</button></section>`}
     <section class="panel player" aria-label="Ton rang">
-      <div class="rank-emo"><span class="emo">${r.emo}</span></div>
+      <div class="rank-av">${avatarHtml()}<span class="rank-badge emo" title="${esc(r.de)}">${r.emo}</span></div>
       <div class="rank-name">${esc(r.de)}</div>
       <div class="rank-fr">= ${esc(r.fr)}</div>
       <div class="xpbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-label="Progression vers le rang suivant"><i style="width:${pct}%"></i></div>
       <div class="xpline"><span>${state.xp} XP</span><span>${nx?`encore ${nx.xp-state.xp} XP pour ${esc(nx.de)} <span class="emo">${nx.emo}</span>`:'Rang maximum !'}</span></div>
       <div class="pstats"><span class="pill">✅ ${state.stats.correct} ${state.stats.correct>1?'bonnes réponses':'bonne réponse'}</span><span class="pill">🎯 ${acc} % de réussite</span><span class="pill">💥 ${state.stats.slain} ${state.stats.slain>1?'fantômes vaincus':'fantôme vaincu'}</span></div>
+      <div class="pbtns"><button class="btn" data-act="map"><span class="emo">🗺️</span> Carte d'aventure</button><button class="btn white" data-act="shop"><span class="emo">🛍️</span> Boutique <span class="coins">🥨 ${coins()}</span></button></div>
       <details class="ranks"><summary><span class="emo">🏅</span> Tous les rangs <span class="rk">${ri+1} / ${RANKS.length}</span></summary>
         <ol>${RANKS.map((x,j)=>`<li class="${j<ri?'got':j===ri?'cur':'lock'}"><span class="e emo">${x.emo}</span><span><b>${esc(x.de)}</b><small>${esc(x.fr)}</small></span><span class="x">${j<ri?'✓':j===ri?'tu es ici':`🔒 ${x.xp} XP`}</span></li>`).join('')}</ol>
       </details>
@@ -1754,7 +1907,7 @@ function toItems(ids){
 /* ---------- Mission ---------- */
 let run=null;
 function newRun(mode,world,items){
-  return{mode,world,queue:items,i:0,first:{},wrongList:[],combo:0,maxCombo:0,xp:0,newGhosts:0,slain:0,reasked:new Set(),rank0:rankIdx(state.xp),answered:false,quit:false};
+  return{mode,world,queue:items,i:0,first:{},wrongList:[],combo:0,maxCombo:0,xp:0,newGhosts:0,slain:0,reasked:new Set(),rank0:rankIdx(state.xp),coins0:coins(),answered:false,quit:false};
 }
 function startWorld(w){
   const g=dueGhostIds().filter(id=>inWorld(state.ghosts[id].world,w)).slice(0,3);
@@ -1930,6 +2083,7 @@ function finish(){
   state.stats.rounds++;
   const rNow=rankIdx(state.xp);if(rNow>run.rank0){run.rankUp=rNow;run.rank0=rNow;}
   run.newBadges=checkBadges();
+  run.newStops=checkMap();
   save();Sync.flush();
   renderResult({good,total,stars,pct,bonus});
 }
@@ -1948,13 +2102,16 @@ function renderResult(r){
     <div class="res-hero"><h2>${v[0]}</h2><p class="tr">(= ${v[1]})</p>${starsBig(r.stars)}<p class="quip">${nb(esc(v[2]))}</p></div>
     <div class="stats"><div class="stat"><b>${r.good}/${r.total}</b><span>du premier coup</span></div><div class="stat"><b>+${run.xp}</b><span>XP gagnés</span></div><div class="stat"><b>x${run.maxCombo}</b><span>meilleur combo</span></div></div>
     ${run.rankUp!=null?`<section class="panel rankup"><span class="emo">${RANKS[run.rankUp].emo}</span><h3>Nouveau rang : ${esc(RANKS[run.rankUp].de)} !</h3><p style="margin:4px 0 0;font-weight:800">= ${esc(RANKS[run.rankUp].fr)}</p></section>`:''}
+    ${coinLine(coins()-run.coins0)}
     ${run.daily?dailyHtml(run.daily):''}
+    ${mapStopsHtml(run.newStops)}
     ${newBadgesHtml(run.newBadges)}
     <section class="panel"><h3 style="font-size:22px"><span class="emo">👻</span> Bilan fantômes</h3>
       <p style="margin:6px 0 0;font-weight:700">${run.newGhosts?`${run.newGhosts} nouveau${run.newGhosts>1?'x':''} fantôme${run.newGhosts>1?'s':''}. `:'Aucun nouveau fantôme. '}${run.slain?`${run.slain} vaincu${run.slain>1?'s':''} ! `:''}${ghAll?`Il en reste ${ghAll}${gh?`, dont ${gh} à chasser aujourd'hui`:', qui reviendront plus tard'}.`:'Plus aucun fantôme !'}</p></section>
     ${uniq.length?`<section class="panel review"><h3>À revoir</h3><ul>${uniq.map(it=>{const q=it.q;const a=answerText(q);return `<li><span class="q">${nb(esc(q.ask||''))} ${q.kind==='listen'?'(écoute)':(q.big!=null?`<b>${q.bigLang==='de'?fmtDe(q.big):nb(esc(q.big))}</b>`:'')}</span><span class="a">${q.optLang==='num'||q.kind==='tf'?esc(a):fmtDe(a)} ${sayBtn(q.say)}</span></li>`;}).join('')}</ul></section>`:''}
     <div class="actions">
-      ${run.mode==='world'?`<button class="btn full" data-act="world" data-w="${run.world}">Rejouer cette mission</button>`:''}
+      ${run.fromMap?`<button class="btn full" data-act="map">Continuer le voyage <span class="emo">🗺️</span></button>`:''}
+      ${run.mode==='world'?`<button class="btn ${run.fromMap?'white ':''}full" data-act="world" data-w="${run.world}">Rejouer cette mission</button>`:''}
       ${gh?`<button class="btn dark full" data-act="ghosts">Chasser les fantômes (${gh}) <span class="emo">👻</span></button>`:''}
       <button class="btn white full" data-act="home">Retour au QG</button>
     </div></div>`;
@@ -2081,7 +2238,7 @@ function bossEnd(){
   let bonus=0;if(win){bonus=s.wins?40:100;s.wins++;state.stats.boss=(state.stats.boss||0)+1;}
   run.xp+=bonus;state.xp+=bonus;state.stats.rounds++;
   const rNow=rankIdx(state.xp);if(rNow>run.rank0){run.rankUp=rNow;}
-  const newB=checkBadges();
+  const newB=checkBadges(),newS=checkMap();
   save();Sync.flush();
   const gh=dueGhostIds().length;
   SCR.result.innerHTML=`<div class="res">
@@ -2089,9 +2246,12 @@ function bossEnd(){
       <p class="quip">${win?`Tu as battu ${esc(B.name)} (${esc(B.fr)}) ! +${bonus} XP de récompense.`:`${esc(B.name)} a gagné cette fois. Il lui restait ${b.hp} PV sur ${b.max} : prends ta revanche !`}</p></div>
     <div class="stats"><div class="stat"><b>${b.max-b.hp}/${b.max}</b><span>PV enlevés</span></div><div class="stat"><b>+${run.xp}</b><span>XP gagnés</span></div><div class="stat"><b>x${run.maxCombo}</b><span>meilleur combo</span></div></div>
     ${run.rankUp!=null?`<section class="panel rankup"><span class="emo">${RANKS[run.rankUp].emo}</span><h3>Nouveau rang : ${esc(RANKS[run.rankUp].de)} !</h3><p style="margin:4px 0 0;font-weight:800">= ${esc(RANKS[run.rankUp].fr)}</p></section>`:''}
+    ${coinLine(coins()-run.coins0)}
+    ${mapStopsHtml(newS)}
     ${newBadgesHtml(newB)}
     <div class="actions">
-      <button class="btn full" data-act="boss" data-b="${b.k}">${win?'Rejouer le combat':'Revanche !'}</button>
+      ${run.fromMap?`<button class="btn full" data-act="map">Continuer le voyage <span class="emo">🗺️</span></button>`:''}
+      <button class="btn ${run.fromMap?'white ':''}full" data-act="boss" data-b="${b.k}">${win?'Rejouer le combat':'Revanche !'}</button>
       ${gh?`<button class="btn dark full" data-act="ghosts">Chasser les fantômes (${gh}) <span class="emo">👻</span></button>`:''}
       <button class="btn white full" data-act="home">Retour au QG</button></div></div>`;
   show('result');if(win)confetti(90);
@@ -2099,16 +2259,19 @@ function bossEnd(){
 
 /* ---------- Pop-up des nouveautés (une seule fois) ---------- */
 function newsHtml(){
-  const n=Object.keys(state.badges||{}).length;
+  const n=Object.keys(state.badges||{}).length,c=coins();
   return `<div class="modal" id="news" role="dialog" aria-modal="true" aria-labelledby="news-t"><div class="modal-in">
     <span class="newstag">Nouvelle version</span>
     <h2 id="news-t">Quoi de neuf ? <span class="emo">🎁</span></h2>
     <ul class="newslist">
+      <li><span class="emo">🗺️</span><span><b>Carte d'aventure</b><span class="new">NEU</span> : voyage de ville en ville, de Berlin à Wien et Zürich. Chaque mission réussie débloque l'étape suivante, et un boss garde la fin de chaque Thema.</span></li>
+      <li><span class="emo">🛍️</span><span><b>Boutique et avatar</b><span class="new">NEU</span> : gagne des bretzels 🥨 en jouant et habille ton avatar (personnages, chapeaux, accessoires, fonds d'écran).${c?` Tu as déjà ${c} 🥨 à dépenser !`:''}</span></li>
       <li><span class="emo">👻</span><span><b>Fantômes malins</b> : un mot raté revient le lendemain, puis 3 jours après, puis une semaine après. Bats-le à chaque retour !</span></li>
       <li><span class="emo">✍️</span><span><b>Dictée</b> : écoute un mot en allemand et écris-le.</span></li>
       <li><span class="emo">🔥</span><span><b>Série de jours</b> : fais le défi du jour (5 questions) tous les jours pour garder ta flamme et gagner des XP bonus.</span></li>
       <li><span class="emo">🏅</span><span><b>${BADGES.length} badges</b> à collectionner${n?` : tu en as déjà ${n} !`:'.'}</span></li>
       <li><span class="emo">🐲</span><span><b>2 boss</b> t'attendent à la fin du Thema 1 et du Thema 2. Tu as 3 vies pour les battre !</span></li>
+      <li class="soon"><span class="emo">🤝</span><span><b>Bientôt : les défis entre copains !</b> Envoie un code à un copain et comparez vos scores.</span></li>
     </ul>
     <button class="btn dark full" data-act="news-ok" id="news-ok">C'est parti !</button></div></div>`;
 }
@@ -2120,6 +2283,111 @@ function maybeNews(){
 function closeNews(){state.news=NEWS_ID;save();const m=$('#news');if(m)m.remove();}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#news'))closeNews();});
 document.addEventListener('click',e=>{if(e.target&&e.target.id==='news')closeNews();});
+
+/* ---------- petit message flottant ---------- */
+let toastT=null;
+function toast(html){let t=$('#toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');document.body.appendChild(t);}
+  t.innerHTML=html;t.classList.remove('on');void t.offsetWidth;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2600);}
+const coinLine=n=>`<p class="coinline">${n>0?`+${n} 🥨 pour la boutique. `:''}Tu as <b>${coins()} 🥨</b>. <button class="link" data-act="shop">Aller à la boutique</button></p>`;
+
+/* ---------- Bretzels et avatar ---------- */
+const shopState=()=>{
+  /* on complète l'objet sur place (sans le remplacer) pour que les achats restent bien enregistrés */
+  if(!state.shop||typeof state.shop!=='object')state.shop={};const s=state.shop;
+  if(!s.owned||typeof s.owned!=='object')s.owned={};if(typeof s.spent!=='number')s.spent=0;if(typeof s.bonus!=='number')s.bonus=0;
+  if(!s.eq||typeof s.eq!=='object')s.eq={};for(const [k,v] of Object.entries({char:'bear',hat:'',acc:'',bg:'gold'}))if(s.eq[k]===undefined)s.eq[k]=v;
+  return s;};
+const coins=()=>{const s=shopState();return Math.max(0,Math.floor((state.xp||0)/10)+(s.bonus||0)-(s.spent||0));};
+const owns=id=>{const it=SHOPK[id];return !!it&&(it.price===0||!!shopState().owned[id]);};
+function avatarHtml(cls=''){
+  const e=shopState().eq,ch=SHOPK[e.char]||SHOPK.bear,hat=e.hat&&SHOPK[e.hat],acc=e.acc&&SHOPK[e.acc];
+  return `<span class="avatar ${cls}" role="img" aria-label="Ton avatar : ${esc(ch.name)}${hat?', '+esc(hat.name):''}${acc?', '+esc(acc.name):''}"><span class="a-char emo">${ch.emo}</span>${hat?`<span class="a-hat emo">${hat.emo}</span>`:''}${acc?`<span class="a-acc emo">${acc.emo}</span>`:''}</span>`;
+}
+function applyBg(){const bg=(state.shop&&state.shop.eq&&state.shop.eq.bg)||'gold';document.documentElement.dataset.bg=bg;document.body.dataset.bg=bg;}
+function renderShop(){
+  const s=shopState(),c=coins();
+  SCR.shop.innerHTML=`<div class="topbar"><button class="icon-btn" data-act="home" aria-label="Retour au QG">✕</button><h2 style="font-size:24px">Boutique</h2><span class="coins" style="margin-left:auto">🥨 ${c}</span></div>
+  <div class="stack">
+    <section class="panel shophead">${avatarHtml('big')}
+      <div><h3>Ton avatar</h3><p>Tu gagnes <b>1 🥨 tous les 10 XP</b>, et <b>+${MAP_BONUS} 🥨</b> à chaque nouvelle étape de la carte d'aventure.</p></div></section>
+    ${SHOP_CATS.map(([cat,label])=>`<section><h2 class="h2" style="margin-top:6px">${label}</h2><div class="sgrid">${SHOP.filter(x=>x.cat===cat).map(x=>{
+      const own=owns(x.id),on=s.eq[cat]===x.id;
+      const look=cat==='bg'?`<span class="swatch ${x.id}" style="--sw:${x.sw}"></span>`:`<span class="emo">${x.emo}</span>`;
+      const tag=on?'<span class="st on">✓ Équipé</span>':own?`<span class="st">${cat==='hat'||cat==='acc'?'Mettre':'Choisir'}</span>`:`<span class="st price ${c>=x.price?'':'nope'}">🥨 ${x.price}</span>`;
+      return `<button class="sitem ${on?'on':''} ${own?'own':''}" data-act="shopitem" data-id="${x.id}" aria-pressed="${on}">${look}<b>${esc(x.name)}</b>${tag}</button>`;}).join('')}</div></section>`).join('')}
+  </div>`;
+}
+function shopItem(id){
+  const x=SHOPK[id];if(!x)return;const s=shopState();
+  if(!owns(id)){
+    const c=coins();
+    if(c<x.price){toast(`Il te manque <b>${x.price-c} 🥨</b> pour ${esc(x.name.toLowerCase())}. Joue encore un peu !`);const m=$(`[data-id="${id}"]`);if(m){m.classList.remove('nope');void m.offsetWidth;m.classList.add('nope');}Sfx.play('bad');return;}
+    s.owned[id]=Date.now();s.spent=(s.spent||0)+x.price;s.eq[x.cat]=id;toast(`Bravo ! Tu as acheté ${esc(x.name.toLowerCase())} <span class="emo">🎉</span>`);Sfx.play('rank');confetti(30);
+  }else if(s.eq[x.cat]===id&&(x.cat==='hat'||x.cat==='acc')){s.eq[x.cat]='';toast(`Tu as enlevé ${esc(x.name.toLowerCase())}.`);}
+  else{s.eq[x.cat]=id;Sfx.play('good');}
+  save();applyBg();const y=window.scrollY;renderShop();window.scrollTo(0,y);
+}
+
+/* ---------- Carte d'aventure ---------- */
+function mapStatus(){
+  let open=true;
+  return MAP_STOPS.map((st,i)=>{const done=st.boss?((state.boss[st.boss]||{}).wins||0)>=1:(state.stars[st.w]||0)>=1;const o={st,i,done,open};open=open&&done;return o;});
+}
+function checkMap(){
+  state.mapDone=state.mapDone||{};const init=!state.mapInit,out=[];
+  for(const m of mapStatus()){if(m.done&&m.open&&!state.mapDone[m.st.id]){state.mapDone[m.st.id]=Date.now();if(!init){shopState().bonus+=MAP_BONUS;out.push(m.st);}}}
+  state.mapInit=true;
+  return out;
+}
+const stopName=st=>st.boss?`Boss : ${BOSSES[st.boss].name}`:WORLDS[st.w].name;
+function mapStopsHtml(list){
+  if(!list||!list.length)return '';
+  const ms=mapStatus(),next=ms.find(m=>m.open&&!m.done);
+  return `<section class="panel mapnew"><h3><span class="emo">🗺️</span> ${list.length>1?'Nouvelles étapes réussies !':'Nouvelle étape réussie !'}</h3>
+    <p>${list.map(st=>`<b>${esc(st.city)}</b>`).join(', ')} : +${MAP_BONUS*list.length} 🥨${next?`. Prochaine ville : <b>${esc(next.st.city)}</b> ${next.st.emo}`:''}</p>
+    <button class="btn full" data-act="map">Voir la carte <span class="emo">🗺️</span></button></section>`;
+}
+function renderMap(){
+  const ms=mapStatus(),cur=ms.find(m=>m.open&&!m.done),doneN=ms.filter(m=>m.done&&m.open).length;
+  let y=56,last=-1;const rows=[],pts=[];
+  ms.forEach((m,i)=>{
+    const th=m.st.boss?BOSSES[m.st.boss].theme:THEMES.findIndex(t=>t.worlds.includes(m.st.w));
+    if(th!==last){rows.push(`<div class="mband" style="top:${y-24}px"><span>${nb(esc(THEMES[th].title))}</span></div>`);y+=58;last=th;}
+    const x=i%2?70:30,boss=!!m.st.boss,st=m===cur?'cur':m.done&&m.open?'done':m.open?'open':'lock';
+    const stars=boss?(m.done?'<span class="mstat">🏆 Vaincu !</span>':''):(m.open?`<span class="mstat">${starsHtml(state.stars[m.st.w]||0)}</span>`:'');
+    rows.push(`<button class="mstop ${st} ${boss?'boss':''} ${x<50?'left':'right'}" data-act="mapgo" data-i="${i}" style="top:${y}px;--x:${x}%">
+      <span class="pin"><span class="emo">${m.st.emo}</span>${st==='lock'?'<span class="lk emo">🔒</span>':''}${m.done&&m.open?'<span class="ok">✓</span>':''}${st==='cur'?`<span class="me">${avatarHtml('mini')}</span>`:''}</span>
+      <span class="mlab"><b>${esc(m.st.city)}</b><span>${nb(esc(stopName(m.st)))}</span>${stars}${st==='cur'?'<span class="go">C\'est ici ! Joue →</span>':''}</span></button>`);
+    pts.push([x,y]);y+=boss?132:116;
+  });
+  const H=y+30;
+  const curve=a=>a.map((p,k)=>k?`C ${a[k-1][0]} ${a[k-1][1]+56} ${p[0]} ${p[1]-56} ${p[0]} ${p[1]}`:`M ${p[0]} ${p[1]}`).join(' ');
+  const upto=cur?cur.i:ms.length-1;
+  SCR.map.innerHTML=`<div class="topbar"><button class="icon-btn" data-act="home" aria-label="Retour au QG">✕</button><h2 style="font-size:24px">Carte d'aventure</h2><span class="coins" style="margin-left:auto">🥨 ${coins()}</span></div>
+  <section class="panel maphead">${avatarHtml('big')}<div>
+    <h3>${cur?`Prochaine étape : ${esc(cur.st.city)} ${cur.st.emo}`:'Tu as fini le voyage ! 🎉'}</h3>
+    <p>${cur?esc(cur.st.fact):'Bravo ! La suite du voyage arrive avec tes prochains cours.'}</p>
+    <div class="xpbar" role="progressbar" aria-valuemin="0" aria-valuemax="${ms.length}" aria-valuenow="${doneN}" aria-label="Étapes réussies"><i style="width:${Math.round(100*doneN/ms.length)}%"></i></div>
+    <p class="msmall">${doneN} / ${ms.length} étapes. Réussis une mission (au moins 1 étoile) pour avancer : +${MAP_BONUS} 🥨 par nouvelle ville.</p></div></section>
+  <div class="mapbox" style="height:${H}px">
+    <svg class="mpath" viewBox="0 0 100 ${H}" preserveAspectRatio="none" aria-hidden="true">
+      <path d="${curve(pts)}" class="todo"/>
+      ${upto>0?`<path d="${curve(pts.slice(0,upto+1))}" class="done"/>`:''}
+    </svg>
+    ${rows.join('')}
+    <div class="mend" style="top:${H-34}px">🚧 La suite du voyage arrive avec tes prochains cours !</div>
+  </div>`;
+}
+function openMap(){
+  show('map');renderMap();
+  const c=$('.mstop.cur');if(c)setTimeout(()=>{try{c.scrollIntoView({block:'center'});}catch(e){}},60);
+}
+function mapGo(i){
+  const m=mapStatus()[i];if(!m)return;
+  if(!m.open){const prev=MAP_STOPS[i-1];toast(`🔒 Pour aller à ${esc(m.st.city)}, réussis d'abord ${prev?`l'étape ${esc(prev.city)}`:'l\'étape d\'avant'} !`);Sfx.play('bad');return;}
+  if(m.st.boss)startBoss(m.st.boss);else startWorld(m.st.w);
+  if(run)run.fromMap=true;
+}
 
 /* ---------- Blitz ---------- */
 function blitzPool(){
@@ -2175,6 +2443,7 @@ function blitzEnd(){
       <p class="quip">${rec?'🏆 Nouveau record !':`Record à battre : ${best}`}</p></div>
     <div class="stats"><div class="stat"><b>${run.score}</b><span>bonnes réponses</span></div><div class="stat"><b>+${run.xp}</b><span>XP gagnés</span></div><div class="stat"><b>x${run.maxCombo}</b><span>meilleur combo</span></div></div>
     ${run.rankUp!=null?`<section class="panel rankup"><span class="emo">${RANKS[run.rankUp].emo}</span><h3>Nouveau rang : ${esc(RANKS[run.rankUp].de)} !</h3></section>`:''}
+    ${coinLine(coins()-run.coins0)}
     ${newBadgesHtml(run.newBadges)}
     <div class="actions">
       <button class="btn full" data-act="blitz">Rejouer le Blitz</button>
@@ -2218,11 +2487,12 @@ function memFlip(i){
 }
 function memEnd(){
   const best=state.best.memory||0;const rec=!best||mem.moves<best;if(rec)state.best.memory=mem.moves;
-  const r0=rankIdx(state.xp);state.xp+=30;const r1=rankIdx(state.xp);const newB=checkBadges();save();Sync.flush();
+  const c0=coins(),r0=rankIdx(state.xp);state.xp+=30;const r1=rankIdx(state.xp);const newB=checkBadges();save();Sync.flush();
   Sfx.play(r1>r0?'rank':'ghost');confetti();
   SCR.result.innerHTML=`<div class="res"><div class="res-hero"><h2>Geschafft !</h2><p class="tr">(= réussi)</p><p class="quip">6 paires en ${mem.moves} coups. ${rec?'🏆 Nouveau record !':`Record : ${best} coups.`}</p></div>
     <section class="panel review"><h3>Les paires de cette partie</h3><ul>${mem.pairs.map(p=>`<li><span class="a">${fmtDe(p[0])} = ${nb(esc(p[1]))} ${sayBtn(p[0])}</span></li>`).join('')}</ul></section>
     ${r1>r0?`<section class="panel rankup"><span class="emo">${RANKS[r1].emo}</span><h3>Nouveau rang : ${esc(RANKS[r1].de)} !</h3></section>`:''}
+    ${coinLine(coins()-c0)}
     ${newBadgesHtml(newB)}
     <div class="actions"><button class="btn full" data-act="memory">Rejouer (+30 XP)</button><button class="btn white full" data-act="home">Retour au QG</button></div></div>`;
   show('result');
@@ -2246,6 +2516,10 @@ const ACT={
   daily(){startDaily();},
   boss(a){startBoss(a.dataset.b);},
   'news-ok'(){closeNews();},
+  map(){openMap();},
+  shop(){show('shop');renderShop();},
+  mapgo(a){mapGo(+a.dataset.i);},
+  shopitem(a){shopItem(a.dataset.id);},
   home(){quitNow();},
   quit(){
     const box=$('#quitbox');if(!box||(run&&run.mode==='blitz'))return quitNow();
