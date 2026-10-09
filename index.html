@@ -1331,11 +1331,34 @@ function combine(a,b){
   o.streak={days:ss.days||0,last:ss.last||'',best:Math.max(sa.best||0,sb.best||0,ss.days||0)};
   o.badges=Object.assign({},b.badges||{},a.badges||{});
   for(const [k,v] of Object.entries(b.boss||{})){const c=o.boss[k]||{};o.boss[k]={wins:Math.max(c.wins||0,v.wins||0),tries:Math.max(c.tries||0,v.tries||0)};}
-  o.news=a.news||b.news||'';
-  const pa=a.shop||{},pb=b.shop||{};
-  o.shop={owned:Object.assign({},pb.owned||{},pa.owned||{}),spent:(pa.spent||0)+(pb.spent||0),bonus:(pa.bonus||0)+(pb.bonus||0),eq:Object.assign({char:'bear',hat:'',acc:'',bg:'gold'},pb.eq||{},pa.eq||{})};
+  o.news=(a.news===NEWS_ID||b.news===NEWS_ID)?NEWS_ID:(a.news||b.news||'');
+  const pa=a.shop||{},pb=b.shop||{},bLast=(pb.eqAt||0)>(pa.eqAt||0);
+  o.shop={owned:Object.assign({},pb.owned||{},pa.owned||{}),bonus:(pa.bonus||0)+(pb.bonus||0),eq:Object.assign({char:'bear',hat:'',acc:'',bg:'gold'},bLast?pa.eq||{}:pb.eq||{},bLast?pb.eq||{}:pa.eq||{}),eqAt:Math.max(pa.eqAt||0,pb.eqAt||0)};
+  o.shop.spent=spentOf(o.shop);
   o.mapDone=Object.assign({},b.mapDone||{},a.mapDone||{});o.mapInit=!!(a.mapInit||b.mapInit);
   return o;
+}
+
+/* Deux appareils ont changé des choses chacun de son côté : on garde la version x
+   et on y ajoute ce que y a gagné ou acheté (achats, carte, badges, boss, étoiles, série,
+   pop-up déjà fermé), pour que rien ne disparaisse. */
+function keepBoth(x,y){
+  if(!x||!y)return x;
+  if(y.news===NEWS_ID)x.news=NEWS_ID;
+  x.seenIntro=!!(x.seenIntro||y.seenIntro);
+  x.stars=x.stars||{};for(const [w,n] of Object.entries(y.stars||{}))x.stars[w]=Math.max(x.stars[w]||0,n||0);
+  x.badges=Object.assign({},y.badges||{},x.badges||{});
+  x.boss=x.boss||{};for(const [k,v] of Object.entries(y.boss||{})){const c=x.boss[k]||{};x.boss[k]=Object.assign({},c,{wins:Math.max(c.wins||0,v.wins||0),tries:Math.max(c.tries||0,v.tries||0)});}
+  const sx=x.streak||{},sy=y.streak||{},ss=(sy.last||'')>(sx.last||'')?sy:sx;
+  x.streak={days:ss.days||0,last:ss.last||'',best:Math.max(sx.best||0,sy.best||0,ss.days||0)};
+  x.mapDone=Object.assign({},y.mapDone||{},x.mapDone||{});x.mapInit=!!(x.mapInit||y.mapInit);
+  if(!x.shop||typeof x.shop!=='object')x.shop={};
+  const px=x.shop,py=(y.shop&&typeof y.shop==='object')?y.shop:{};
+  px.owned=Object.assign({},py.owned||{},px.owned||{});
+  px.bonus=Math.max(px.bonus||0,py.bonus||0);
+  if((py.eqAt||0)>(px.eqAt||0)){px.eq=Object.assign({},py.eq||{});px.eqAt=py.eqAt;}
+  px.spent=spentOf(px);
+  return x;
 }
 
 /* =========================================================
@@ -1441,8 +1464,10 @@ function syncFromCloud(){
         else take(merge(fresh(),r.progress),false);
       }else if(Rt===local.syncBase){if(isDirty())await Sync.push();}
       else if(!isDirty())take(merge(fresh(),r.progress),false);
-      else if((local.xp||0)>=((r.progress&&r.progress.xp)||0)){local.syncBase=Rt;await Sync.push();}
-      else take(merge(fresh(),r.progress),false);
+      else if((local.xp||0)>=((r.progress&&r.progress.xp)||0)){
+        // Les deux ont changé : on garde cette version-ci et on y ajoute ce qui a été gagné ou acheté sur l'autre appareil.
+        keepBoth(local,merge(fresh(),r.progress));local.syncBase=Rt;writeLocal();refresh();await Sync.push();}
+      else{take(keepBoth(merge(fresh(),r.progress),local),true);await Sync.push();}
     }catch(e){Sync.err=fsMsg(e);}
     finally{Sync.pulling=null;renderSave();}
   })();
@@ -2277,6 +2302,8 @@ function newsHtml(){
 }
 function maybeNews(){
   if(screen!=='home'||!state.seenIntro||state.news===NEWS_ID||$('#news'))return;
+  /* avec un compte : on attend d'avoir lu la version en ligne (le pop-up a peut-être déjà été fermé sur un autre appareil) */
+  if(profile.type==='account'&&!Sync.pulled&&(maybeNews.n=(maybeNews.n||0)+1)<=8){clearTimeout(maybeNews.t);maybeNews.t=setTimeout(maybeNews,600);return;}
   document.body.insertAdjacentHTML('beforeend',newsHtml());
   setTimeout(()=>{try{$('#news-ok').focus();}catch(e){}},60);
 }
@@ -2297,7 +2324,9 @@ const shopState=()=>{
   if(!s.owned||typeof s.owned!=='object')s.owned={};if(typeof s.spent!=='number')s.spent=0;if(typeof s.bonus!=='number')s.bonus=0;
   if(!s.eq||typeof s.eq!=='object')s.eq={};for(const [k,v] of Object.entries({char:'bear',hat:'',acc:'',bg:'gold'}))if(s.eq[k]===undefined)s.eq[k]=v;
   return s;};
-const coins=()=>{const s=shopState();return Math.max(0,Math.floor((state.xp||0)/10)+(s.bonus||0)-(s.spent||0));};
+/* ce qui a été dépensé = la somme des prix des objets achetés (comme ça, une fusion ne compte jamais un achat deux fois) */
+const spentOf=s=>Object.keys((s&&s.owned)||{}).reduce((t,id)=>t+((SHOPK[id]&&SHOPK[id].price)||0),0);
+const coins=()=>{const s=shopState();return Math.max(0,Math.floor((state.xp||0)/10)+(s.bonus||0)-spentOf(s));};
 const owns=id=>{const it=SHOPK[id];return !!it&&(it.price===0||!!shopState().owned[id]);};
 function avatarHtml(cls=''){
   const e=shopState().eq,ch=SHOPK[e.char]||SHOPK.bear,hat=e.hat&&SHOPK[e.hat],acc=e.acc&&SHOPK[e.acc];
@@ -2322,9 +2351,9 @@ function shopItem(id){
   if(!owns(id)){
     const c=coins();
     if(c<x.price){toast(`Il te manque <b>${x.price-c} 🥨</b> pour ${esc(x.name.toLowerCase())}. Joue encore un peu !`);const m=$(`[data-id="${id}"]`);if(m){m.classList.remove('nope');void m.offsetWidth;m.classList.add('nope');}Sfx.play('bad');return;}
-    s.owned[id]=Date.now();s.spent=(s.spent||0)+x.price;s.eq[x.cat]=id;toast(`Bravo ! Tu as acheté ${esc(x.name.toLowerCase())} <span class="emo">🎉</span>`);Sfx.play('rank');confetti(30);
-  }else if(s.eq[x.cat]===id&&(x.cat==='hat'||x.cat==='acc')){s.eq[x.cat]='';toast(`Tu as enlevé ${esc(x.name.toLowerCase())}.`);}
-  else{s.eq[x.cat]=id;Sfx.play('good');}
+    s.owned[id]=Date.now();s.spent=spentOf(s);s.eq[x.cat]=id;s.eqAt=Date.now();toast(`Bravo ! Tu as acheté ${esc(x.name.toLowerCase())} <span class="emo">🎉</span>`);Sfx.play('rank');confetti(30);
+  }else if(s.eq[x.cat]===id&&(x.cat==='hat'||x.cat==='acc')){s.eq[x.cat]='';s.eqAt=Date.now();toast(`Tu as enlevé ${esc(x.name.toLowerCase())}.`);}
+  else{s.eq[x.cat]=id;s.eqAt=Date.now();Sfx.play('good');}
   save();applyBg();const y=window.scrollY;renderShop();window.scrollTo(0,y);
 }
 
