@@ -392,7 +392,9 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.05;
 .sitem{appearance:none;border:3px solid var(--ink);border-radius:16px;background:var(--paper);box-shadow:4px 4px 0 var(--ink);padding:10px 6px 9px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;min-width:0;text-align:center}
 .sitem:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
 .sitem>.emo{font-size:36px;line-height:1.1}
-.sitem b{font-size:13px;line-height:1.2;font-weight:800}
+.sitem b{font-size:14px;line-height:1.15;font-weight:800;hyphens:manual;overflow-wrap:anywhere;max-width:100%}
+.sitem small{font-size:11.5px;line-height:1.15;font-weight:700;color:var(--muted);margin-top:-3px;overflow-wrap:anywhere;max-width:100%}
+.shophead .dds{font-size:13px;color:var(--muted);margin-top:6px}
 .sitem .st{font-weight:900;font-size:13px;border-radius:999px;padding:1px 9px;border:2px solid var(--ink);background:var(--gold-soft);white-space:nowrap}
 .sitem .st.on{background:var(--good);color:#fff}
 .sitem .st.price{background:var(--gold)}
@@ -1224,38 +1226,41 @@ const MAP_BONUS=10;
 /* ---------- la boutique : 1 bretzel tous les 10 XP, + des bretzels pour chaque étape de la carte ---------- */
 const SHOP_CATS=[['char','Personnages'],['hat','Chapeaux'],['acc','Accessoires'],['bg','Fonds d\'écran']];
 const SHOP=[
-  {id:'bear',cat:'char',emo:'🐻',name:'L\'ours de Berlin',price:0},
-  {id:'fox',cat:'char',emo:'🦊',name:'Le renard',price:40},
-  {id:'cat',cat:'char',emo:'🐱',name:'Le chat',price:40},
-  {id:'dog',cat:'char',emo:'🐶',name:'Le chien',price:40},
-  {id:'frog',cat:'char',emo:'🐸',name:'La grenouille',price:60},
-  {id:'panda',cat:'char',emo:'🐼',name:'Le panda',price:60},
-  {id:'owl',cat:'char',emo:'🦉',name:'La chouette',price:80},
-  {id:'penguin',cat:'char',emo:'🐧',name:'Le pingouin',price:80},
-  {id:'robot',cat:'char',emo:'🤖',name:'Le robot',price:120},
-  {id:'alien',cat:'char',emo:'👽',name:'L\'extraterrestre',price:150},
-  {id:'unicorn',cat:'char',emo:'🦄',name:'La licorne',price:200},
-  {id:'dragon',cat:'char',emo:'🐲',name:'Le dragon',price:300},
-  {id:'cap',cat:'hat',emo:'🧢',name:'La casquette',price:30},
-  {id:'bow',cat:'hat',emo:'🎀',name:'Le nœud',price:30},
-  {id:'straw',cat:'hat',emo:'👒',name:'Le chapeau de paille',price:50},
-  {id:'tophat',cat:'hat',emo:'🎩',name:'Le haut-de-forme',price:80},
-  {id:'grad',cat:'hat',emo:'🎓',name:'Le chapeau de diplômé',price:120},
-  {id:'crown',cat:'hat',emo:'👑',name:'La couronne',price:250},
-  {id:'pretzel',cat:'acc',emo:'🥨',name:'Le bretzel',price:20},
-  {id:'balloon',cat:'acc',emo:'🎈',name:'Le ballon',price:30},
-  {id:'ball',cat:'acc',emo:'⚽',name:'Le ballon de foot',price:40},
-  {id:'icecream',cat:'acc',emo:'🍦',name:'La glace',price:40},
-  {id:'violin',cat:'acc',emo:'🎻',name:'Le violon (die Geige)',price:60},
-  {id:'skate',cat:'acc',emo:'🛹',name:'Le skate',price:80},
-  {id:'trophy',cat:'acc',emo:'🏆',name:'La coupe',price:150},
-  {id:'gold',cat:'bg',sw:'#FFCC00',name:'Bretzel doré',price:0},
-  {id:'sky',cat:'bg',sw:'#8FD3FF',name:'Ciel bleu',price:60},
-  {id:'mint',cat:'bg',sw:'#9BE8C8',name:'Menthe',price:60},
-  {id:'candy',cat:'bg',sw:'#FFB3D9',name:'Barbe à papa',price:80},
-  {id:'night',cat:'bg',sw:'#1F2A4D',name:'Nuit étoilée',price:150}
+  {id:'bear',cat:'char',emo:'🐻',de:'der Berliner Bär',name:'l\'ours de Berlin',price:0},
+  {id:'fox',cat:'char',emo:'🦊',de:'der Fuchs',name:'le renard',price:40},
+  {id:'cat',cat:'char',emo:'🐱',de:'die Katze',name:'le chat',price:40},
+  {id:'dog',cat:'char',emo:'🐶',de:'der Hund',name:'le chien',price:40},
+  {id:'frog',cat:'char',emo:'🐸',de:'der Frosch',name:'la grenouille',price:60},
+  {id:'panda',cat:'char',emo:'🐼',de:'der Panda',name:'le panda',price:60},
+  {id:'owl',cat:'char',emo:'🦉',de:'die Eule',name:'la chouette',price:80},
+  {id:'penguin',cat:'char',emo:'🐧',de:'der Pinguin',name:'le pingouin',price:80},
+  {id:'robot',cat:'char',emo:'🤖',de:'der Roboter',name:'le robot',price:120},
+  {id:'alien',cat:'char',emo:'👽',de:'der Außer\u00ADirdische',name:'l\'extraterrestre',price:150},
+  {id:'unicorn',cat:'char',emo:'🦄',de:'das Einhorn',name:'la licorne',price:200},
+  {id:'dragon',cat:'char',emo:'🐲',de:'der Drache',name:'le dragon',price:300},
+  {id:'cap',cat:'hat',emo:'🧢',de:'die Kappe',name:'la casquette',price:30},
+  {id:'bow',cat:'hat',emo:'🎀',de:'die Schleife',name:'le nœud',price:30},
+  {id:'straw',cat:'hat',emo:'👒',de:'der Strohhut',name:'le chapeau de paille',price:50},
+  {id:'tophat',cat:'hat',emo:'🎩',de:'der Zylinder',name:'le haut-de-forme',price:80},
+  {id:'grad',cat:'hat',emo:'🎓',de:'der Doktorhut',name:'le chapeau de diplômé',price:120},
+  {id:'crown',cat:'hat',emo:'👑',de:'die Krone',name:'la couronne',price:250},
+  {id:'pretzel',cat:'acc',emo:'🥨',de:'die Brezel',name:'le bretzel',price:20},
+  {id:'balloon',cat:'acc',emo:'🎈',de:'der Luftballon',name:'le ballon',price:30},
+  {id:'ball',cat:'acc',emo:'⚽',de:'der Fußball',name:'le ballon de foot',price:40},
+  {id:'icecream',cat:'acc',emo:'🍦',de:'das Eis',name:'la glace',price:40},
+  {id:'violin',cat:'acc',emo:'🎻',de:'die Geige',name:'le violon',price:60},
+  {id:'skate',cat:'acc',emo:'🛹',de:'das Skateboard',name:'le skate',price:80},
+  {id:'trophy',cat:'acc',emo:'🏆',de:'der Pokal',name:'la coupe',price:150},
+  {id:'gold',cat:'bg',sw:'#FFCC00',de:'das Gold',name:'l\'or',price:0},
+  {id:'sky',cat:'bg',sw:'#8FD3FF',de:'der Himmel',name:'le ciel',price:60},
+  {id:'mint',cat:'bg',sw:'#9BE8C8',de:'die Minze',name:'la menthe',price:60},
+  {id:'candy',cat:'bg',sw:'#FFB3D9',de:'die Zucker\u00ADwatte',name:'la barbe à papa',price:80},
+  {id:'night',cat:'bg',sw:'#1F2A4D',de:'die Sternen\u00ADnacht',name:'la nuit étoilée',price:150}
 ];
 const SHOPK=Object.fromEntries(SHOP.map(x=>[x.id,x]));
+/* le nom allemand sans les petits tirets cachés (pour la voix), et les deux noms ensemble pour les messages */
+const deTxt=x=>String(x.de||'').replace(/\u00AD/g,'');
+const deFr=x=>`<b lang="de">${esc(x.de)}</b> (${esc(x.name)})`;
 KEEP_KEYS.push('shop','mapDone','mapInit');
 
 function kindOf(id){
@@ -2330,7 +2335,7 @@ const coins=()=>{const s=shopState();return Math.max(0,Math.floor((state.xp||0)/
 const owns=id=>{const it=SHOPK[id];return !!it&&(it.price===0||!!shopState().owned[id]);};
 function avatarHtml(cls=''){
   const e=shopState().eq,ch=SHOPK[e.char]||SHOPK.bear,hat=e.hat&&SHOPK[e.hat],acc=e.acc&&SHOPK[e.acc];
-  return `<span class="avatar ${cls}" role="img" aria-label="Ton avatar : ${esc(ch.name)}${hat?', '+esc(hat.name):''}${acc?', '+esc(acc.name):''}"><span class="a-char emo">${ch.emo}</span>${hat?`<span class="a-hat emo">${hat.emo}</span>`:''}${acc?`<span class="a-acc emo">${acc.emo}</span>`:''}</span>`;
+  return `<span class="avatar ${cls}" role="img" aria-label="Ton avatar : ${esc(deTxt(ch))} (${esc(ch.name)})${hat?', '+esc(deTxt(hat))+' ('+esc(hat.name)+')':''}${acc?', '+esc(deTxt(acc))+' ('+esc(acc.name)+')':''}"><span class="a-char emo">${ch.emo}</span>${hat?`<span class="a-hat emo">${hat.emo}</span>`:''}${acc?`<span class="a-acc emo">${acc.emo}</span>`:''}</span>`;
 }
 function applyBg(){const bg=(state.shop&&state.shop.eq&&state.shop.eq.bg)||'gold';document.documentElement.dataset.bg=bg;document.body.dataset.bg=bg;}
 function renderShop(){
@@ -2338,22 +2343,22 @@ function renderShop(){
   SCR.shop.innerHTML=`<div class="topbar"><button class="icon-btn" data-act="home" aria-label="Retour au QG">✕</button><h2 style="font-size:24px">Boutique</h2><span class="coins" style="margin-left:auto">🥨 ${c}</span></div>
   <div class="stack">
     <section class="panel shophead">${avatarHtml('big')}
-      <div><h3>Ton avatar</h3><p>Tu gagnes <b>1 🥨 tous les 10 XP</b>, et <b>+${MAP_BONUS} 🥨</b> à chaque nouvelle étape de la carte d'aventure.</p></div></section>
+      <div><h3>Ton avatar</h3><p>Tu gagnes <b>1 🥨 tous les 10 XP</b>, et <b>+${MAP_BONUS} 🥨</b> à chaque nouvelle étape de la carte d'aventure.</p><p class="dds">Les noms sont en allemand : <b>der</b> = masculin, <b>die</b> = féminin, <b>das</b> = neutre.</p></div></section>
     ${SHOP_CATS.map(([cat,label])=>`<section><h2 class="h2" style="margin-top:6px">${label}</h2><div class="sgrid">${SHOP.filter(x=>x.cat===cat).map(x=>{
       const own=owns(x.id),on=s.eq[cat]===x.id;
       const look=cat==='bg'?`<span class="swatch ${x.id}" style="--sw:${x.sw}"></span>`:`<span class="emo">${x.emo}</span>`;
       const tag=on?'<span class="st on">✓ Équipé</span>':own?`<span class="st">${cat==='hat'||cat==='acc'?'Mettre':'Choisir'}</span>`:`<span class="st price ${c>=x.price?'':'nope'}">🥨 ${x.price}</span>`;
-      return `<button class="sitem ${on?'on':''} ${own?'own':''}" data-act="shopitem" data-id="${x.id}" aria-pressed="${on}">${look}<b>${esc(x.name)}</b>${tag}</button>`;}).join('')}</div></section>`).join('')}
+      return `<button class="sitem ${on?'on':''} ${own?'own':''}" data-act="shopitem" data-id="${x.id}" aria-pressed="${on}">${look}<b lang="de">${esc(x.de)}</b><small>${esc(x.name)}</small>${tag}</button>`;}).join('')}</div></section>`).join('')}
   </div>`;
 }
 function shopItem(id){
   const x=SHOPK[id];if(!x)return;const s=shopState();
   if(!owns(id)){
     const c=coins();
-    if(c<x.price){toast(`Il te manque <b>${x.price-c} 🥨</b> pour ${esc(x.name.toLowerCase())}. Joue encore un peu !`);const m=$(`[data-id="${id}"]`);if(m){m.classList.remove('nope');void m.offsetWidth;m.classList.add('nope');}Sfx.play('bad');return;}
-    s.owned[id]=Date.now();s.spent=spentOf(s);s.eq[x.cat]=id;s.eqAt=Date.now();toast(`Bravo ! Tu as acheté ${esc(x.name.toLowerCase())} <span class="emo">🎉</span>`);Sfx.play('rank');confetti(30);
-  }else if(s.eq[x.cat]===id&&(x.cat==='hat'||x.cat==='acc')){s.eq[x.cat]='';s.eqAt=Date.now();toast(`Tu as enlevé ${esc(x.name.toLowerCase())}.`);}
-  else{s.eq[x.cat]=id;s.eqAt=Date.now();Sfx.play('good');}
+    if(c<x.price){toast(`Il te manque <b>${x.price-c} 🥨</b> pour ${deFr(x)}. Joue encore un peu !`);const m=$(`[data-id="${id}"]`);if(m){m.classList.remove('nope');void m.offsetWidth;m.classList.add('nope');}Sfx.play('bad');return;}
+    s.owned[id]=Date.now();s.spent=spentOf(s);s.eq[x.cat]=id;s.eqAt=Date.now();toast(`Bravo ! Tu as acheté ${deFr(x)} <span class="emo">🎉</span>`);Sfx.play('rank');confetti(30);Voice.say(deTxt(x));
+  }else if(s.eq[x.cat]===id&&(x.cat==='hat'||x.cat==='acc')){s.eq[x.cat]='';s.eqAt=Date.now();toast(`Tu as enlevé ${deFr(x)}.`);}
+  else{s.eq[x.cat]=id;s.eqAt=Date.now();Sfx.play('good');Voice.say(deTxt(x));}
   save();applyBg();const y=window.scrollY;renderShop();window.scrollTo(0,y);
 }
 
