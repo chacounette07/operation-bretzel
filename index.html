@@ -41,6 +41,7 @@
   --t-plur:#4FC3F7;
   --t-ctrl:#FFE14D;
   --t-patch:#FFADAD;
+  --t-tier:#E8A86B;
   --t-dict:#7FD1AE;
   --f-display:'Lilita One','Arial Rounded MT Bold','Trebuchet MS',sans-serif;
   --f-body:'Nunito','Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
@@ -121,6 +122,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.05;
 .worlds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .worlds>.wt:last-child:nth-child(odd){grid-column:1/-1}
 .h2sub{margin:-6px 0 12px;font-weight:800;font-size:14px}
+.wt[data-w="tier"] .band{background:radial-gradient(circle at 50% 50%,rgba(122,74,30,.22) 0 4px,transparent 5px) 0 0/22px 22px,#E8A86B}
 .wt[data-w="patch"] .band{background:conic-gradient(#FFADAD 0 25%,#FDFFB6 0 50%,#A0E7E5 0 75%,#CAFFBF 0) 0 0/36px 36px}
 .wt[data-w="land"] .band{background:linear-gradient(180deg,#000 0 33.4%,#DD0000 33.4% 66.7%,#FFCE00 66.7%)}
 .wt{appearance:none;position:relative;text-align:left;border:3px solid var(--ink);border-radius:18px;background:var(--paper);box-shadow:5px 5px 0 var(--ink);padding:0;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;transition:transform .06s,box-shadow .06s}
@@ -1031,8 +1033,8 @@ const PAIRS3=[['wir','nous'],['mögen','aimer'],['ich mag','j\'aime'],['wir sind
    Uniquement des ajouts : les questions existantes ne changent pas.
    ========================================================= */
 Object.assign(WORLDS,{
-  patch:{name:'Die Patchwork\u00ADfamilie',sub:'La famille recomposée : Stief- ou Halb- ?',emo:'🧩',col:'var(--t-patch)',neu:true},
-  exam:{name:'Spécial contrôle',sub:'Jeudi 15 octobre : toute la famille, mein, einen, sein, mögen, haben',emo:'📝',col:'var(--t-ctrl)'}
+  patch:{name:'Die Patchwork\u00ADfamilie',sub:'La famille recomposée : Stief- ou Halb- ?',emo:'🧩',col:'var(--t-patch)'},
+  exam:{name:'Spécial contrôle',sub:'Jeudi 15 octobre : la famille, les animaux, mein, einen / eine / ein, sein, mögen, haben',emo:'📝',col:'var(--t-ctrl)'}
 });
 THEMES[1].worlds.push('patch');
 Object.assign(WGROUP,{exam:['fam','meine','plur','patch']});
@@ -1102,6 +1104,83 @@ S('pr.stief','pr','mcq',{ask:'Comment se prononce « Stiefvater » ?',big:'Stief
 const PAIRS4=[['die Patchworkfamilie','la famille recomposée'],['die Stiefmutter','la belle-mère'],['der Stiefvater','le beau-père'],['der Halbbruder','le demi-frère'],['die Halbschwester','la demi-sœur'],['ich habe','j\'ai'],['wir haben','nous avons']];
 
 /* =========================================================
+   Cours du mardi 13 octobre : Mein Haustier (les animaux domestiques)
+   Hast du ein Haustier? Ja, ich habe einen Hund / eine Katze / ein Meerschweinchen.
+   Nein, ich habe kein Haustier.
+   Uniquement des ajouts : les questions existantes ne changent pas.
+   ========================================================= */
+Object.assign(WORLDS,{
+  tier:{name:'Mein Haustier',sub:'Les animaux : einen Hund, eine Katze, ein Kaninchen…',emo:'🐹',col:'var(--t-tier)',neu:true}
+});
+THEMES[1].worlds.push('tier');
+WGROUP.exam.push('tier');
+LW.push('Haustier','Hund','Katze','Kaninchen','Hamster');
+Object.assign(MEAN,{Haustier:'l\'animal domestique',Hund:'le chien',Katze:'le chat',Kaninchen:'le lapin',Hamster:'le hamster'});
+
+/* ---------- le vocabulaire du 13 octobre ---------- */
+const TIER=[
+  {k:'Haustier',art:'das',fr:'l\'animal domestique',emo:'🐾',hook:'Haus = la maison, Tier = l\'animal : l\'animal de la maison ! C\'est neutre : das Haustier → ein Haustier, kein Haustier.'},
+  {k:'Hund',art:'der',fr:'le chien',emo:'🐶',hook:'Masculin, comme en français : der Hund → ich habe einen Hund.'},
+  {k:'Katze',art:'die',fr:'le chat',emo:'🐱',hook:'Piège : en français on dit « le chat », mais en allemand c\'est féminin : die Katze → ich habe eine Katze.'},
+  {k:'Meerschweinchen',art:'das',fr:'le cochon d\'Inde',emo:'🐹',hook:'Meer = la mer, Schweinchen = le petit cochon : un « petit cochon de mer » ! Les mots en -chen sont toujours neutres : das Meerschweinchen.'},
+  {k:'Kaninchen',art:'das',fr:'le lapin',emo:'🐰',hook:'Encore un mot en -chen, donc neutre : das Kaninchen → ich habe ein Kaninchen.'},
+  {k:'Hamster',art:'der',fr:'le hamster',emo:'🐹',hook:'Comme en français, et masculin : der Hamster → ich habe einen Hamster.'},
+  {k:'Wellensittich',art:'der',fr:'la perruche',emo:'🦜',hook:'Welle = la vague, comme les vagues sur ses plumes. Masculin : der Wellensittich → einen Wellensittich.'}
+];
+const TIERK=Object.fromEntries(TIER.map(f=>[f.k,f]));
+const tgen=f=>({der:'masculin',die:'féminin',das:'neutre'})[f.art];
+const tein=f=>({der:'einen',die:'eine',das:'ein'})[f.art];
+const tkein=f=>({der:'keinen',die:'keine',das:'kein'})[f.art];
+GEN['tier.fr2de']=k=>{const f=TIERK[k];if(!f)return null;const o=sample(TIER.filter(x=>x.k!==k&&x.fr!==f.fr),3);
+  return{kind:'mcq',ask:'Comment dit-on en allemand… ?',big:`${f.emo} ${f.fr}`,opts:[f,...o].map(x=>`${x.art} ${x.k}`),answer:`${f.art} ${f.k}`,optLang:'de',say:`${f.art} ${f.k}`,why:`${cap(f.fr)} = <b>${f.art} ${f.k}</b>, un mot ${tgen(f)}.`,tip:f.hook};};
+GEN['tier.de2fr']=k=>{const f=TIERK[k];if(!f)return null;const o=sample(TIER.filter(x=>x.k!==k&&x.fr!==f.fr),3);
+  return{kind:'mcq',ask:'Que veut dire… ?',big:`${f.art} ${f.k}`,bigLang:'de',opts:[f,...o].map(x=>x.fr),answer:f.fr,say:`${f.art} ${f.k}`,why:`<b>${f.art} ${f.k}</b> = ${f.fr}.`,tip:f.hook};};
+GEN['tier.gen']=k=>{const f=TIERK[k];if(!f)return null;
+  return{kind:'mcq',ask:'Quel article : der, die ou das ?',big:`___ ${f.k}`,bigLang:'de',blank:true,opts:['der','die','das'],noShuffle:true,answer:f.art,optLang:'de',say:`${f.art} ${f.k}`,
+    why:`<b>${f.k}</b> = ${f.fr}. C'est un mot ${tgen(f)} : <b>${f.art}</b> ${f.k}.`,tip:f.hook};};
+GEN['tier.acc']=k=>{const f=TIERK[k];if(!f)return null;
+  return{kind:'mcq',ask:'Complète :',big:`Ich habe ___ ${f.k}.`,bigLang:'de',opts:['einen','eine','ein'],noShuffle:true,answer:tein(f),optLang:'de',say:`Ich habe ${tein(f)} ${f.k}.`,
+    why:`${f.art} ${f.k} → ich habe <b>${tein(f)}</b> ${f.k}. Après « ich habe » : der → einen, die → eine, das → ein.`,tip:f.hook};};
+GEN['tier.kein']=k=>{const f=TIERK[k];if(!f)return null;
+  return{kind:'mcq',ask:'Complète (= je n\'ai pas de…) :',big:`Ich habe ___ ${f.k}.`,bigLang:'de',opts:['keinen','keine','kein'],noShuffle:true,answer:tkein(f),optLang:'de',say:`Ich habe ${tkein(f)} ${f.k}.`,
+    why:`${f.art} ${f.k} → ich habe <b>${tkein(f)}</b> ${f.k}. C'est comme einen / eine / ein, avec un k devant.`,tip:f.hook};};
+GEN['tier.type']=k=>{const f=TIERK[k];if(!f)return null;
+  return{kind:'type',ask:'Écris en allemand, avec l\'article (der, die ou das) :',big:`${f.emo} ${f.fr}`,accept:[`${f.art} ${f.k}`],say:`${f.art} ${f.k}`,why:`${cap(f.fr)} = <b>${f.art} ${f.k}</b>, un mot ${tgen(f)}.`,tip:f.hook};};
+
+/* ---------- Hast du ein Haustier? ---------- */
+S('tier.q.hast','tier','mcq',{ask:'Comment dit-on en allemand… ?',big:'As-tu un animal domestique ?',opts:['Hast du ein Haustier?','Hast du einen Haustier?','Bist du ein Haustier?','Hat du ein Haustier?'],answer:'Hast du ein Haustier?',optLang:'de',say:'Hast du ein Haustier?',why:'<b>Hast du</b> (as-tu) <b>ein Haustier</b> ? das Haustier est neutre → <b>ein</b> Haustier.'});
+S('tier.r.nein','tier','mcq',{ask:'Tu n\'as pas d\'animal. Que réponds-tu ?',big:'Hast du ein Haustier?',bigLang:'de',opts:['Nein, ich habe kein Haustier.','Nein, ich habe keinen Haustier.','Nein, ich habe keine Haustier.','Nein, ich bin kein Haustier.'],answer:'Nein, ich habe kein Haustier.',optLang:'de',say:'Nein, ich habe kein Haustier.',why:'das Haustier (neutre) → ich habe <b>kein</b> Haustier.'});
+S('tier.r.ja','tier','mcq',{ask:'Tu as un chien. Que réponds-tu ?',big:'Hast du ein Haustier?',bigLang:'de',opts:['Ja, ich habe einen Hund.','Ja, ich habe ein Hund.','Ja, ich habe eine Hund.','Ja, ich bin einen Hund.'],answer:'Ja, ich habe einen Hund.',optLang:'de',say:'Ja, ich habe einen Hund.',why:'der Hund (masculin) → ich habe <b>einen</b> Hund.'});
+S('tier.du.hast','tier','mcq',{ask:'Complète :',big:'___ du ein Haustier?',bigLang:'de',opts:['Hast','Habe','Hat','Bist'],answer:'Hast',optLang:'de',say:'Hast du ein Haustier?',why:'haben avec du → <b>du hast</b>. Pour poser la question, on met le verbe en premier : <b>Hast</b> du…?'});
+S('tier.er.hat','tier','mcq',{ask:'Complète :',big:'Mein Bruder ___ einen Hund.',bigLang:'de',opts:['hat','habe','hast','haben'],answer:'hat',optLang:'de',say:'Mein Bruder hat einen Hund.',why:'Mein Bruder = er → er <b>hat</b>. ⚠️ haben est irrégulier : du hast, er hat.'});
+S('tier.und','tier','mcq',{ask:'Comment dit-on en allemand… ?',big:'J\'ai un lapin et un hamster.',opts:['Ich habe ein Kaninchen und einen Hamster.','Ich habe einen Kaninchen und ein Hamster.','Ich habe ein Kaninchen und ein Hamster.','Ich habe eine Kaninchen und einen Hamster.'],answer:'Ich habe ein Kaninchen und einen Hamster.',optLang:'de',say:'Ich habe ein Kaninchen und einen Hamster.',why:'das Kaninchen → <b>ein</b> Kaninchen ; der Hamster → <b>einen</b> Hamster.'});
+S('tier.wellensittich','tier','mcq',{ask:'Comment dit-on en allemand… ?',big:'J\'ai une perruche. 🦜',opts:['Ich habe einen Wellensittich.','Ich habe eine Wellensittich.','Ich habe ein Wellensittich.','Ich habe keinen Wellensittich.'],answer:'Ich habe einen Wellensittich.',optLang:'de',say:'Ich habe einen Wellensittich.',why:'der Wellensittich est masculin (alors que « la perruche » est féminin) → ich habe <b>einen</b> Wellensittich.'});
+
+/* ---------- einen / eine / ein et keinen / keine / kein ---------- */
+S('tier.rule.acc','tier','mcq',{ask:'Après « ich habe », « der Hund » devient…',big:'der Hund → Ich habe ___ Hund.',bigLang:'de',opts:['einen','ein','eine','der'],answer:'einen',optLang:'de',say:'Ich habe einen Hund.',why:'Après « ich habe » : <b>der → einen</b>, die → eine, das → ein.'});
+S('tier.rule.das','tier','mcq',{ask:'Après « ich habe », un mot neutre (das) prend…',big:'das Kaninchen → Ich habe ___ Kaninchen.',bigLang:'de',opts:['ein','einen','eine','das'],answer:'ein',optLang:'de',say:'Ich habe ein Kaninchen.',why:'Avec un mot neutre, <b>das → ein</b> : ich habe ein Kaninchen, ein Meerschweinchen, ein Haustier.'});
+S('tier.rule.chen','tier','mcq',{ask:'Les mots qui finissent par -chen (das Kaninchen, das Meerschweinchen) sont…',big:'-chen',bigLang:'de',opts:['toujours neutres : das','toujours masculins : der','toujours féminins : die','toujours au pluriel'],answer:'toujours neutres : das',say:'das Kaninchen, das Meerschweinchen',why:'Une règle sans exception : les mots en <b>-chen</b> sont neutres → <b>das</b>.'});
+S('tier.keine.katze','tier','mcq',{ask:'Complète (= je n\'ai pas de chat) :',big:'Ich habe ___ Katze.',bigLang:'de',opts:['keine','keinen','kein','nicht'],answer:'keine',optLang:'de',say:'Ich habe keine Katze.',why:'die Katze (féminin) → ich habe <b>keine</b> Katze.'});
+S('tier.keinen.hund','tier','mcq',{ask:'Complète (= je n\'ai pas de chien) :',big:'Ich habe ___ Hund.',bigLang:'de',opts:['keinen','keine','kein','nicht'],answer:'keinen',optLang:'de',say:'Ich habe keinen Hund.',why:'der Hund (masculin) → ich habe <b>keinen</b> Hund, comme keinen Bruder.'});
+
+/* ---------- vrai ou faux ---------- */
+S('tier.tf.katze','tier','tf',{big:'« die Katze » est un mot masculin.',answer:false,say:'die Katze',why:'Faux : <b>die</b> Katze est féminin, même si en français on dit « le chat ».'});
+S('tier.tf.chen','tier','tf',{big:'« das Meerschweinchen » est neutre, comme tous les mots en -chen.',answer:true,say:'das Meerschweinchen',why:'Vrai : les mots en -chen sont toujours neutres → <b>das</b> Meerschweinchen, <b>ein</b> Meerschweinchen.'});
+S('tier.tf.kein','tier','tf',{big:'On dit « Ich habe keinen Haustier ».',answer:false,say:'Ich habe kein Haustier.',why:'Faux : das Haustier est neutre → ich habe <b>kein</b> Haustier.'});
+S('tier.tf.hamster','tier','tf',{big:'« J\'ai un hamster » se dit « Ich habe einen Hamster ».',answer:true,say:'Ich habe einen Hamster.',why:'Vrai : der Hamster (masculin) → <b>einen</b> Hamster.'});
+
+/* ---------- construire ---------- */
+S('tier.b.hund','tier','build',{ask:'Construis la phrase en allemand :',big:'J\'ai un chien.',tiles:['Ich','habe','einen','Hund','ein','eine'],target:['Ich','habe','einen','Hund'],say:'Ich habe einen Hund.',why:'<b>Ich habe einen Hund.</b> (der Hund → einen)'});
+S('tier.b.kein','tier','build',{ask:'Construis la phrase en allemand :',big:'Je n\'ai pas d\'animal domestique.',tiles:['Ich','habe','kein','Haustier','keinen','keine'],target:['Ich','habe','kein','Haustier'],say:'Ich habe kein Haustier.',why:'<b>Ich habe kein Haustier.</b> (das Haustier → kein)'});
+S('tier.b.hast','tier','build',{ask:'Construis la question en allemand :',big:'As-tu un animal domestique ?',tiles:['Hast','du','ein','Haustier?','einen','Bist'],target:['Hast','du','ein','Haustier?'],say:'Hast du ein Haustier?',why:'<b>Hast du ein Haustier?</b> Le verbe vient en premier dans la question.'});
+
+/* ---------- prononciation ---------- */
+S('pr.schwein','pr','mcq',{ask:'Dans « Meerschweinchen », le « ei » se prononce…',big:'Meerschweinchen',bigLang:'de',opts:['aï','é','eu','i'],answer:'aï',say:'das Meerschweinchen',why:'<b>ei</b> = « aï », comme dans drei. Et <b>sch</b> = « ch » : Schwein = « chvaïn ».'});
+
+/* ---------- Memory : nouvelles paires ---------- */
+const PAIRS5=[['das Haustier','l\'animal domestique'],['der Hund','le chien'],['die Katze','le chat'],['das Kaninchen','le lapin'],['das Meerschweinchen','le cochon d\'Inde'],['der Wellensittich','la perruche'],['der Hamster','le hamster']];
+
+/* =========================================================
    Grosse mise à jour : fantômes malins, dictée, série de jours, badges, boss
    ========================================================= */
 /* ---------- le temps (jour du calendrier, heure locale) ---------- */
@@ -1124,7 +1203,7 @@ const nextDue=()=>{const t=Object.values(state.ghosts).filter(g=>!isDue(g)).map(
 const KEEP_KEYS=['streak','badges','boss','news'];
 
 /* ---------- les leçons les plus récentes (défi du jour, dictée) ---------- */
-const RECENT_W=['patch','plur','meine'];
+const RECENT_W=['tier','patch','plur','meine'];
 
 /* ---------- dictée : on entend un mot, on l'écrit ---------- */
 Object.assign(WORLDS,{dict:{name:'Dictée',sub:'Écoute un mot ou une phrase en allemand et écris-le',emo:'✍️',col:'var(--t-dict)'}});
@@ -1145,7 +1224,9 @@ const DICT_RAW=[
   ['meine','Ich habe einen Bruder.','J\'ai un frère.'],['meine','Ich habe keine Schwester.','Je n\'ai pas de sœur.'],['meine','die Geschwister','les frères et sœurs'],
   ['meine','Ich bin ein Einzelkind.','Je suis enfant unique.'],['meine','meine Mutter','ma mère'],['meine','mein Vater','mon père'],
   ['plur','wir spielen','nous jouons'],['plur','sie schwimmen','ils / elles nagent'],['plur','wir sind','nous sommes'],['plur','ich mag','j\'aime'],['plur','Wir mögen Sport.','Nous aimons le sport.'],
-  ['patch','die Patchworkfamilie','la famille recomposée'],['patch','der Stiefvater','le beau-père'],['patch','die Stiefmutter','la belle-mère'],['patch','der Halbbruder','le demi-frère'],['patch','die Halbschwester','la demi-sœur']
+  ['patch','die Patchworkfamilie','la famille recomposée'],['patch','der Stiefvater','le beau-père'],['patch','die Stiefmutter','la belle-mère'],['patch','der Halbbruder','le demi-frère'],['patch','die Halbschwester','la demi-sœur'],
+  ['tier','das Haustier','l\'animal domestique'],['tier','der Hund','le chien'],['tier','die Katze','le chat'],['tier','das Kaninchen','le lapin'],['tier','der Hamster','le hamster'],
+  ['tier','das Meerschweinchen','le cochon d\'Inde'],['tier','Ich habe einen Hund.','J\'ai un chien.'],['tier','Ich habe kein Haustier.','Je n\'ai pas d\'animal.'],['tier','Hast du ein Haustier?','As-tu un animal domestique ?']
 ];
 const dslug=s=>String(s).toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const DICT=DICT_RAW.map(([w,de,fr])=>({k:dslug(de),w,de,fr}));
@@ -1219,6 +1300,7 @@ const MAP_STOPS=[
   {id:'num',w:'num',city:'Vaduz',emo:'🇱🇮',fact:'La capitale du Liechtenstein, un tout petit pays où l\'on parle allemand.'},
   {id:'plur',w:'plur',city:'Dortmund',emo:'⚽',fact:'La ville du Borussia et de son « mur jaune » : près de 25 000 supporters debout !'},
   {id:'patch',w:'patch',city:'Bremen',emo:'🐓',fact:'Les musiciens de Brême : un âne, un chien, un chat et un coq. Une vraie Patchworkfamilie !'},
+  {id:'tier',w:'tier',city:'Stuttgart',emo:'🐴',fact:'Son nom vient de « Stutengarten », un élevage de chevaux : il y a un cheval sur son blason… et sur le logo de Porsche !'},
   {id:'t2',boss:'t2',city:'Drachenfels',emo:'🐉',fact:'Le « rocher du dragon », où le héros Siegfried aurait battu un dragon. La Hydra t\'y attend !'}
 ];
 const MAP_BONUS=10;
@@ -1266,7 +1348,7 @@ KEEP_KEYS.push('shop','mapDone','mapInit');
 function kindOf(id){
   if(STATIC[id])return STATIC[id].kind;
   const k=id.split('.').slice(0,2).join('.');
-  return {'fam.type':'type','num.type':'type','num.dig':'type','num.build':'build','num.listen':'listen','pr.listen':'listen','konj.t':'type','plur.t':'type','patch.type':'type','dict.w':'type'}[k]||'mcq';
+  return {'fam.type':'type','num.type':'type','num.dig':'type','num.build':'build','num.listen':'listen','pr.listen':'listen','konj.t':'type','plur.t':'type','patch.type':'type','tier.type':'type','dict.w':'type'}[k]||'mcq';
 }
 function getQ(id){
   let q;
@@ -1902,6 +1984,12 @@ function pickWorld(w,n,exclude){
     const rec=shuffle(DICT.filter(d=>RECENT_W.includes(d.w))),old=shuffle(DICT.filter(d=>!RECENT_W.includes(d.w)));
     return shuffle([...rec.slice(0,4),...old].map(d=>'dict.w.'+d.k).filter(ok).slice(0,n));
   }
+  if(w==='tier'){
+    const ws=shuffle(TIER.map(f=>f.k));
+    const gen=['fr2de','acc','de2fr','gen','kein','type'].map((k,i)=>`tier.${k}.${ws[i]}`);
+    const g2=gen.filter(ok);
+    return shuffle([...g2,...pickStatics(w,n-g2.length,exclude,{type:1})]).slice(0,n);
+  }
   if(w==='patch'){
     const ws=shuffle(PATCH.map(f=>f.k));
     const gen=['fr2de','de2fr','gen','type'].map((k,i)=>`patch.${k}.${ws[i]}`);
@@ -1909,13 +1997,15 @@ function pickWorld(w,n,exclude){
     return shuffle([...g2,...pickStatics(w,n-g2.length,exclude,{type:1})]).slice(0,n);
   }
   if(w==='exam'){
-    /* contrôle du 15 octobre : Patchworkfamilie, pluriel + mögen, Meine Familie, Die Familie */
+    /* contrôle du 15 octobre : les animaux, Patchworkfamilie, pluriel + mögen, Meine Familie, Die Familie */
     const out=[];const ex=()=>[...exclude,...out];
     const take=(ids,k)=>{for(const id of shuffle(ids)){if(out.length>=n||k<=0)break;if(!ex().includes(id)){out.push(id);k--;}}};
+    take([`tier.${pick(['fr2de','de2fr','gen','acc','kein'])}.${pick(TIER).k}`],1);
+    take(pickStatics('tier',5,ex()),1);
     take([`patch.${pick(['fr2de','de2fr','gen'])}.${pick(PATCH).k}`],1);
-    take(pickStatics('patch',5,ex()),2);
+    take(pickStatics('patch',5,ex()),1);
     take([`plur.f.${pick(PLV).inf}.${pick(['wir','siepl'])}`],1);
-    take(pickStatics('plur',5,ex()),2);
+    take(pickStatics('plur',5,ex()),1);
     take(pickStatics('meine',5,ex()),2);
     take(pickWorld('fam',5,ex()),2);
     return shuffle(out).slice(0,n);
@@ -2367,6 +2457,7 @@ function mapStatus(){
   let open=true;
   return MAP_STOPS.map((st,i)=>{const done=st.boss?((state.boss[st.boss]||{}).wins||0)>=1:(state.stars[st.w]||0)>=1;const o={st,i,done,open};open=open&&done;return o;});
 }
+const mapKept=m=>m.done&&(m.open||!!(state.mapDone&&state.mapDone[m.st.id]));
 function checkMap(){
   state.mapDone=state.mapDone||{};const init=!state.mapInit,out=[];
   for(const m of mapStatus()){if(m.done&&m.open&&!state.mapDone[m.st.id]){state.mapDone[m.st.id]=Date.now();if(!init){shopState().bonus+=MAP_BONUS;out.push(m.st);}}}
@@ -2382,15 +2473,15 @@ function mapStopsHtml(list){
     <button class="btn full" data-act="map">Voir la carte <span class="emo">🗺️</span></button></section>`;
 }
 function renderMap(){
-  const ms=mapStatus(),cur=ms.find(m=>m.open&&!m.done),doneN=ms.filter(m=>m.done&&m.open).length;
+  const ms=mapStatus(),cur=ms.find(m=>m.open&&!m.done),doneN=ms.filter(mapKept).length;
   let y=56,last=-1;const rows=[],pts=[];
   ms.forEach((m,i)=>{
     const th=m.st.boss?BOSSES[m.st.boss].theme:THEMES.findIndex(t=>t.worlds.includes(m.st.w));
     if(th!==last){rows.push(`<div class="mband" style="top:${y-24}px"><span>${nb(esc(THEMES[th].title))}</span></div>`);y+=58;last=th;}
-    const x=i%2?70:30,boss=!!m.st.boss,st=m===cur?'cur':m.done&&m.open?'done':m.open?'open':'lock';
-    const stars=boss?(m.done?'<span class="mstat">🏆 Vaincu !</span>':''):(m.open?`<span class="mstat">${starsHtml(state.stars[m.st.w]||0)}</span>`:'');
+    const x=i%2?70:30,boss=!!m.st.boss,st=m===cur?'cur':mapKept(m)?'done':m.open?'open':'lock';
+    const stars=boss?(m.done?'<span class="mstat">🏆 Vaincu !</span>':''):(m.open||mapKept(m)?`<span class="mstat">${starsHtml(state.stars[m.st.w]||0)}</span>`:'');
     rows.push(`<button class="mstop ${st} ${boss?'boss':''} ${x<50?'left':'right'}" data-act="mapgo" data-i="${i}" style="top:${y}px;--x:${x}%">
-      <span class="pin"><span class="emo">${m.st.emo}</span>${st==='lock'?'<span class="lk emo">🔒</span>':''}${m.done&&m.open?'<span class="ok">✓</span>':''}${st==='cur'?`<span class="me">${avatarHtml('mini')}</span>`:''}</span>
+      <span class="pin"><span class="emo">${m.st.emo}</span>${st==='lock'?'<span class="lk emo">🔒</span>':''}${mapKept(m)?'<span class="ok">✓</span>':''}${st==='cur'?`<span class="me">${avatarHtml('mini')}</span>`:''}</span>
       <span class="mlab"><b>${esc(m.st.city)}</b><span>${nb(esc(stopName(m.st)))}</span>${stars}${st==='cur'?'<span class="go">C\'est ici ! Joue →</span>':''}</span></button>`);
     pts.push([x,y]);y+=boss?132:116;
   });
@@ -2418,7 +2509,7 @@ function openMap(){
 }
 function mapGo(i){
   const m=mapStatus()[i];if(!m)return;
-  if(!m.open){const prev=MAP_STOPS[i-1];toast(`🔒 Pour aller à ${esc(m.st.city)}, réussis d'abord ${prev?`l'étape ${esc(prev.city)}`:'l\'étape d\'avant'} !`);Sfx.play('bad');return;}
+  if(!m.open&&!mapKept(m)){const prev=MAP_STOPS[i-1];toast(`🔒 Pour aller à ${esc(m.st.city)}, réussis d'abord ${prev?`l'étape ${esc(prev.city)}`:'l\'étape d\'avant'} !`);Sfx.play('bad');return;}
   if(m.st.boss)startBoss(m.st.boss);else startWorld(m.st.w);
   if(run)run.fromMap=true;
 }
@@ -2434,7 +2525,8 @@ function blitzNextId(){
   else if(r<.6)id=`fam.${pick(['fr2de','de2fr','gen'])}.${pick(FAM).k}`;
   else if(r<.75)id=`hobby.${pick(['emo','fr2de','de2fr'])}.${pick(HOB).k}`;
   else if(r<.83)id=`plur.f.${pick(PLV).inf}.${pick(['wir','siepl'])}`;
-  else if(r<.9)id=`patch.${pick(['fr2de','de2fr','gen'])}.${pick(PATCH).k}`;
+  else if(r<.87)id=`patch.${pick(['fr2de','de2fr','gen'])}.${pick(PATCH).k}`;
+  else if(r<.91)id=`tier.${pick(['fr2de','de2fr','gen','acc','kein'])}.${pick(TIER).k}`;
   else{const n=pick([16,17,20,21,30,60,70,52,48,99,13+rnd(7),(2+rnd(8))*10,21+rnd(79),21+rnd(79)]);id=`num.${pick(['d2w','w2d'])}.${n}`;}
   if(run.recent.includes(id))return blitzNextId();
   run.recent.push(id);if(run.recent.length>10)run.recent.shift();
@@ -2487,7 +2579,7 @@ function blitzEnd(){
 }
 
 /* ---------- Memory ---------- */
-const PAIRS=[['der Vater','le père'],['die Mutter','la mère'],['die Eltern','les parents'],['der Sohn','le fils'],['die Tochter','la fille'],['der Bruder','le frère'],['die Schwester','la sœur'],['die Kinder','les enfants'],['der Großvater','le grand-père'],['die Großmutter','la grand-mère'],['die Großeltern','les grands-parents'],['krank','malade'],['müde','fatigué(e)'],['gestresst','stressé(e)'],['Warum?','Pourquoi ?'],['verliebt','amoureux'],['zwanzig','20'],['dreißig','30'],['sechzehn','16'],['siebzig','70'],['zweiundfünfzig','52'],['achtundvierzig','48']].concat(PAIRS2,PAIRS3,PAIRS4);
+const PAIRS=[['der Vater','le père'],['die Mutter','la mère'],['die Eltern','les parents'],['der Sohn','le fils'],['die Tochter','la fille'],['der Bruder','le frère'],['die Schwester','la sœur'],['die Kinder','les enfants'],['der Großvater','le grand-père'],['die Großmutter','la grand-mère'],['die Großeltern','les grands-parents'],['krank','malade'],['müde','fatigué(e)'],['gestresst','stressé(e)'],['Warum?','Pourquoi ?'],['verliebt','amoureux'],['zwanzig','20'],['dreißig','30'],['sechzehn','16'],['siebzig','70'],['zweiundfünfzig','52'],['achtundvierzig','48']].concat(PAIRS2,PAIRS3,PAIRS4,PAIRS5);
 let mem=null;
 function startMemory(){
   const pairs=sample(PAIRS,6);
