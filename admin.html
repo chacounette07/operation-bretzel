@@ -128,6 +128,11 @@ legend{padding:0 4px;color:#00248F}
 .empty .big{font-size:40px;display:block;margin-bottom:8px}
 .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px;margin:0 0 10px}
 .kv>div{background:#fff;padding:6px 8px}
+.pwbox{font:bold 20px 'Courier New',Courier,monospace;background:#fff;padding:8px 12px;margin:6px 0 8px;letter-spacing:1px;user-select:all;word-break:break-all}
+.arch td{color:#6B6B6B;font-style:italic}
+.shopgrid td .emo{font-size:16px}
+.tag{display:inline-block;border:1px solid var(--shadow);background:var(--face-hi);padding:0 5px;font-size:11px}
+.tag.gift{background:#E5F4E8;border-color:#5C9C6A}
 .kv b{display:block;font-size:17px;font-variant-numeric:tabular-nums}
 
 /* barre d'état */
@@ -215,6 +220,7 @@ legend{padding:0 4px;color:#00248F}
     <button class="tool save" data-act="save" id="t-save" title="Enregistrer la fiche (Ctrl+S)"><span class="i emo">💾</span><span class="lbl">Enregistrer</span></button>
     <button class="tool" data-act="cancel" id="t-cancel" title="Annuler les modifications de la fiche"><span class="i emo">↩️</span><span class="lbl">Annuler</span></button>
     <button class="tool" data-act="reset" id="t-reset" title="Remettre à zéro la progression du joueur"><span class="i emo">🧹</span><span class="lbl">Remise à zéro</span></button>
+    <button class="tool" data-act="pw" id="t-pw" title="Donner un mot de passe temporaire (ou changer l'identifiant)"><span class="i emo">🔑</span><span class="lbl">Mot de passe</span></button>
     <span class="tsep"></span>
     <button class="tool" data-act="tab" data-tab="ens" title="Vue d'ensemble de tous les joueurs"><span class="i emo">📊</span><span class="lbl">Ensemble</span></button>
     <button class="tool" data-act="export" title="Exporter la liste (tableur)"><span class="i emo">📤</span><span class="lbl">Exporter</span></button>
@@ -259,7 +265,7 @@ legend{padding:0 4px;color:#00248F}
    L'accès est contrôlé par les règles Firestore : seuls les comptes administrateurs
    (leur identifiant technique est dans les règles) peuvent lire les autres fiches.
    ========================================================= */
-const DATA={"worlds":{"cast":{"n":"Qui est qui ?","e":"🎬"},"fam":{"n":"Die Familie","e":"🌳"},"num":{"n":"Die Zahlen","e":"🔢"},"wg":{"n":"Wie geht's ?","e":"🗣️"},"pr":{"n":"Prononciation","e":"🎧"},"moi":{"n":"Ich stelle mich vor","e":"🙋"},"land":{"n":"Länder und Farben","e":"🌍"},"hobby":{"n":"Das ist mein Hobby!","e":"⚽"},"konj":{"n":"Konjugation","e":"🔧"},"meine":{"n":"Meine Familie","e":"🏠"},"plur":{"n":"Wir mögen Sport!","e":"👯"},"patch":{"n":"Die Patchworkfamilie","e":"🧩"},"exam":{"n":"Spécial contrôle","e":"📝"},"tier":{"n":"Mein Haustier","e":"🐱"},"dict":{"n":"Dictée","e":"✍️"}},"themes":[{"t":"Thema 1 : Ich stelle mich vor","w":["moi","land","hobby","konj","wg"]},{"t":"Thema 2 : Die Familie","w":["cast","fam","meine","num","plur","patch","tier"]}],"ranks":[{"xp":0,"de":"Kartoffel","e":"🥔"},{"xp":120,"de":"Brezel","e":"🥨"},{"xp":300,"de":"Würstchen","e":"🌭"},{"xp":550,"de":"Schnitzel","e":"🍖"},{"xp":850,"de":"Kirschtorte","e":"🍰"},{"xp":1250,"de":"Deutsch-Profi","e":"😎"},{"xp":1800,"de":"Legende","e":"🏆"},{"xp":2500,"de":"Superstar","e":"🌟"},{"xp":3300,"de":"Ritter","e":"🛡️"},{"xp":4200,"de":"Zauberer","e":"🧙"},{"xp":5200,"de":"Drachenreiter","e":"🐉"},{"xp":6400,"de":"Weltmeister","e":"🏅"},{"xp":7800,"de":"Astronaut","e":"🚀"},{"xp":9500,"de":"Superheld","e":"🦸"},{"xp":11500,"de":"Genie","e":"🧠"},{"xp":14000,"de":"Großmeister","e":"♟️"},{"xp":17000,"de":"Bretzel-Kaiser","e":"👑"}],"badges":[{"id":"start","e":"🎒","n":"Los geht's!","d":"Finir ta première mission"},{"id":"ghost1","e":"👻","n":"Geisterjäger","d":"Vaincre ton premier fantôme"},{"id":"ghost10","e":"🔦","n":"Ghostbuster","d":"Vaincre 10 fantômes"},{"id":"ghost50","e":"🏰","n":"Geisterschloss","d":"Vaincre 50 fantômes"},{"id":"combo5","e":"🔥","n":"Feuer!","d":"Faire un combo x5"},{"id":"combo10","e":"☄️","n":"Komet","d":"Faire un combo x10"},{"id":"combo20","e":"🌋","n":"Vulkan","d":"Faire un combo x20"},{"id":"perfekt","e":"⭐","n":"Perfekt!","d":"Avoir 3 étoiles à une mission"},{"id":"thema1","e":"🙋","n":"Thema 1 : top !","d":"3 étoiles à toutes les missions du Thema 1"},{"id":"thema2","e":"👨‍👩‍👧‍👦","n":"Thema 2 : top !","d":"3 étoiles à toutes les missions du Thema 2"},{"id":"explorer","e":"🗺️","n":"Entdecker","d":"Jouer toutes les missions des Themas"},{"id":"daily1","e":"📅","n":"Tag eins","d":"Réussir ton premier défi du jour"},{"id":"streak3","e":"🕯️","n":"Drei Tage","d":"Une série de 3 jours"},{"id":"streak7","e":"🗓️","n":"Eine Woche!","d":"Une série de 7 jours"},{"id":"streak30","e":"🌞","n":"Ein Monat!","d":"Une série de 30 jours"},{"id":"blitz10","e":"⚡","n":"Blitz","d":"10 bonnes réponses au Blitz"},{"id":"blitz20","e":"🌩️","n":"Donnerwetter!","d":"20 bonnes réponses au Blitz"},{"id":"memory","e":"🐘","n":"Elefant","d":"Finir le Memory en 10 coups ou moins"},{"id":"dict10","e":"✍️","n":"Diktat-Profi","d":"Réussir 10 dictées"},{"id":"dict50","e":"🖋️","n":"Schreibmeister","d":"Réussir 50 dictées"},{"id":"boss1","e":"🧛","n":"Graf besiegt","d":"Battre le boss du Thema 1"},{"id":"boss2","e":"🐲","n":"Hydra besiegt","d":"Battre le boss du Thema 2"},{"id":"c100","e":"💯","n":"Hundert!","d":"100 bonnes réponses"},{"id":"c1000","e":"🧠","n":"Tausend!","d":"1 000 bonnes réponses"},{"id":"legende","e":"🏆","n":"Legende","d":"Atteindre le rang Legende (1 800 XP)"}],"shop":[{"id":"bear","c":"char","e":"🐻","de":"der Berliner Bär","fr":"l'ours de Berlin","p":0},{"id":"fox","c":"char","e":"🦊","de":"der Fuchs","fr":"le renard","p":40},{"id":"cat","c":"char","e":"🐱","de":"die Katze","fr":"le chat","p":40},{"id":"dog","c":"char","e":"🐶","de":"der Hund","fr":"le chien","p":40},{"id":"frog","c":"char","e":"🐸","de":"der Frosch","fr":"la grenouille","p":60},{"id":"panda","c":"char","e":"🐼","de":"der Panda","fr":"le panda","p":60},{"id":"owl","c":"char","e":"🦉","de":"die Eule","fr":"la chouette","p":80},{"id":"penguin","c":"char","e":"🐧","de":"der Pinguin","fr":"le pingouin","p":80},{"id":"robot","c":"char","e":"🤖","de":"der Roboter","fr":"le robot","p":120},{"id":"alien","c":"char","e":"👽","de":"der Außerirdische","fr":"l'extraterrestre","p":150},{"id":"unicorn","c":"char","e":"🦄","de":"das Einhorn","fr":"la licorne","p":200},{"id":"dragon","c":"char","e":"🐲","de":"der Drache","fr":"le dragon","p":300},{"id":"cap","c":"hat","e":"🧢","de":"die Kappe","fr":"la casquette","p":30},{"id":"bow","c":"hat","e":"🎀","de":"die Schleife","fr":"le nœud","p":30},{"id":"straw","c":"hat","e":"👒","de":"der Strohhut","fr":"le chapeau de paille","p":50},{"id":"tophat","c":"hat","e":"🎩","de":"der Zylinder","fr":"le haut-de-forme","p":80},{"id":"grad","c":"hat","e":"🎓","de":"der Doktorhut","fr":"le chapeau de diplômé","p":120},{"id":"crown","c":"hat","e":"👑","de":"die Krone","fr":"la couronne","p":250},{"id":"pretzel","c":"acc","e":"🥨","de":"die Brezel","fr":"le bretzel","p":20},{"id":"balloon","c":"acc","e":"🎈","de":"der Luftballon","fr":"le ballon","p":30},{"id":"ball","c":"acc","e":"⚽","de":"der Fußball","fr":"le ballon de foot","p":40},{"id":"icecream","c":"acc","e":"🍦","de":"das Eis","fr":"la glace","p":40},{"id":"violin","c":"acc","e":"🎻","de":"die Geige","fr":"le violon","p":60},{"id":"skate","c":"acc","e":"🛹","de":"das Skateboard","fr":"le skate","p":80},{"id":"trophy","c":"acc","e":"🏆","de":"der Pokal","fr":"la coupe","p":150},{"id":"gold","c":"bg","e":"","de":"das Gold","fr":"l'or","p":0},{"id":"sky","c":"bg","e":"","de":"der Himmel","fr":"le ciel","p":60},{"id":"mint","c":"bg","e":"","de":"die Minze","fr":"la menthe","p":60},{"id":"candy","c":"bg","e":"","de":"die Zuckerwatte","fr":"la barbe à papa","p":80},{"id":"night","c":"bg","e":"","de":"die Sternennacht","fr":"la nuit étoilée","p":150}],"bosses":{"t1":{"n":"Graf Grammatik","e":"🧛","th":0},"t2":{"n":"Die Familien-Hydra","e":"🐲","th":1}},"map":[{"id":"moi","c":"Berlin","w":"moi","b":null},{"id":"land","c":"Hamburg","w":"land","b":null},{"id":"hobby","c":"Köln","w":"hobby","b":null},{"id":"konj","c":"Frankfurt","w":"konj","b":null},{"id":"wg","c":"München","w":"wg","b":null},{"id":"t1","c":"Neuschwanstein","w":null,"b":"t1"},{"id":"cast","c":"Wien","w":"cast","b":null},{"id":"fam","c":"Salzburg","w":"fam","b":null},{"id":"meine","c":"Zürich","w":"meine","b":null},{"id":"num","c":"Vaduz","w":"num","b":null},{"id":"plur","c":"Dortmund","w":"plur","b":null},{"id":"patch","c":"Bremen","w":"patch","b":null},{"id":"tier","c":"Stuttgart","w":"tier","b":null},{"id":"t2","c":"Drachenfels","w":null,"b":"t2"}],"bonus":10,"news":"2026-10-carte-boutique","fresh":{"v":1,"xp":0,"stars":{},"ghosts":{},"best":{"blitz":0,"memory":0,"combo":0},"stats":{"answered":0,"correct":0,"rounds":0,"slain":0,"dict":0,"daily":0,"boss":0},"settings":{"sound":true,"voice":true},"seenIntro":false,"streak":{"days":0,"best":0,"last":""},"badges":{},"boss":{},"news":"","shop":{"owned":{},"spent":0,"bonus":0,"eq":{"char":"bear","hat":"","acc":"","bg":"gold"}},"mapDone":{},"mapInit":false,"adminAt":0,"updatedAt":0,"rev":0,"syncedRev":0,"syncBase":0}};
+const DATA={"worlds":{"cast":{"n":"Qui est qui ?","e":"🎬"},"fam":{"n":"Die Familie","e":"🌳"},"num":{"n":"Die Zahlen","e":"🔢"},"wg":{"n":"Wie geht's ?","e":"🗣️"},"pr":{"n":"Prononciation","e":"🎧"},"moi":{"n":"Ich stelle mich vor","e":"🙋"},"land":{"n":"Länder und Farben","e":"🌍"},"hobby":{"n":"Das ist mein Hobby!","e":"⚽"},"konj":{"n":"Konjugation","e":"🔧"},"meine":{"n":"Meine Familie","e":"🏠"},"plur":{"n":"Wir mögen Sport!","e":"👯"},"patch":{"n":"Die Patchworkfamilie","e":"🧩"},"exam":{"n":"Spécial contrôle","e":"📝"},"tier":{"n":"Mein Haustier","e":"🐱"},"dict":{"n":"Dictée","e":"✍️"}},"themes":[{"t":"Thema 1 : Ich stelle mich vor","w":["moi","land","hobby","konj","wg"]},{"t":"Thema 2 : Die Familie","w":["cast","fam","meine","num","plur","patch","tier"]}],"ranks":[{"xp":0,"de":"Kartoffel","e":"🥔"},{"xp":120,"de":"Brezel","e":"🥨"},{"xp":300,"de":"Würstchen","e":"🌭"},{"xp":550,"de":"Schnitzel","e":"🍖"},{"xp":850,"de":"Kirschtorte","e":"🍰"},{"xp":1250,"de":"Deutsch-Profi","e":"😎"},{"xp":1800,"de":"Legende","e":"🏆"},{"xp":2500,"de":"Superstar","e":"🌟"},{"xp":3300,"de":"Ritter","e":"🛡️"},{"xp":4200,"de":"Zauberer","e":"🧙"},{"xp":5200,"de":"Drachenreiter","e":"🐉"},{"xp":6400,"de":"Weltmeister","e":"🏅"},{"xp":7800,"de":"Astronaut","e":"🚀"},{"xp":9500,"de":"Superheld","e":"🦸"},{"xp":11500,"de":"Genie","e":"🧠"},{"xp":14000,"de":"Großmeister","e":"♟️"},{"xp":17000,"de":"Bretzel-Kaiser","e":"👑"}],"badges":[{"id":"start","e":"🎒","n":"Los geht's!","d":"Finir ta première mission"},{"id":"ghost1","e":"👻","n":"Geisterjäger","d":"Vaincre ton premier fantôme"},{"id":"ghost10","e":"🔦","n":"Ghostbuster","d":"Vaincre 10 fantômes"},{"id":"ghost50","e":"🏰","n":"Geisterschloss","d":"Vaincre 50 fantômes"},{"id":"combo5","e":"🔥","n":"Feuer!","d":"Faire un combo x5"},{"id":"combo10","e":"☄️","n":"Komet","d":"Faire un combo x10"},{"id":"combo20","e":"🌋","n":"Vulkan","d":"Faire un combo x20"},{"id":"perfekt","e":"⭐","n":"Perfekt!","d":"Avoir 3 étoiles à une mission"},{"id":"thema1","e":"🙋","n":"Thema 1 : top !","d":"3 étoiles à toutes les missions du Thema 1"},{"id":"thema2","e":"👨‍👩‍👧‍👦","n":"Thema 2 : top !","d":"3 étoiles à toutes les missions du Thema 2"},{"id":"explorer","e":"🗺️","n":"Entdecker","d":"Jouer toutes les missions des Themas"},{"id":"daily1","e":"📅","n":"Tag eins","d":"Réussir ton premier défi du jour"},{"id":"streak3","e":"🕯️","n":"Drei Tage","d":"Une série de 3 jours"},{"id":"streak7","e":"🗓️","n":"Eine Woche!","d":"Une série de 7 jours"},{"id":"streak30","e":"🌞","n":"Ein Monat!","d":"Une série de 30 jours"},{"id":"blitz10","e":"⚡","n":"Blitz","d":"10 bonnes réponses au Blitz"},{"id":"blitz20","e":"🌩️","n":"Donnerwetter!","d":"20 bonnes réponses au Blitz"},{"id":"memory","e":"🐘","n":"Elefant","d":"Finir le Memory en 10 coups ou moins"},{"id":"dict10","e":"✍️","n":"Diktat-Profi","d":"Réussir 10 dictées"},{"id":"dict50","e":"🖋️","n":"Schreibmeister","d":"Réussir 50 dictées"},{"id":"boss1","e":"🧛","n":"Graf besiegt","d":"Battre le boss du Thema 1"},{"id":"boss2","e":"🐲","n":"Hydra besiegt","d":"Battre le boss du Thema 2"},{"id":"c100","e":"💯","n":"Hundert!","d":"100 bonnes réponses"},{"id":"c1000","e":"🧠","n":"Tausend!","d":"1 000 bonnes réponses"},{"id":"legende","e":"🏆","n":"Legende","d":"Atteindre le rang Legende (1 800 XP)"}],"shop":[{"id":"bear","c":"char","e":"🐻","de":"der Berliner Bär","fr":"l'ours de Berlin","p":0},{"id":"fox","c":"char","e":"🦊","de":"der Fuchs","fr":"le renard","p":40},{"id":"cat","c":"char","e":"🐱","de":"die Katze","fr":"le chat","p":40},{"id":"dog","c":"char","e":"🐶","de":"der Hund","fr":"le chien","p":40},{"id":"frog","c":"char","e":"🐸","de":"der Frosch","fr":"la grenouille","p":60},{"id":"panda","c":"char","e":"🐼","de":"der Panda","fr":"le panda","p":60},{"id":"owl","c":"char","e":"🦉","de":"die Eule","fr":"la chouette","p":80},{"id":"penguin","c":"char","e":"🐧","de":"der Pinguin","fr":"le pingouin","p":80},{"id":"robot","c":"char","e":"🤖","de":"der Roboter","fr":"le robot","p":120},{"id":"alien","c":"char","e":"👽","de":"der Außerirdische","fr":"l'extraterrestre","p":150},{"id":"unicorn","c":"char","e":"🦄","de":"das Einhorn","fr":"la licorne","p":200},{"id":"dragon","c":"char","e":"🐲","de":"der Drache","fr":"le dragon","p":300},{"id":"cap","c":"hat","e":"🧢","de":"die Kappe","fr":"la casquette","p":30},{"id":"bow","c":"hat","e":"🎀","de":"die Schleife","fr":"le nœud","p":30},{"id":"straw","c":"hat","e":"👒","de":"der Strohhut","fr":"le chapeau de paille","p":50},{"id":"tophat","c":"hat","e":"🎩","de":"der Zylinder","fr":"le haut-de-forme","p":80},{"id":"grad","c":"hat","e":"🎓","de":"der Doktorhut","fr":"le chapeau de diplômé","p":120},{"id":"crown","c":"hat","e":"👑","de":"die Krone","fr":"la couronne","p":250},{"id":"pretzel","c":"acc","e":"🥨","de":"die Brezel","fr":"le bretzel","p":20},{"id":"balloon","c":"acc","e":"🎈","de":"der Luftballon","fr":"le ballon","p":30},{"id":"ball","c":"acc","e":"⚽","de":"der Fußball","fr":"le ballon de foot","p":40},{"id":"icecream","c":"acc","e":"🍦","de":"das Eis","fr":"la glace","p":40},{"id":"violin","c":"acc","e":"🎻","de":"die Geige","fr":"le violon","p":60},{"id":"skate","c":"acc","e":"🛹","de":"das Skateboard","fr":"le skate","p":80},{"id":"trophy","c":"acc","e":"🏆","de":"der Pokal","fr":"la coupe","p":150},{"id":"gold","c":"bg","e":"","de":"das Gold","fr":"l'or","p":0},{"id":"sky","c":"bg","e":"","de":"der Himmel","fr":"le ciel","p":60},{"id":"mint","c":"bg","e":"","de":"die Minze","fr":"la menthe","p":60},{"id":"candy","c":"bg","e":"","de":"die Zuckerwatte","fr":"la barbe à papa","p":80},{"id":"night","c":"bg","e":"","de":"die Sternennacht","fr":"la nuit étoilée","p":150}],"bosses":{"t1":{"n":"Graf Grammatik","e":"🧛","th":0},"t2":{"n":"Die Familien-Hydra","e":"🐲","th":1}},"map":[{"id":"moi","c":"Berlin","w":"moi","b":null},{"id":"land","c":"Hamburg","w":"land","b":null},{"id":"hobby","c":"Köln","w":"hobby","b":null},{"id":"konj","c":"Frankfurt","w":"konj","b":null},{"id":"wg","c":"München","w":"wg","b":null},{"id":"t1","c":"Neuschwanstein","w":null,"b":"t1"},{"id":"cast","c":"Wien","w":"cast","b":null},{"id":"fam","c":"Salzburg","w":"fam","b":null},{"id":"meine","c":"Zürich","w":"meine","b":null},{"id":"num","c":"Vaduz","w":"num","b":null},{"id":"plur","c":"Dortmund","w":"plur","b":null},{"id":"patch","c":"Bremen","w":"patch","b":null},{"id":"tier","c":"Stuttgart","w":"tier","b":null},{"id":"t2","c":"Drachenfels","w":null,"b":"t2"}],"bonus":10,"news":"2026-10-carte-boutique","fresh":{"v":1,"xp":0,"stars":{},"ghosts":{},"best":{"blitz":0,"memory":0,"combo":0},"stats":{"answered":0,"correct":0,"rounds":0,"slain":0,"dict":0,"daily":0,"boss":0},"settings":{"sound":true,"voice":true},"seenIntro":false,"streak":{"days":0,"best":0,"last":""},"badges":{},"boss":{},"news":"","shop":{"owned":{},"spent":0,"bonus":0,"eq":{"char":"bear","hat":"","acc":"","bg":"gold"}},"mapDone":{},"mapInit":false,"adminAt":0,"nick":"","pwTemp":false,"updatedAt":0,"rev":0,"syncedRev":0,"syncBase":0}};
 const FB_VERSION='12.19.0';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -293,6 +299,25 @@ function mapOf(p){
   return{done,total:DATA.map.length,next};
 }
 const activity=t=>{const s=(Date.now()-num(t))/1000;return !t?'off':s<86400?'on':s<7*86400?'mid':'off';};
+const isArch=p=>!!(p&&p.progress&&p.progress.archived);
+const nameOf=p=>String((p&&p.progress&&p.progress.nick)||'').trim()||(p&&p.pseudo)||'';
+const cleanNick=v=>String(v||'').replace(/[\u0000-\u001f\u007f<>]/g,'').slice(0,20);
+const EQ_DEF={char:'bear',hat:'',acc:'',bg:'gold'};
+const CATS={char:'Personnage',hat:'Chapeau',acc:'Accessoire',bg:'Fond d\'écran'};
+/* mêmes règles que dans le jeu pour un identifiant de connexion */
+function pseudoProblem(raw){
+  const k=pseudoKey(raw);
+  if(!k)return 'Choisis un identifiant.';
+  if(/\s/.test(k))return 'Pas d\'espace dans l\'identifiant (tu peux utiliser - ou _).';
+  if(!/^[a-z0-9_-]+$/.test(k))return 'Seulement des lettres, des chiffres, - ou _.';
+  if(k.length<3)return 'Au moins 3 caractères.';
+  if(k.length>20)return '20 caractères au maximum.';
+  if(!/^[a-z0-9]/.test(k))return 'Il doit commencer par une lettre ou un chiffre.';
+  return '';
+}
+/* mot de passe temporaire facile à dicter : deux mots allemands du cours + 4 chiffres */
+const WORDS=['hund','katze','fuchs','panda','eule','frosch','drache','krone','brezel','geige','pokal','himmel','minze','hamster','tiger','apfel'];
+function tempPass(){const r=new Uint32Array(3);crypto.getRandomValues(r);return `${WORDS[r[0]%WORDS.length]}-${WORDS[r[1]%WORDS.length]}-${1000+r[2]%9000}`;}
 
 /* ---------- configuration Firebase (même fichier que le jeu) ---------- */
 const FB_CFG=(()=>{try{return(typeof firebaseConfig!=='undefined'&&firebaseConfig&&typeof firebaseConfig==='object')?firebaseConfig:null;}catch(e){return null;}})();
@@ -317,10 +342,12 @@ function fsMsg(e){
 
 /* ---------- état ---------- */
 const S={A:null,F:null,auth:null,db:null,user:null,players:[],sel:null,orig:null,edit:null,tab:'ens',
-  sort:{k:'xp',d:-1},q:'',log:[],busy:false,loaded:false,lastLoad:0,ghostSel:new Set()};
+  sort:{k:'xp',d:-1},q:'',log:[],busy:false,loaded:false,lastLoad:0,ghostSel:new Set(),showArch:false,appM:null,auth2:null,db2:null};
 const cur=()=>S.players.find(p=>p.uid===S.sel)||null;
 const dirty=()=>!!S.sel&&!!S.edit&&JSON.stringify(S.edit)!==JSON.stringify(S.orig);
 const me=()=>S.user?pseudoKey(String(S.user.email||'').split('@')[0]):'';
+const active=()=>S.players.filter(p=>!isArch(p));
+const canPw=()=>{const p=cur();return !!p&&!isArch(p)&&p.uid!==S.user.uid;};
 
 /* =========================================================
    Boîtes de dialogue façon Windows
@@ -393,7 +420,7 @@ async function init(){
   try{
     const base=`https://www.gstatic.com/firebasejs/${FB_VERSION}/`;
     const [appM,A,F]=await Promise.all([import(base+'firebase-app.js'),import(base+'firebase-auth.js'),import(base+'firebase-firestore-lite.js')]);
-    S.A=A;S.F=F;
+    S.A=A;S.F=F;S.appM=appM;
     const app=appM.initializeApp(FB_CFG,'bretzel-admin');
     /* session limitée à l'onglet : on est déconnecté en le fermant */
     S.auth=A.initializeAuth(app,{persistence:[A.browserSessionPersistence]});
@@ -510,65 +537,67 @@ function render(){
 }
 function renderTitle(){
   const p=cur();
-  $('#wtitle').textContent=`Bretzel Admin – Opération Bretzel – Mode administrateur – ${me()}${p?` – [${p.pseudo||'?'}]`:''}`;
-  $('#tasklbl').textContent=p?`Bretzel Admin – ${p.pseudo||'?'}`:'Bretzel Admin';
+  $('#wtitle').textContent=`Bretzel Admin – Opération Bretzel – Mode administrateur – ${me()}${p?` – [${nameOf(p)||'?'}]`:''}`;
+  $('#tasklbl').textContent=p?`Bretzel Admin – ${nameOf(p)||'?'}`:'Bretzel Admin';
 }
 function sorted(){
   const q=pseudoKey(S.q);
-  const arr=S.players.filter(p=>!q||pseudoKey(p.pseudo).includes(q));
+  const arr=S.players.filter(p=>(S.showArch||!isArch(p))&&(!q||pseudoKey(p.pseudo).includes(q)||pseudoKey(nameOf(p)).includes(q)));
   const k=S.sort.k,d=S.sort.d;
-  const val=p=>k==='pseudo'?pseudoKey(p.pseudo):k==='xp'?num(p.progress.xp):k==='act'?p.updatedAt:k==='stars'?starsOf(p.progress):k==='ghosts'?ghostsOf(p.progress):k==='coins'?coinsOf(p.progress):k==='streak'?num(obj(p.progress.streak).days):k==='badges'?badgesOf(p.progress):k==='map'?mapOf(p.progress).done:0;
+  const val=p=>k==='pseudo'?pseudoKey(nameOf(p)):k==='xp'?num(p.progress.xp):k==='act'?p.updatedAt:k==='stars'?starsOf(p.progress):k==='ghosts'?ghostsOf(p.progress):k==='coins'?coinsOf(p.progress):k==='streak'?num(obj(p.progress.streak).days):k==='badges'?badgesOf(p.progress):k==='map'?mapOf(p.progress).done:0;
   return arr.sort((a,b)=>{const x=val(a),y=val(b);return (x<y?-1:x>y?1:0)*d||pseudoKey(a.pseudo).localeCompare(pseudoKey(b.pseudo));});
 }
 const th=(k,label,cls='')=>`<th scope="col" class="sort ${cls}" data-act="sort" data-k="${k}" aria-sort="${S.sort.k===k?(S.sort.d>0?'ascending':'descending'):'none'}">${label}${S.sort.k===k?`<span class="ar">${S.sort.d>0?'▲':'▼'}</span>`:''}</th>`;
 function renderList(){
   const rows=sorted();
-  $('#cnt').textContent=`${rows.length}${rows.length!==S.players.length?' / '+S.players.length:''} joueur${S.players.length>1?'s':''}`;
+  const N=active().length;
+  $('#cnt').textContent=`${rows.length}${rows.length!==N?' / '+N:''} joueur${N>1?'s':''}`;
   if(!S.players.length){$('#list').innerHTML='<div class="empty"><span class="big emo">🗂️</span>Aucun joueur pour l\'instant.</div>';return;}
   $('#list').innerHTML=`<table class="grid"><thead><tr>${th('pseudo','Pseudo')}${th('xp','XP','n')}${th('act','Activité')}</tr></thead><tbody>${rows.map(p=>{
     const r=rankOf(p.progress.xp);
-    return `<tr class="click${p.uid===S.sel?' sel':''}" data-act="pick" data-uid="${esc(p.uid)}" tabindex="0" aria-selected="${p.uid===S.sel}">
-      <td><span class="dot ${activity(p.updatedAt)}" aria-hidden="true"></span><span class="emo">${r.e}</span> ${esc(p.pseudo||'(sans pseudo)')}${p.uid===S.user.uid?' <span class="muted">(toi)</span>':''}</td>
+    const nk=String(p.progress.nick||'').trim();
+    return `<tr class="click${p.uid===S.sel?' sel':''}${isArch(p)?' arch':''}" data-act="pick" data-uid="${esc(p.uid)}" tabindex="0" aria-selected="${p.uid===S.sel}">
+      <td><span class="dot ${activity(p.updatedAt)}" aria-hidden="true"></span><span class="emo">${isArch(p)?'📦':r.e}</span> ${esc(nameOf(p)||'(sans pseudo)')}${nk&&nk!==p.pseudo?` <span class="muted">(${esc(p.pseudo||'')})</span>`:''}${p.uid===S.user.uid?' <span class="muted">(toi)</span>':''}${isArch(p)?' <span class="muted">(archivée)</span>':''}</td>
       <td class="n">${fmtN(p.progress.xp)}</td><td class="muted">${esc(ago(p.updatedAt))}</td></tr>`;}).join('')}</tbody></table>`;
 }
 function renderTabs(){
   const p=cur(),g=p?ghostsOf(S.edit):0;
   $('#tabs').innerHTML=TABS.map(([k,l])=>{const dis=k!=='ens'&&!p;const lab=k==='fan'&&p?`${l} (${g})`:k==='bad'&&p?`${l} (${badgesOf(S.edit)})`:l;
     return `<button class="tab" role="tab" data-act="tab" data-tab="${k}" aria-selected="${S.tab===k}" ${dis?'disabled':''}>${esc(lab)}</button>`;}).join('');
-  $('#ftitle').textContent=p?`Fiche du joueur : ${p.pseudo||'?'}`:'Vue d\'ensemble';
+  $('#ftitle').textContent=p?`Fiche du joueur : ${nameOf(p)||'?'}${isArch(p)?' (archivée)':''}`:'Vue d\'ensemble';
   $('#fsub').textContent=p?`dernière activité : ${fmtDate(p.updatedAt)}`:'';
 }
 function renderTools(){
   const p=cur(),d=dirty();
-  $('#t-save').disabled=!d;$('#t-cancel').disabled=!d;$('#t-reset').disabled=!p;
+  $('#t-save').disabled=!d;$('#t-cancel').disabled=!d;$('#t-reset').disabled=!p||isArch(p);$('#t-pw').disabled=!canPw();
   $('#fbtns').innerHTML=p&&S.tab!=='ens'?`<button class="btn" data-act="close">Fermer la fiche</button><button class="btn" data-act="cancel" ${d?'':'disabled'}>Annuler</button><button class="btn def" data-act="save" ${d?'':'disabled'}>Enregistrer</button>`:'';
 }
 function renderStatus(){
   const d=dirty();
   $('#st2').innerHTML=d?'<span class="dirty">● Modifications non enregistrées</span>':'Aucune modification';
-  $('#st3').textContent=`${S.players.length} joueur${S.players.length>1?'s':''}`;
+  const N=active().length;$('#st3').textContent=`${N} joueur${N>1?'s':''}`;
   $('#st4').innerHTML=`Connecté : <b>${esc(me())}</b> (administrateur)`;
 }
 function setStatus(t){const el=$('#st1');if(el)el.textContent=t;}
 
 /* ---------- vue d'ensemble ---------- */
 function renderEns(){
-  const P=S.players.map(p=>p.progress);
-  const today=S.players.filter(p=>Date.now()-p.updatedAt<86400e3).length,week=S.players.filter(p=>Date.now()-p.updatedAt<7*86400e3).length;
+  const A=active(),P=A.map(p=>p.progress);
+  const today=A.filter(p=>Date.now()-p.updatedAt<86400e3).length,week=A.filter(p=>Date.now()-p.updatedAt<7*86400e3).length;
   const xp=P.reduce((t,p)=>t+num(p.xp),0),gh=P.reduce((t,p)=>t+ghostsOf(p),0);
-  const best=S.players.slice().sort((a,b)=>num(b.progress.xp)-num(a.progress.xp))[0];
+  const best=A.slice().sort((a,b)=>num(b.progress.xp)-num(a.progress.xp))[0];
   const rows=sorted();
   return `<div class="kv">
-    <div class="sunken">Joueurs<b>${S.players.length}</b></div>
+    <div class="sunken">Joueurs<b>${A.length}</b></div>
     <div class="sunken">Actifs aujourd'hui<b>${today}</b></div>
     <div class="sunken">Actifs cette semaine<b>${week}</b></div>
     <div class="sunken">XP gagnés en tout<b>${fmtN(xp)}</b></div>
     <div class="sunken">Fantômes à vaincre<b>${fmtN(gh)}</b></div>
-    <div class="sunken">En tête<b style="font-size:14px">${best?`${rankOf(best.progress.xp).e} ${esc(best.pseudo||'?')}`:'—'}</b></div>
+    <div class="sunken">En tête<b style="font-size:14px">${best?`${rankOf(best.progress.xp).e} ${esc(nameOf(best)||'?')}`:'—'}</b></div>
   </div>
   <fieldset><legend>Tous les joueurs</legend>
   ${S.players.length?`<div class="list sunken" style="max-height:none"><table class="grid"><thead><tr>${th('pseudo','Pseudo')}${th('xp','XP','n')}<th scope="col">Rang</th>${th('coins','🥨','n')}${th('stars','★','n')}${th('ghosts','👻','n')}${th('streak','Série','n')}${th('badges','Badges','n')}${th('map','Carte','n')}${th('act','Dernière activité')}</tr></thead><tbody>${rows.map(p=>{const g=p.progress,r=rankOf(g.xp),m=mapOf(g);
-    return `<tr class="click${p.uid===S.sel?' sel':''}" data-act="pick" data-uid="${esc(p.uid)}" tabindex="0"><td><span class="dot ${activity(p.updatedAt)}"></span>${esc(p.pseudo||'(sans pseudo)')}</td><td class="n">${fmtN(g.xp)}</td><td><span class="emo">${r.e}</span> ${esc(r.de)}</td><td class="n">${fmtN(coinsOf(g))}</td><td class="n">${starsOf(g)}</td><td class="n">${ghostsOf(g)}</td><td class="n">${num(obj(g.streak).days)} j</td><td class="n">${badgesOf(g)}</td><td class="n">${m.done}/${m.total}</td><td>${esc(fmtDate(p.updatedAt))}</td></tr>`;}).join('')}</tbody></table></div>`:'<div class="empty"><span class="big emo">🗂️</span>Aucun joueur n\'a encore créé de compte.</div>'}
+    return `<tr class="click${p.uid===S.sel?' sel':''}${isArch(p)?' arch':''}" data-act="pick" data-uid="${esc(p.uid)}" tabindex="0"><td><span class="dot ${activity(p.updatedAt)}"></span>${esc(nameOf(p)||'(sans pseudo)')}${isArch(p)?' (archivée)':''}</td><td class="n">${fmtN(g.xp)}</td><td><span class="emo">${r.e}</span> ${esc(r.de)}</td><td class="n">${fmtN(coinsOf(g))}</td><td class="n">${starsOf(g)}</td><td class="n">${ghostsOf(g)}</td><td class="n">${num(obj(g.streak).days)} j</td><td class="n">${badgesOf(g)}</td><td class="n">${m.done}/${m.total}</td><td>${esc(fmtDate(p.updatedAt))}</td></tr>`;}).join('')}</tbody></table></div>`:'<div class="empty"><span class="big emo">🗂️</span>Aucun joueur n\'a encore créé de compte.</div>'}
   </fieldset>
   <div class="info"><b>Astuce :</b> clique sur un joueur pour ouvrir sa fiche. Les points de couleur montrent l'activité : <span class="dot on"></span>aujourd'hui, <span class="dot mid"></span>cette semaine, <span class="dot off"></span>plus ancienne.</div>`;
 }
@@ -582,13 +611,17 @@ function renderGen(){
   const p=cur(),g=S.edit,o=S.orig,r=rankOf(g.xp),m=mapOf(g),st=obj(g.stats),sk=obj(g.streak);
   const pct=num(st.answered)?Math.round(100*num(st.correct)/num(st.answered)):0;
   const chg=(a,b)=>JSON.stringify(a)!==JSON.stringify(b)?' <span class="warn" title="modifié">✎</span>':'';
-  return `<div class="fiche-h">${avatarHtml(g)}<div class="who"><b>${esc(p.pseudo||'(sans pseudo)')}</b><span><span class="emo">${r.e}</span> Rang : <b data-c="rank">${esc(r.de)}</b></span><span class="muted">${p.uid===S.user.uid?'C\'est ton compte.':''}</span></div></div>
+  const nk=String(g.nick||'').trim();
+  return `<div class="fiche-h">${avatarHtml(g)}<div class="who"><b data-c="name">${esc(nk||p.pseudo||'(sans pseudo)')}</b><span><span class="emo">${r.e}</span> Rang : <b data-c="rank">${esc(r.de)}</b></span><span class="muted">${p.uid===S.user.uid?'C\'est ton compte.':''}</span></div></div>
   <div class="cols">
   <fieldset><legend>Identité</legend>
-    <div class="row"><span class="l">Pseudo :</span><span class="v"><input type="text" readonly value="${esc(p.pseudo||'')}" aria-label="Pseudo"></span></div>
+    <div class="row"><span class="l">Identifiant de connexion :</span><span class="v"><input type="text" readonly value="${esc(p.pseudo||'')}" aria-label="Identifiant de connexion"></span></div>
+    <div class="row"><label for="f-nick">Nom affiché${chg(String(g.nick||''),String(o.nick||''))} :</label><span class="v"><input type="text" id="f-nick" data-f="nick" maxlength="20" value="${esc(g.nick||'')}" placeholder="${esc(p.pseudo||'')}" autocomplete="off" spellcheck="false"></span></div>
+    <div class="row"><span class="l">Mot de passe :</span><span class="v">${p.uid===S.user.uid?'<span class="muted">(ton compte : change-le dans le jeu, écran Mon compte)</span>':`<button class="btn mini" data-act="pw">🔑 Nouveau mot de passe…</button>${g.pwTemp?' <span class="tag">temporaire, pas encore changé</span>':''}`}</span></div>
     <div class="row"><span class="l">Identifiant technique :</span><span class="v"><code>${esc(p.uid)}</code></span></div>
     <div class="row"><span class="l">Dernière activité :</span><span class="v">${esc(fmtDate(p.updatedAt))} (${esc(ago(p.updatedAt))})</span></div>
     <div class="row"><span class="l">Modifié par l'admin :</span><span class="v">${o.adminAt?esc(fmtDate(o.adminAt)):'jamais'}</span></div>
+    <p class="muted" style="margin:4px 0 0">Le nom affiché remplace le pseudo dans le jeu (laisse vide pour garder le pseudo). L'identifiant de connexion ne change qu'avec « Nouveau mot de passe… ».</p>
   </fieldset>
   <fieldset><legend>Progression</legend>
     <div class="row"><label for="f-xp">XP${chg(g.xp,o.xp)} :</label><span class="v"><input type="number" id="f-xp" data-f="xp" min="0" max="1000000" step="1" value="${int(g.xp)}">
@@ -656,27 +689,48 @@ function renderBad(){
 
 /* ---------- fiche : Boutique ---------- */
 function renderBou(){
-  const g=S.edit,sh=obj(g.shop),owned=Object.keys(obj(sh.owned)),eq=obj(sh.eq);
-  const cat={char:'Personnage',hat:'Chapeau',acc:'Accessoire',bg:'Fond d\'écran'};
-  const it=id=>SHOPK[id];
-  return `<div class="cols"><fieldset><legend>Bretzels</legend>
+  const g=S.edit,sh=obj(g.shop),owned=obj(sh.owned),eq=Object.assign({},EQ_DEF,obj(sh.eq)),o=obj(obj(S.orig.shop).owned);
+  const own=x=>x.p===0||!!owned[x.id];
+  const opt=(cat)=>{const items=DATA.shop.filter(x=>x.c===cat);
+    return `<select data-eq="${cat}" aria-label="${esc(CATS[cat])}">${cat==='hat'||cat==='acc'?`<option value=""${!eq[cat]?' selected':''}>— aucun</option>`:''}${items.map(x=>`<option value="${esc(x.id)}"${eq[cat]===x.id?' selected':''}>${x.e?x.e+' ':''}${esc(x.de)} (${esc(x.fr)})${own(x)?'':` – à offrir, ${x.p} 🥨`}</option>`).join('')}</select>`;};
+  const chgEq=JSON.stringify(eq)!==JSON.stringify(Object.assign({},EQ_DEF,obj(obj(S.orig.shop).eq)));
+  return `<div class="cols"><fieldset><legend>Tenue de l'avatar${chgEq?' <span class="warn">✎</span>':''}</legend>
+    <div class="fiche-h" style="padding-top:0">${avatarHtml(g)}<span class="muted">Ce que le joueur porte. Choisir un objet qu'il n'a pas le lui offre.</span></div>
+    ${Object.keys(CATS).map(c=>`<div class="row"><label>${CATS[c]} :</label><span class="v">${opt(c)}</span></div>`).join('')}
+  </fieldset>
+  <fieldset><legend>Bretzels</legend>
     <div class="row"><span class="l">Gagnés avec l'XP :</span><span class="v stat">${fmtN(Math.floor(num(g.xp)/10))} 🥨</span></div>
     <div class="row"><span class="l">Offerts (bonus) :</span><span class="v stat">${fmtN(sh.bonus)} 🥨</span></div>
     <div class="row"><span class="l">Dépensés :</span><span class="v stat">${fmtN(spentOf(g))} 🥨</span></div>
-    <div class="row"><span class="l">À dépenser :</span><span class="v"><b>${fmtN(coinsOf(g))} 🥨</b></span></div>
-    <p class="muted" style="margin:6px 0 0">Pour offrir des bretzels, utilise « Bretzels offerts » dans l'onglet Général.</p>
-  </fieldset>
-  <fieldset><legend>Tenue de l'avatar</legend>
-    ${Object.entries(cat).map(([k,l])=>{const x=it(eq[k]);return `<div class="row"><span class="l">${l} :</span><span class="v">${x?`<span class="emo">${x.e||'🎨'}</span> ${esc(x.de)} <span class="muted">(${esc(x.fr)})</span>`:'—'}</span></div>`;}).join('')}
+    <div class="row"><span class="l">À dépenser :</span><span class="v"><b data-c="coins">${fmtN(coinsOf(g))}</b> 🥨</span></div>
+    <p class="muted" style="margin:6px 0 0">Offrir un objet ne coûte rien au joueur (son prix est ajouté aux bretzels offerts). Retirer un objet qu'il avait déjà lui rend son prix.</p>
   </fieldset></div>
-  <fieldset><legend>Objets achetés (${owned.length})</legend>
-    ${owned.length?`<div class="list sunken" style="max-height:none"><table class="grid"><thead><tr><th scope="col">Objet</th><th scope="col">Catégorie</th><th scope="col" class="n">Prix</th><th scope="col">Acheté le</th></tr></thead><tbody>${owned.map(id=>{const x=it(id);return `<tr><td>${x?`<span class="emo">${x.e||'🎨'}</span> ${esc(x.de)} <span class="muted">(${esc(x.fr)})</span>`:`<code>${esc(id)}</code>`}</td><td>${x?cat[x.c]||'':''}</td><td class="n">${x?x.p:''}</td><td>${num(sh.owned[id])>1?esc(fmtDate(sh.owned[id])):''}</td></tr>`;}).join('')}</tbody></table></div>`:'<p class="muted" style="margin:0">Rien acheté pour l\'instant.</p>'}
+  <fieldset><legend>Objets (coche pour offrir, décoche pour retirer)</legend>
+    <div class="list sunken" style="max-height:none"><table class="grid shopgrid"><thead><tr><th scope="col" class="c">A</th><th scope="col">Objet</th><th scope="col">Catégorie</th><th scope="col" class="n">Prix</th><th scope="col">État</th></tr></thead><tbody>
+    ${DATA.shop.map(x=>{const has=own(x),was=x.p===0||!!o[x.id];const st=x.p===0?'<span class="tag">gratuit</span>':has&&!was?'<span class="tag gift">offert (pas encore enregistré)</span>':!has&&was?'<span class="warn">retiré</span>':has?(num(owned[x.id])>1?esc(fmtDate(owned[x.id])):'acheté'):'';
+      return `<tr><td class="c"><input type="checkbox" data-own="${esc(x.id)}" ${has?'checked':''} ${x.p===0?'disabled':''} aria-label="${esc(x.de)}"></td><td>${x.e?`<span class="emo">${x.e}</span> `:'🎨 '}${esc(x.de)} <span class="muted">(${esc(x.fr)})</span>${eq[x.c]===x.id?' <b>✓ porté</b>':''}</td><td>${CATS[x.c]}</td><td class="n">${x.p}</td><td>${st}</td></tr>`;}).join('')}
+    </tbody></table></div>
   </fieldset>`;
+}
+/* offrir : le prix est ajouté aux bretzels offerts (ça ne coûte rien au joueur).
+   retirer un objet qu'il avait déjà : il récupère son prix ; retirer un cadeau pas encore enregistré : on annule juste le cadeau. */
+const origOwned=id=>obj(obj(obj(S.orig).shop).owned)[id];
+function giveItem(g,id){const x=SHOPK[id];if(!x||x.p===0)return;g.shop=obj(g.shop);g.shop.owned=obj(g.shop.owned);if(g.shop.owned[id])return;const was=origOwned(id);g.shop.owned[id]=was||Date.now();if(!was)g.shop.bonus=num(g.shop.bonus)+x.p;g.shop.spent=spentOf(g);}
+function takeItem(g,id){const x=SHOPK[id];if(!x)return;g.shop=obj(g.shop);g.shop.owned=obj(g.shop.owned);if(!g.shop.owned[id])return;if(!origOwned(id))g.shop.bonus=Math.max(0,num(g.shop.bonus)-x.p);delete g.shop.owned[id];g.shop.spent=spentOf(g);g.shop.eq=Object.assign({},EQ_DEF,obj(g.shop.eq));if(g.shop.eq[x.c]===id){g.shop.eq[x.c]=EQ_DEF[x.c];g.shop.eqAt=Date.now();}}
+function renderArch(){
+  const p=cur(),a=obj(p.progress.archived),to=S.players.find(x=>x.uid===a.to);
+  return `<div class="info">📦 <b>Fiche archivée.</b> La progression de ce compte a été déplacée le ${esc(fmtDate(a.at))} vers le compte <b>${esc(to?nameOf(to):(a.login||'?'))}</b>${to?` (<button class="btn mini" data-act="pick" data-uid="${esc(to.uid)}">ouvrir sa fiche</button>)`:''}.</div>
+  <fieldset><legend>Ancien compte</legend>
+    <div class="row"><span class="l">Identifiant :</span><span class="v">${esc(p.pseudo||'')}</span></div>
+    <div class="row"><span class="l">Identifiant technique :</span><span class="v"><code>${esc(p.uid)}</code></span></div>
+    <div class="row"><span class="l">XP au moment du départ :</span><span class="v">${fmtN(p.progress.xp)}</span></div>
+  </fieldset>
+  <p class="muted">Si l'ancien compte existe encore dans Firebase (Authentication), tu peux le supprimer : il ne sert plus.</p>`;
 }
 function renderSheet(){
   const el=$('#sheet');const y=el.scrollTop;
   const p=cur();if(!p&&S.tab!=='ens')S.tab='ens';
-  el.innerHTML=S.tab==='ens'?renderEns():S.tab==='gen'?renderGen():S.tab==='mis'?renderMis():S.tab==='fan'?renderFan():S.tab==='bad'?renderBad():renderBou();
+  el.innerHTML=S.tab==='ens'?renderEns():isArch(p)?renderArch():S.tab==='gen'?renderGen():S.tab==='mis'?renderMis():S.tab==='fan'?renderFan():S.tab==='bad'?renderBad():renderBou();
   el.scrollTop=y;
 }
 function refreshLive(){
@@ -708,7 +762,10 @@ async function pick(uid){
 }
 function summary(a,b){
   const out=[];
+  if(String(a.nick||'')!==String(b.nick||''))out.push(`nom affiché « ${a.nick||'—'} » → « ${b.nick||'—'} »`);
   if(num(a.xp)!==num(b.xp))out.push(`XP ${fmtN(a.xp)} → ${fmtN(b.xp)}`);
+  {const oa=Object.keys(obj(obj(a.shop).owned)),ob=Object.keys(obj(obj(b.shop).owned));const add=ob.filter(x=>!oa.includes(x)),del=oa.filter(x=>!ob.includes(x));if(add.length)out.push(`offert : ${add.map(x=>SHOPK[x]?SHOPK[x].de:x).join(', ')}`);if(del.length)out.push(`retiré : ${del.map(x=>SHOPK[x]?SHOPK[x].de:x).join(', ')}`);
+   if(JSON.stringify(Object.assign({},EQ_DEF,obj(obj(a.shop).eq)))!==JSON.stringify(Object.assign({},EQ_DEF,obj(obj(b.shop).eq))))out.push('tenue de l\'avatar changée');}
   if(num(obj(a.shop).bonus)!==num(obj(b.shop).bonus))out.push(`bretzels offerts ${num(obj(a.shop).bonus)} → ${num(obj(b.shop).bonus)}`);
   const sa=obj(a.stars),sb=obj(b.stars);for(const w of new Set([...Object.keys(sa),...Object.keys(sb)]))if(JSON.stringify(sa[w])!==JSON.stringify(sb[w]))out.push(`${wname(w)} : ${w in sa?sa[w]+'★':'—'} → ${w in sb?sb[w]+'★':'—'}`);
   const ga=Object.keys(obj(a.ghosts)).length,gb=Object.keys(obj(b.ghosts)).length;if(ga!==gb)out.push(`fantômes ${ga} → ${gb}`);
@@ -758,7 +815,7 @@ async function resetPlayer(){
   const keep=obj(S.edit.settings);
   const f=clone(DATA.fresh);
   delete f.rev;delete f.syncedRev;delete f.syncBase;
-  f.settings=Object.assign({},f.settings,keep);f.seenIntro=true;f.news=DATA.news;f.__reset=true;
+  f.settings=Object.assign({},f.settings,keep);f.seenIntro=true;f.news=DATA.news;f.nick=String(S.edit.nick||'');f.pwTemp=!!S.edit.pwTemp;f.__reset=true;
   S.edit=f;S.ghostSel=new Set();S.tab='gen';render();
   setStatus(`Remise à zéro préparée pour ${name} : clique sur Enregistrer pour confirmer`);
 }
@@ -769,8 +826,8 @@ function showJournal(){
 }
 function csvCell(v){let s=String(v==null?'':v);if(/^[=+\-@]/.test(s))s="'"+s;return /[";\n]/.test(s)?`"${s.replace(/"/g,'""')}"`:s;}
 function exportCsv(){
-  const head=['pseudo','xp','rang','bretzels','etoiles','fantomes','serie_jours','badges','carte','derniere_activite'];
-  const rows=sorted().map(p=>{const g=p.progress,m=mapOf(g);return [p.pseudo||'',num(g.xp),rankOf(g.xp).de,coinsOf(g),starsOf(g),ghostsOf(g),num(obj(g.streak).days),badgesOf(g),`${m.done}/${m.total}`,fmtDate(p.updatedAt)];});
+  const head=['pseudo','nom_affiche','xp','rang','bretzels','etoiles','fantomes','serie_jours','badges','carte','derniere_activite'];
+  const rows=sorted().filter(p=>!isArch(p)).map(p=>{const g=p.progress,m=mapOf(g);return [p.pseudo||'',String(g.nick||''),num(g.xp),rankOf(g.xp).de,coinsOf(g),starsOf(g),ghostsOf(g),num(obj(g.streak).days),badgesOf(g),`${m.done}/${m.total}`,fmtDate(p.updatedAt)];});
   const csv=[head,...rows].map(r=>r.map(csvCell).join(';')).join('\r\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));
   const d=new Date();a.download=`joueurs-operation-bretzel-${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}.csv`;
@@ -791,20 +848,112 @@ async function logout(){
 function help(){
   box({title:'Aide – Bretzel Admin',icon:'❓',wide:true,html:`<p><b>À quoi sert cette console ?</b> À voir la progression de tous les joueurs d'Opération Bretzel et à corriger une fiche si besoin.</p>
   <ol><li>Choisis un joueur dans la liste de gauche (ou dans la <b>Vue d'ensemble</b>).</li>
-  <li>Modifie sa fiche dans les onglets <b>Général</b>, <b>Missions</b>, <b>Fantômes</b> ou <b>Badges</b>. Un ✎ rouge montre ce qui a changé.</li>
+  <li>Modifie sa fiche dans les onglets <b>Général</b> (nom affiché, XP, bretzels, série, boss), <b>Missions</b>, <b>Fantômes</b>, <b>Badges</b> ou <b>Boutique</b> (avatar et objets). Un ✎ rouge montre ce qui a changé.</li>
   <li>Clique sur <b>Enregistrer</b> (ou Ctrl+S). Rien n'est envoyé avant.</li></ol>
   <p>La prochaine fois que le joueur ouvre le jeu (ou dès sa prochaine sauvegarde), il reçoit ta version et un petit message lui dit que l'administrateur a mis sa progression à jour.</p>
+  <p><b>Mot de passe oublié ?</b> Bouton 🔑 <b>Mot de passe</b> : supprime l'ancien compte dans Firebase, puis la console recrée le compte avec un mot de passe temporaire et toute la progression. Le joueur choisit son propre mot de passe à sa prochaine connexion. Tu peux aussi lui donner un nouvel identifiant de connexion.</p>
   <p><b>Raccourcis :</b> F5 = actualiser, Ctrl+S = enregistrer, Échap = fermer une fenêtre.</p>
   <p class="muted">Les mots de passe ne sont jamais visibles, ni ici ni dans la base. Personne ne peut supprimer un compte depuis cette console.</p>`});
 }
 function about(){box({title:'À propos de Bretzel Admin',icon:'🥨',html:`<p><b>Bretzel Admin</b> – version 1.0<br>Console d'administration d'Opération Bretzel.</p><p class="muted">Base : ${esc(FB_CFG?FB_CFG.projectId:'?')}<br>Connecté : ${esc(me())}</p>`});}
 
+/* =========================================================
+   Nouveau mot de passe temporaire
+   Un mot de passe ne peut pas être changé à distance sans serveur : la console recrée
+   le compte (même identifiant ou un nouveau), y copie la progression et archive l'ancienne fiche.
+   ========================================================= */
+function ensureApp2(){
+  if(S.auth2)return;
+  const app2=S.appM.initializeApp(FB_CFG,'bretzel-admin-comptes');
+  S.auth2=S.A.initializeAuth(app2,{persistence:[S.A.inMemoryPersistence]});
+  S.db2=S.F.getFirestore(app2);
+  const em=window.FIREBASE_EMULATORS;
+  if(em){S.A.connectAuthEmulator(S.auth2,em.auth,{disableWarnings:true});S.F.connectFirestoreEmulator(S.db2,em.firestore[0],em.firestore[1]);}
+}
+async function pwDialog(){
+  if(!canPw())return;
+  if(!await askSave())return;
+  const p=cur(),login=p.pseudo||'',email=`${pseudoKey(login)}@${FB_CFG.projectId}.firebaseapp.com`;
+  const authUrl=`https://console.firebase.google.com/project/${encodeURIComponent(FB_CFG.projectId)}/authentication/users`;
+  let result=null;
+  await box({title:`Nouveau mot de passe – ${nameOf(p)}`,icon:'🔑',wide:true,buttons:['Créer le nouveau compte','Annuler'],def:0,cancel:1,
+    html:`<p>Personne ne peut lire ni changer un mot de passe à distance. Pour en donner un nouveau à <b>${esc(nameOf(p))}</b>, la console <b>recrée son compte</b> et y met <b>toute sa progression</b> (XP, étoiles, avatar, badges…). À sa prochaine connexion, il devra choisir son propre mot de passe.</p>
+    <fieldset><legend>Étape 1 – Supprime l'ancien compte dans Firebase</legend>
+      <ol><li>Clique sur <b>Ouvrir Firebase</b> (Authentication › Users).</li><li>Cherche <code>${esc(email)}</code>.</li><li>Clique sur <b>⋮</b> au bout de la ligne, puis sur <b>Supprimer le compte</b>.</li></ol>
+      <button type="button" class="btn" id="np-open">Ouvrir Firebase</button>
+      <p class="muted" style="margin:6px 0 0">Si tu donnes un nouvel identifiant (étape 2), tu peux aussi supprimer l'ancien compte après.</p>
+    </fieldset>
+    <fieldset><legend>Étape 2 – Le nouveau compte</legend>
+      <div class="fld"><label for="np-login">Identifiant :</label><input type="text" id="np-login" value="${esc(login)}" maxlength="20" autocomplete="off" spellcheck="false"></div>
+      <div class="fld"><label for="np-pass">Mot de passe temporaire :</label><span style="display:flex;gap:6px;min-width:0"><input type="text" id="np-pass" value="${esc(tempPass())}" maxlength="40" autocomplete="off" spellcheck="false" style="flex:1;min-width:0;font-family:'Courier New',monospace"><button type="button" class="btn mini" id="np-regen" title="Un autre mot de passe">🎲</button></span></div>
+      <p class="err" id="np-err" role="alert"></p>
+      <div class="progress sunken" id="np-prog" hidden><i></i></div>
+    </fieldset>`,
+    onOpen:(back,done)=>{
+      back.querySelector('#np-open').addEventListener('click',()=>window.open(authUrl,'_blank','noopener'));
+      back.querySelector('#np-regen').addEventListener('click',()=>{back.querySelector('#np-pass').value=tempPass();});
+      const go=back.querySelector('[data-i="0"]');
+      go.addEventListener('click',async e=>{
+        e.stopPropagation();
+        const err=back.querySelector('#np-err'),newLogin=back.querySelector('#np-login').value.trim(),temp=back.querySelector('#np-pass').value.trim();
+        const prob=pseudoProblem(newLogin);if(prob){err.textContent='Identifiant : '+prob;return;}
+        if(temp.length<6){err.textContent='Le mot de passe temporaire doit faire au moins 6 caractères.';return;}
+        go.disabled=true;back.querySelector('#np-prog').hidden=false;err.textContent='';
+        try{result=await recreate(p,newLogin,temp);done(0);}
+        catch(x){err.textContent=x&&x.msg?x.msg:('Ça n\'a pas marché : '+authMsg(x));go.disabled=false;back.querySelector('#np-prog').hidden=true;}
+      });
+    }});
+  if(!result)return;
+  await box({title:'Compte recréé',icon:'✅',wide:true,buttons:['Copier le mot de passe','OK'],def:1,cancel:1,
+    html:`<p>Le compte de <b>${esc(result.name)}</b> est prêt, avec toute sa progression.</p>
+      <p>Donne-lui ces informations <b>en personne</b> (pas dans un groupe) :</p>
+      <div class="row"><span class="l">Identifiant :</span><span class="v"><b>${esc(result.login)}</b></span></div>
+      <div class="pwbox sunken" id="np-final">${esc(result.temp)}</div>
+      <p>À sa prochaine connexion, le jeu lui demandera de choisir son propre mot de passe.</p>
+      ${result.renamed?`<p class="warn">N'oublie pas de supprimer l'ancien compte « ${esc(result.oldLogin)} » dans Firebase (Authentication), s'il existe encore.</p>`:''}
+      <p class="err" id="np-copy" role="status"></p>`,
+    onOpen:(back)=>{back.querySelector('[data-i="0"]').addEventListener('click',async e=>{e.stopPropagation();let ok=false;try{await navigator.clipboard.writeText(result.temp);ok=true;}catch(x){}const m=back.querySelector('#np-copy');m.className=ok?'okc':'err';m.textContent=ok?'✅ Mot de passe copié.':'Sélectionne le mot de passe, puis Ctrl+C.';});}});
+}
+async function recreate(p,newLogin,temp){
+  ensureApp2();
+  const key=pseudoKey(newLogin),email=`${key}@${FB_CFG.projectId}.firebaseapp.com`,same=key===pseudoKey(p.pseudo);
+  let cred;
+  try{cred=await S.A.createUserWithEmailAndPassword(S.auth2,email,temp);}
+  catch(x){
+    const c=String((x&&x.code)||'');
+    if(c.includes('email-already-in-use'))throw{msg:same?`L'ancien compte « ${key} » existe encore. Fais d'abord l'étape 1 (supprime-le dans Firebase), puis réessaie.`:`L'identifiant « ${key} » est déjà pris par un autre joueur.`};
+    if(c.includes('weak-password'))throw{msg:'Mot de passe temporaire trop court.'};
+    throw x;
+  }
+  const nu=cred.user,t=Date.now();
+  const prog=clone(p.progress);delete prog.archived;prog.pwTemp=true;prog.adminAt=t;prog.updatedAt=t;
+  try{
+    await S.A.updateProfile(nu,{displayName:newLogin});
+    await S.F.setDoc(S.F.doc(S.db2,'joueurs',nu.uid),{pseudo:newLogin,progress:prog,updatedAt:t});
+  }catch(x){
+    try{await S.A.deleteUser(nu);}catch(e){}
+    try{await S.A.signOut(S.auth2);}catch(e){}
+    throw{msg:'Le nouveau compte n\'a pas pu recevoir la progression ('+fsMsg(x)+'). Rien n\'a changé.'};
+  }
+  try{await S.A.signOut(S.auth2);}catch(e){}
+  /* l'ancienne fiche est gardée, mais archivée (cachée de la liste) */
+  const t2=Date.now(),old=clone(p.progress);old.archived={to:nu.uid,login:newLogin,at:t2};old.adminAt=t2;
+  let archOk=true;
+  try{await S.F.setDoc(S.F.doc(S.db,'joueurs',p.uid),{pseudo:p.pseudo,progress:old,updatedAt:t2});p.progress=old;p.updatedAt=t2;}catch(x){archOk=false;}
+  addLog(`${nameOf(p)} : nouveau compte « ${newLogin} » avec mot de passe temporaire${archOk?'':' (l\'ancienne fiche n\'a pas pu être archivée)'}`);
+  await loadPlayers(false);
+  const np=S.players.find(x=>x.uid===nu.uid);
+  if(np){S.sel=np.uid;S.orig=clone(np.progress);S.edit=clone(np.progress);S.tab='gen';}
+  render();setStatus(`Nouveau compte « ${newLogin} » créé à ${fmtTime(Date.now())}`);
+  return {name:nameOf(np||p),login:newLogin,temp,renamed:!same,oldLogin:p.pseudo};
+}
+
 /* ---------- menus ---------- */
 const MENUS={
   fichier:()=>[['🔄 Actualiser','F5','refresh'],['📤 Exporter la liste…','','export'],'-',['🎮 Ouvrir le jeu','','game'],'-',['🚪 Se déconnecter','','logout']],
   edition:()=>[['💾 Enregistrer','Ctrl+S','save',!dirty()],['↩️ Annuler les modifications','','cancel',!dirty()],'-',['👻 Supprimer tous les fantômes','','gdelall',!cur()]],
-  affichage:()=>[['📊 Vue d\'ensemble','','tab:ens'],'-',['Trier par pseudo','','sort:pseudo'],['Trier par XP','','sort:xp'],['Trier par activité','','sort:act'],'-',['📒 Journal des modifications','','journal']],
-  joueur:()=>[['Général','','tab:gen',!cur()],['Missions','','tab:mis',!cur()],['Fantômes','','tab:fan',!cur()],['Badges','','tab:bad',!cur()],['Boutique','','tab:bou',!cur()],'-',['🧹 Remettre à zéro…','','reset',!cur()],['Fermer la fiche','','close',!cur()]],
+  affichage:()=>[['📊 Vue d\'ensemble','','tab:ens'],[`${S.showArch?'☑':'☐'} Afficher les fiches archivées`,'','arch'],'-',['Trier par pseudo','','sort:pseudo'],['Trier par XP','','sort:xp'],['Trier par activité','','sort:act'],'-',['📒 Journal des modifications','','journal']],
+  joueur:()=>[['Général','','tab:gen',!cur()],['Missions','','tab:mis',!cur()],['Fantômes','','tab:fan',!cur()],['Badges','','tab:bad',!cur()],['Boutique','','tab:bou',!cur()],'-',['🧹 Remettre à zéro…','','reset',!cur()||isArch(cur())],['🔑 Mot de passe / identifiant…','','pw',!canPw()],['Fermer la fiche','','close',!cur()]],
   aide:()=>[['❓ Aide','F1','help'],['🥨 À propos de Bretzel Admin','','about']]
 };
 function closeMenus(){document.querySelectorAll('.menubar .m.open').forEach(m=>{m.classList.remove('open');const x=m.querySelector('.menu');if(x)x.remove();});const sm=$('.startmenu');if(sm)sm.remove();}
@@ -825,7 +974,8 @@ async function doAction(a){
   closeMenus();
   if(a.startsWith('tab:'))return setTab(a.slice(4));
   if(a.startsWith('sort:')){const k=a.slice(5);S.sort={k,d:k==='pseudo'?1:-1};return render();}
-  ({refresh,export:exportCsv,game:()=>window.open('./','_blank','noopener'),logout,save,cancel,reset:resetPlayer,journal:showJournal,help,about,
+  if(a==='arch'){S.showArch=!S.showArch;return render();}
+  ({refresh,export:exportCsv,pw:pwDialog,game:()=>window.open('./','_blank','noopener'),logout,save,cancel,reset:resetPlayer,journal:showJournal,help,about,
     gdelall:()=>delGhosts(true),close:closeFiche})[a]?.();
 }
 function setTab(t){if(t!=='ens'&&!cur())return;S.tab=t;renderTabs();renderSheet();renderTools();$('#sheet').scrollTop=0;}
@@ -872,7 +1022,8 @@ document.addEventListener('input',e=>{
   if(t.id==='q'){S.q=t.value;renderList();if(S.tab==='ens')renderSheet();return;}
   const f=t.dataset.f;if(!f||!S.edit)return;
   const g=S.edit;
-  if(f==='xp')g.xp=int(t.value,0,1e6);
+  if(f==='nick'){g.nick=cleanNick(t.value).trim();const n=$('[data-c=name]');if(n)n.textContent=g.nick||cur().pseudo||'';}
+  else if(f==='xp')g.xp=int(t.value,0,1e6);
   else if(f==='bonus'){g.shop=obj(g.shop);g.shop.bonus=int(t.value,0,1e5);}
   else if(f==='streak.days'||f==='streak.best'){g.streak=Object.assign({days:0,best:0,last:''},obj(g.streak));g.streak[f.split('.')[1]]=int(t.value,0,3650);}
   else if(f.startsWith('boss.')){const k=f.slice(5);g.boss=obj(g.boss);const c=obj(g.boss[k]);const w=int(t.value,0,1000);g.boss[k]=Object.assign({},c,{wins:w,tries:Math.max(num(c.tries),w)});}
@@ -881,6 +1032,8 @@ document.addEventListener('input',e=>{
 document.addEventListener('change',e=>{
   const t=e.target;if(!S.edit)return;const g=S.edit;
   if(t.dataset.star!==undefined){const w=t.dataset.star,v=+t.value;g.stars=obj(g.stars);if(v<0)delete g.stars[w];else g.stars[w]=v;renderSheet();refreshLive();return;}
+  if(t.dataset.eq!==undefined){const c=t.dataset.eq,id=t.value;g.shop=obj(g.shop);g.shop.eq=Object.assign({},EQ_DEF,obj(g.shop.eq));if(id)giveItem(g,id);g.shop.eq[c]=id;g.shop.eqAt=Date.now();renderSheet();refreshLive();return;}
+  if(t.dataset.own!==undefined){const id=t.dataset.own;if(t.checked)giveItem(g,id);else takeItem(g,id);renderSheet();refreshLive();return;}
   if(t.dataset.ghost!==undefined){t.checked?S.ghostSel.add(t.dataset.ghost):S.ghostSel.delete(t.dataset.ghost);renderSheet();return;}
   if(t.dataset.act==='gall'){const ids=Object.keys(obj(g.ghosts));S.ghostSel=t.checked?new Set(ids):new Set();renderSheet();return;}
   if(t.dataset.badge!==undefined){const id=t.dataset.badge;g.badges=obj(g.badges);if(t.checked)g.badges[id]=num(obj(S.orig.badges)[id])||Date.now();else delete g.badges[id];renderSheet();refreshLive();return;}

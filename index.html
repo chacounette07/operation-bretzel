@@ -1343,7 +1343,7 @@ const SHOPK=Object.fromEntries(SHOP.map(x=>[x.id,x]));
 /* le nom allemand sans les petits tirets cachés (pour la voix), et les deux noms ensemble pour les messages */
 const deTxt=x=>String(x.de||'').replace(/\u00AD/g,'');
 const deFr=x=>`<b lang="de">${esc(x.de)}</b> (${esc(x.name)})`;
-KEEP_KEYS.push('shop','mapDone','mapInit','adminAt');
+KEEP_KEYS.push('shop','mapDone','mapInit','adminAt','nick','pwTemp');
 
 function kindOf(id){
   if(STATIC[id])return STATIC[id].kind;
@@ -1370,7 +1370,7 @@ function answerText(q){
    État + sauvegarde
    ========================================================= */
 const KEY='operation-bretzel-v1';
-const fresh=()=>({v:1,xp:0,stars:{},ghosts:{},best:{blitz:0,memory:0,combo:0},stats:{answered:0,correct:0,rounds:0,slain:0,dict:0,daily:0,boss:0},settings:{sound:true,voice:true},seenIntro:false,streak:{days:0,best:0,last:''},badges:{},boss:{},news:'',shop:{owned:{},spent:0,bonus:0,eq:{char:'bear',hat:'',acc:'',bg:'gold'}},mapDone:{},mapInit:false,adminAt:0,updatedAt:0,rev:0,syncedRev:0,syncBase:0});
+const fresh=()=>({v:1,xp:0,stars:{},ghosts:{},best:{blitz:0,memory:0,combo:0},stats:{answered:0,correct:0,rounds:0,slain:0,dict:0,daily:0,boss:0},settings:{sound:true,voice:true},seenIntro:false,streak:{days:0,best:0,last:''},badges:{},boss:{},news:'',shop:{owned:{},spent:0,bonus:0,eq:{char:'bear',hat:'',acc:'',bg:'gold'}},mapDone:{},mapInit:false,adminAt:0,nick:'',pwTemp:false,updatedAt:0,rev:0,syncedRev:0,syncBase:0});
 function merge(base,o){
   if(!o||typeof o!=='object')return base;
   for(const k of Object.keys(base)){
@@ -1424,6 +1424,7 @@ function combine(a,b){
   o.shop.spent=spentOf(o.shop);
   o.mapDone=Object.assign({},b.mapDone||{},a.mapDone||{});o.mapInit=!!(a.mapInit||b.mapInit);
   o.adminAt=Math.max(a.adminAt||0,b.adminAt||0);
+  o.nick=a.nick||b.nick||'';o.pwTemp=!!(a.pwTemp||b.pwTemp);
   return o;
 }
 
@@ -1447,6 +1448,8 @@ function keepBoth(x,y){
   if((py.eqAt||0)>(px.eqAt||0)){px.eq=Object.assign({},py.eq||{});px.eqAt=py.eqAt;}
   px.spent=spentOf(px);
   x.adminAt=Math.max(x.adminAt||0,y.adminAt||0);
+  if(!x.nick&&y.nick)x.nick=y.nick;
+  x.pwTemp=!!(x.pwTemp&&y.pwTemp);
   return x;
 }
 
@@ -1457,6 +1460,8 @@ function keepBoth(x,y){
    ========================================================= */
 const pseudoKey=p=>String(p||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 const pseudoEmail=k=>`${k}@${FB_CFG.projectId}.firebaseapp.com`;
+/* le nom affiché : celui choisi par l'administrateur, sinon le pseudo du compte */
+const dispName=()=>String((state&&state.nick)||'').trim()||profile.pseudo||'';
 function pseudoProblem(raw){
   const k=pseudoKey(raw);
   if(!k)return 'Choisis un identifiant.';
@@ -1570,7 +1575,7 @@ function syncFromCloud(){
         keepBoth(local,merge(fresh(),r.progress));local.syncBase=Rt;writeLocal();refresh();await Sync.push();}
       else{take(keepBoth(merge(fresh(),r.progress),local),true);await Sync.push();}
     }catch(e){Sync.err=fsMsg(e);}
-    finally{Sync.pulling=null;renderSave();}
+    finally{Sync.pulling=null;renderSave();try{maybePwTemp();}catch(e){}}
   })();
   return Sync.pulling;
 }
@@ -1796,7 +1801,7 @@ function renderSave(){const t=saveText();$$('.savenote-live').forEach(el=>{el.te
 /* ---------- Comptes : morceaux du QG ---------- */
 function accChip(){
   if(!Acc.on)return '';
-  if(profile.type==='account')return `<button class="chip-acc" data-act="account" aria-label="Mon compte"><span class="emo">👤</span><span class="nm">${esc(profile.pseudo||'Mon compte')}</span></button>`;
+  if(profile.type==='account')return `<button class="chip-acc" data-act="account" aria-label="Mon compte"><span class="emo">👤</span><span class="nm">${esc(dispName()||'Mon compte')}</span></button>`;
   return `<button class="chip-acc" data-act="login"><span class="emo">👤</span><span class="nm">Connexion</span></button>`;
 }
 function noticePanels(){
@@ -1899,20 +1904,30 @@ async function submitAuth(){
 }
 
 /* ---------- Écran « Mon compte » ---------- */
-let delOpen=false;
+let delOpen=false,pwOpen=false,pwDone=false;
 function renderAccount(){
   if(profile.type!=='account'){show('home');renderHome();return;}
-  if(delOpen&&$('#delform')){renderSave();return;}
+  if((delOpen&&$('#delform'))||(pwOpen&&$('#pwform'))){renderSave();return;}
   const r=RANKS[rankIdx(state.xp)];
   const key=Acc.user&&Acc.user.email?String(Acc.user.email).split('@')[0]:pseudoKey(profile.pseudo);
   SCR.account.innerHTML=`
   <div class="topbar"><button class="icon-btn" data-act="home" aria-label="Retour au QG">✕</button><h2>Mon compte</h2></div>
   <div class="stack">
     <section class="panel">
-      <div class="acc-head"><div class="rank-emo"><span class="emo">${r.emo}</span></div><div><div class="rank-name">${esc(profile.pseudo||key)}</div><div class="rank-fr">${state.xp} XP, rang ${esc(r.de)}</div></div></div>
+      <div class="acc-head"><div class="rank-emo"><span class="emo">${r.emo}</span></div><div><div class="rank-name">${esc(dispName()||key)}</div><div class="rank-fr">${state.xp} XP, rang ${esc(r.de)}</div></div></div>
       <p class="savenote savenote-live" style="margin-top:12px"></p>
-      <div class="acc-help"><p>Pour retrouver ta progression sur un autre appareil (téléphone, ordinateur du CDI…), ouvre le jeu et connecte-toi avec :</p><p class="idline">Identifiant : <b>${esc(key)}</b></p></div>
+      <div class="acc-help"><p>Pour retrouver ta progression sur un autre appareil (téléphone, ordinateur du CDI…), ouvre le jeu et connecte-toi avec :</p><p class="idline">Identifiant : <b>${esc(key)}</b></p>${String(state.nick||'').trim()?`<p>Nom affiché dans le jeu : <b>${esc(state.nick)}</b> (choisi par l'administrateur).</p>`:''}</div>
       <button class="btn dark full" data-act="logout" id="logout">Me déconnecter</button>
+    </section>
+    <section class="panel">
+      ${pwOpen?`<form id="pwform" novalidate><h2>Changer mon mot de passe</h2>
+        <label class="lbl" for="f-pwold">Mot de passe actuel</label>
+        <div class="pw"><input class="field" id="f-pwold" type="password" autocomplete="current-password"><button type="button" class="eye" data-act="eye" data-for="f-pwold" aria-label="Afficher le mot de passe" aria-pressed="false"><span class="emo">👁️</span></button></div>
+        <label class="lbl" for="f-pwnew">Nouveau mot de passe (au moins 6 caractères)</label>
+        <div class="pw"><input class="field" id="f-pwnew" type="password" autocomplete="new-password"><button type="button" class="eye" data-act="eye" data-for="f-pwnew" aria-label="Afficher le mot de passe" aria-pressed="false"><span class="emo">👁️</span></button></div>
+        <p class="err" id="pw-err" role="alert"></p>
+        <div class="row"><button class="btn" type="submit" id="pw-go">Changer</button><button class="btn white" type="button" data-act="pw-no">Annuler</button></div></form>`
+      :`<p>${pwDone?'✅ Ton nouveau mot de passe est enregistré.':'Tu veux un nouveau mot de passe ?'}</p><button class="link" data-act="pw-ask" style="margin-top:8px">Changer mon mot de passe</button>`}
     </section>
     <section class="panel danger">
       ${delOpen?`<form id="delform" novalidate><h2>Supprimer mon compte</h2>
@@ -1927,6 +1942,7 @@ function renderAccount(){
   renderSave();
 }
 async function logout(){
+  {const m=$('#pwtemp');if(m)m.remove();}
   const b=$('#logout');if(b){b.disabled=true;b.textContent='Déconnexion…';}
   await Sync.flush();
   try{if(Acc.A&&Acc.auth)await Acc.A.signOut(Acc.auth);else await onUser(null);}catch(e){await onUser(null);}
@@ -1952,6 +1968,62 @@ async function submitDelete(){
     Sync.blocked=false;Acc.wipe=false;
     const el=$('#del-err');if(el)el.textContent=x&&x.fs?fsMsg(x.fs):authMsg(x);
     const g=$('#del-go');if(g){g.disabled=false;g.textContent='Supprimer définitivement';}
+  }
+}
+
+/* ---------- changer son mot de passe (il faut connaître l'ancien) ---------- */
+async function submitPw(){
+  const old=$('#f-pwold').value,nw=$('#f-pwnew').value,err=$('#pw-err'),go=$('#pw-go');
+  if(!old){err.textContent='Tape ton mot de passe actuel.';return;}
+  if(nw.length<6){err.textContent='Le nouveau mot de passe doit faire au moins 6 caractères.';return;}
+  if(nw===old){err.textContent='Choisis un mot de passe différent de l\'actuel.';return;}
+  go.disabled=true;go.textContent='Un instant…';err.textContent='';
+  const u=Acc.user;
+  try{
+    if(!u||!Acc.A)throw{code:'auth/network-request-failed'};
+    await Acc.A.reauthenticateWithCredential(u,Acc.A.EmailAuthProvider.credential(u.email,old));
+    await Acc.A.updatePassword(u,nw);
+    if(state.pwTemp){state.pwTemp=false;save();Sync.flush();}
+    pwOpen=false;pwDone=true;renderAccount();
+  }catch(x){
+    const el=$('#pw-err');if(el)el.textContent=authMsg(x);
+    const g=$('#pw-go');if(g){g.disabled=false;g.textContent='Changer';}
+  }
+}
+
+/* ---------- mot de passe temporaire donné par l'administrateur : on en choisit un nouveau ---------- */
+function maybePwTemp(){
+  if(profile.type!=='account'||!Acc.user||!Sync.pulled||!state.pwTemp||$('#pwtemp'))return;
+  const n=$('#news');if(n)n.remove();
+  document.body.insertAdjacentHTML('beforeend',`<div class="modal" id="pwtemp" role="dialog" aria-modal="true" aria-labelledby="pwt-t"><div class="modal-in">
+    <h2 id="pwt-t">Nouveau mot de passe <span class="emo">🔑</span></h2>
+    <p>L'administrateur t'a donné un <b>mot de passe temporaire</b>. Choisis maintenant ton propre mot de passe (au moins 6 caractères) et garde-le pour toi.</p>
+    <form id="pwtempform" novalidate>
+      <label class="lbl" for="f-pt1">Nouveau mot de passe</label>
+      <div class="pw"><input class="field" id="f-pt1" type="password" autocomplete="new-password"><button type="button" class="eye" data-act="eye" data-for="f-pt1" aria-label="Afficher le mot de passe" aria-pressed="false"><span class="emo">👁️</span></button></div>
+      <label class="lbl" for="f-pt2">Encore une fois</label>
+      <div class="pw"><input class="field" id="f-pt2" type="password" autocomplete="new-password"><button type="button" class="eye" data-act="eye" data-for="f-pt2" aria-label="Afficher le mot de passe" aria-pressed="false"><span class="emo">👁️</span></button></div>
+      <p class="err" id="pt-err" role="alert"></p>
+      <button class="btn dark full" type="submit" id="pt-go">Enregistrer mon mot de passe</button>
+    </form></div></div>`);
+  setTimeout(()=>{try{$('#f-pt1').focus();}catch(e){}},60);
+}
+async function submitPwTemp(){
+  const a=$('#f-pt1').value,b=$('#f-pt2').value,err=$('#pt-err'),go=$('#pt-go');
+  if(a.length<6){err.textContent='Au moins 6 caractères, s\'il te plaît.';return;}
+  if(a!==b){err.textContent='Les deux mots de passe ne sont pas pareils.';return;}
+  go.disabled=true;go.textContent='Un instant…';err.textContent='';
+  try{
+    if(!Acc.user||!Acc.A)throw{code:'auth/network-request-failed'};
+    await Acc.A.updatePassword(Acc.user,a);
+    state.pwTemp=false;save();await Sync.flush();
+    const m=$('#pwtemp');if(m)m.remove();
+    toast('🔑 Ton nouveau mot de passe est enregistré !');
+    maybeNews();
+  }catch(x){
+    const c=String((x&&x.code)||'');
+    err.innerHTML=c.includes('requires-recent-login')?'Pour ta sécurité, reconnecte-toi avec le mot de passe temporaire, puis recommence. <button class="link" type="button" data-act="logout">Me reconnecter</button>':esc(authMsg(x));
+    go.disabled=false;go.textContent='Enregistrer mon mot de passe';
   }
 }
 
@@ -2411,13 +2483,14 @@ function newsHtml(){
 }
 function maybeNews(){
   if(screen!=='home'||!state.seenIntro||state.news===NEWS_ID||$('#news'))return;
+  if(state.pwTemp&&profile.type==='account'){maybePwTemp();return;}
   /* avec un compte : on attend d'avoir lu la version en ligne (le pop-up a peut-être déjà été fermé sur un autre appareil) */
   if(profile.type==='account'&&!Sync.pulled&&(maybeNews.n=(maybeNews.n||0)+1)<=8){clearTimeout(maybeNews.t);maybeNews.t=setTimeout(maybeNews,600);return;}
   document.body.insertAdjacentHTML('beforeend',newsHtml());
   setTimeout(()=>{try{$('#news-ok').focus();}catch(e){}},60);
 }
 function closeNews(){state.news=NEWS_ID;save();const m=$('#news');if(m)m.remove();}
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#news'))closeNews();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#news')&&!$('#pwtemp'))closeNews();});
 document.addEventListener('click',e=>{if(e.target&&e.target.id==='news')closeNews();});
 
 /* ---------- petit message flottant ---------- */
@@ -2706,7 +2779,9 @@ const ACT={
   'mode-signup'(){authMode='signup';renderAuth();},
   eye(a){const i=document.getElementById(a.dataset.for);if(!i)return;const vis=i.type==='password';i.type=vis?'text':'password';a.setAttribute('aria-pressed',String(vis));a.setAttribute('aria-label',vis?'Masquer le mot de passe':'Afficher le mot de passe');},
   guest(){lsSet(GUEST_KEY,'1');Acc.notice='';show('home');renderHome();},
-  account(){delOpen=false;show('account');renderAccount();},
+  account(){delOpen=false;pwOpen=false;pwDone=false;show('account');renderAccount();},
+  'pw-ask'(){pwOpen=true;delOpen=false;renderAccount();try{$('#f-pwold').focus();}catch(e){}},
+  'pw-no'(){pwOpen=false;renderAccount();},
   logout(){logout();},
   'delete-ask'(){delOpen=true;renderAccount();try{$('#f-delpass').focus();}catch(e){}},
   'delete-no'(){delOpen=false;renderAccount();},
@@ -2718,6 +2793,8 @@ document.addEventListener('click',e=>{const a=e.target.closest('[data-act]');if(
 document.addEventListener('submit',e=>{
   if(e.target.id==='authform'){e.preventDefault();submitAuth();return;}
   if(e.target.id==='delform'){e.preventDefault();submitDelete();return;}
+  if(e.target.id==='pwform'){e.preventDefault();submitPw();return;}
+  if(e.target.id==='pwtempform'){e.preventDefault();submitPwTemp();return;}
   if(e.target.id!=='typer')return;e.preventDefault();
   if(!run||run.answered)return;const q=run.queue[run.i].q;const inp=$('#ans');const given=inp.value;
   const r=checkTyped(given,q);
