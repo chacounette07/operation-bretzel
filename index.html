@@ -1551,7 +1551,7 @@ const Sync={
       await Acc.F.setDoc(this.ref(),{pseudo:profile.pseudo||'',progress:prog,updatedAt:t});
       if(profile.uid===uid){state.syncedRev=Math.max(state.syncedRev||0,r0);state.syncBase=t;writeLocal();}
       this.lastOk=Date.now();this.err='';
-    }catch(e){this.err=fsMsg(e);}
+    }catch(e){this.err=fsMsg(e);if(String(e&&e.code)==='permission-denied'&&await checkSuspended()){this.busy=false;this.again=false;return;}}
     this.busy=false;
     if(this.again){this.again=false;if(isDirty())await this.push();}
     renderSave();
@@ -1573,6 +1573,26 @@ async function checkDeleted(){
   try{const s=await Acc.F.getDoc(Acc.F.doc(Acc.db,'supprimes',profile.uid));if(!s.exists())return false;}
   catch(e){return false;}
   await accountDeleted();return true;
+}
+/* Compte suspendu par un administrateur (console admin.html, document suspendus/{uid}) :
+   on déconnecte le joueur en lui disant jusqu'à quand ; sa progression est gardée. */
+async function readSuspension(){
+  if(!Acc.F||!Acc.db||profile.type!=='account'||!profile.uid)return null;
+  try{
+    const s=await Acc.F.getDoc(Acc.F.doc(Acc.db,'suspendus',profile.uid));
+    if(!s.exists())return null;
+    const d=s.data()||{},until=Number(d.until)||0;
+    return until>Date.now()?{until,motif:String(d.motif||'').slice(0,100)}:null;
+  }catch(e){return null;}
+}
+async function checkSuspended(){const su=await readSuspension();if(!su)return false;await accountSuspended(su);return true;}
+async function accountSuspended(su){
+  Sync.blocked=true;clearTimeout(Sync.timer);
+  {const m=$('#pwtemp');if(m)m.remove();}
+  try{if(Acc.A&&Acc.auth)await Acc.A.signOut(Acc.auth);else await onUser(null);}catch(e){await onUser(null);}
+  delOpen=false;authDraft='';
+  Acc.notice=`⏸️ Ton compte est suspendu par l'administrateur jusqu'à ${evAt(su.until)}${su.motif?` (motif : ${su.motif})`:''}. Ta progression est gardée : tu pourras te reconnecter à ce moment-là. En attendant, tu peux jouer sans compte.`;
+  openAuth('login','welcome');
 }
 async function accountDeleted(){
   Sync.blocked=true;clearTimeout(Sync.timer);
@@ -1604,8 +1624,9 @@ function syncFromCloud(){
   Sync.pulling=(async()=>{
     const uid=profile.uid;
     try{
-      const r=await Sync.pull();
+      const [r,su]=await Promise.all([Sync.pull(),readSuspension()]);
       if(profile.uid!==uid)return;
+      if(su){await accountSuspended(su);return;}
       Sync.pulled=true;Sync.err='';Sync.lastOk=Date.now();
       if(!r||!r.progress){if(!r&&await checkDeleted())return;await Sync.push();return;}
       const Rt=r.updatedAt||0,local=state;

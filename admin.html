@@ -79,6 +79,9 @@ input[type=checkbox],input[type=radio]{width:13px;height:13px;accent-color:var(-
 .admhelp{margin:0;padding-left:18px}
 .admhelp li{margin:2px 0}
 .info.ro{background:#E8E8E8}
+.bkbox{background:#E6F4E6}
+.bkbox .btn{margin-left:6px}
+tr.sel2 td{background:#FFF6C8}
 #sheet input:disabled,#sheet select:disabled{background:var(--face-hi);color:#444}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .kv>div.evon{background:#FFF6C8}
@@ -238,10 +241,12 @@ legend{padding:0 4px;color:#00248F}
     <button class="tool" data-act="reset" id="t-reset" title="Remettre à zéro la progression du joueur"><span class="i emo">🧹</span><span class="lbl">Remise à zéro</span></button>
     <button class="tool" data-act="pw" id="t-pw" title="Donner un mot de passe temporaire (ou changer l'identifiant)"><span class="i emo">🔑</span><span class="lbl">Mot de passe</span></button>
     <button class="tool" data-act="delacc" id="t-del" title="Supprimer le compte du joueur"><span class="i emo">🗑️</span><span class="lbl">Supprimer</span></button>
+    <button class="tool" data-act="suspend" id="t-sus" title="Suspendre le compte (ou lever la suspension)"><span class="i emo">⏸️</span><span class="lbl">Suspendre</span></button>
     <span class="tsep"></span>
     <button class="tool" data-act="tab" data-tab="ens" title="Vue d'ensemble de tous les joueurs"><span class="i emo">📊</span><span class="lbl">Ensemble</span></button>
     <button class="tool" data-act="event" id="t-ev" title="Lancer un événement XP ou bretzels"><span class="i emo">🎉</span><span class="lbl">Événement</span></button>
     <button class="tool" data-act="admins" id="t-adm" title="Administrateurs et leurs droits (super-administrateur)" hidden><span class="i emo">👥</span><span class="lbl">Admins</span></button>
+    <button class="tool" data-act="backup" id="t-bak" title="Sauvegarder ou restaurer toutes les progressions (super-administrateur)" hidden><span class="i emo">💾</span><span class="lbl">Sauvegarde</span></button>
     <button class="tool" data-act="export" title="Exporter la liste (tableur)"><span class="i emo">📤</span><span class="lbl">Exporter</span></button>
     <button class="tool" data-act="journal" title="Journal des modifications"><span class="i emo">📒</span><span class="lbl">Journal</span></button>
     <span class="tsep"></span>
@@ -362,25 +367,30 @@ function fsMsg(e){
 
 /* ---------- état ---------- */
 const S={A:null,F:null,auth:null,db:null,user:null,players:[],sel:null,orig:null,edit:null,tab:'ens',
-  sort:{k:'xp',d:-1},q:'',log:[],busy:false,loaded:false,lastLoad:0,ghostSel:new Set(),showArch:false,appM:null,auth2:null,db2:null,ev:null,role:null,droits:{},admins:[]};
+  sort:{k:'xp',d:-1},q:'',log:[],busy:false,loaded:false,lastLoad:0,ghostSel:new Set(),showArch:false,appM:null,auth2:null,db2:null,ev:null,role:null,droits:{},admins:[],susp:[],rulesV:0,lastBackup:null};
 const cur=()=>S.players.find(p=>p.uid===S.sel)||null;
 const dirty=()=>!!S.sel&&!!S.edit&&JSON.stringify(S.edit)!==JSON.stringify(S.orig);
 const me=()=>S.user?pseudoKey(String(S.user.email||'').split('@')[0]):'';
 const active=()=>S.players.filter(p=>!isArch(p));
 /* rôles : 'super' (un seul, écrit dans les règles), 'admin' (droits choisis par le super-administrateur),
    'legacy' (anciennes règles : le seul administrateur, qui deviendra super-administrateur) */
-const RULES_V='regles_v16';
+const RULES_V='regles_v17';
 const DROITS=[
   ['voir','👁️','Voir','voir les joueurs et leur progression (toujours donné)'],
   ['modifier','✏️','Modifier','modifier les fiches : XP, étoiles, fantômes, badges, boutique, nom affiché, remise à zéro'],
   ['motdepasse','🔑','Mots de passe','donner un mot de passe temporaire ou un nouvel identifiant (il faut aussi « Modifier »)'],
   ['supprimer','🗑️','Supprimer','supprimer des comptes'],
+  ['suspendre','⏸️','Suspendre','suspendre un compte quelques jours, ou lever la suspension'],
   ['evenements','🎉','Événements','lancer, arrêter ou annuler des événements XP / bretzels']];
 const ALL_DROITS=Object.fromEntries(DROITS.map(d=>[d[0],true]));
 const isSuper=()=>S.role==='super'||S.role==='legacy';
 const can=d=>isSuper()||!!(S.droits&&S.droits[d]);
 const adminOf=uid=>S.admins.find(a=>a.uid===uid)||null;
 /* la fiche d'un administrateur (ou du super-administrateur) : seul le super-administrateur la change */
+/* comptes suspendus (seulement ceux dont la fin n'est pas passée) */
+const suspOf=uid=>{const x=S.susp.find(y=>y.uid===uid);return x&&x.until>Date.now()?x:null;};
+const whenTxt=t=>evDay(t)==='aujourd\'hui'?`${evHm(t)} (aujourd'hui)`:`${evDay(t)} ${evHm(t)}`;
+const canSus=()=>{const p=cur();return can('suspendre')&&!!p&&!isArch(p)&&p.uid!==S.user.uid&&!adminOf(p.uid);};
 const shielded=p=>!!p&&!isSuper()&&!!adminOf(p.uid);
 const roleTxt=()=>S.role==='super'?'super-administrateur':'administrateur';
 const canEdit=()=>{const p=cur();return can('modifier')&&!!p&&!isArch(p)&&!shielded(p);};
@@ -508,7 +518,8 @@ function rulesText(uid,pseudo){
 // Chaque joueur ne peut lire, modifier et supprimer QUE sa propre progression.
 // Il y a UN super-administrateur (ci-dessous). Depuis la console, il peut nommer d'autres
 // administrateurs et choisir leurs droits (fiches « admins »). Un administrateur ne peut pas
-// toucher à la fiche d'un autre administrateur.
+// toucher à la fiche d'un autre administrateur. Un compte suspendu ne peut plus rien enregistrer
+// jusqu'à la fin de sa suspension.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -516,12 +527,17 @@ service cloud.firestore {
     function estSuper() {
       return request.auth != null && request.auth.uid == '${uid}';
     }
-    // Un droit d'administrateur : 'voir', 'modifier', 'motdepasse', 'supprimer' ou 'evenements'
+    // Un droit d'administrateur : 'voir', 'modifier', 'motdepasse', 'supprimer', 'suspendre' ou 'evenements'
     function droit(d) {
       return estSuper()
           || (request.auth != null
               && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
               && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.droits.get(d, false) == true);
+    }
+    // Compte suspendu (jusqu'à la date « until ») ?
+    function suspendu(uid) {
+      return exists(/databases/$(database)/documents/suspendus/$(uid))
+          && get(/databases/$(database)/documents/suspendus/$(uid)).data.until > request.time.toMillis();
     }
     // La fiche d'un administrateur : seul le super-administrateur peut la changer
     function protege(uid) {
@@ -533,6 +549,7 @@ service cloud.firestore {
       allow create, update: if request.auth != null
                             && request.auth.uid == uid
                             && !exists(/databases/$(database)/documents/supprimes/$(uid))
+                            && !suspendu(uid)
                             && request.resource.data.keys().hasOnly(['pseudo', 'progress', 'updatedAt'])
                             && request.resource.data.progress is map;
 
@@ -542,6 +559,17 @@ service cloud.firestore {
                     && request.resource.data.progress is map
                     && request.resource.data.pseudo == resource.data.pseudo;
       allow delete: if droit('supprimer') && !protege(uid);
+    }
+
+    // Comptes suspendus : le joueur lit la sienne (le jeu lui dit jusqu'à quand).
+    match /suspendus/{uid} {
+      allow read: if (request.auth != null && request.auth.uid == uid) || droit('voir');
+      allow create, update: if droit('suspendre') && !protege(uid) && uid != request.auth.uid
+                            && request.resource.data.keys().hasOnly(['pseudo', 'until', 'motif', 'by', 'at'])
+                            && request.resource.data.pseudo is string
+                            && request.resource.data.until is int
+                            && request.resource.data.motif is string && request.resource.data.motif.size() <= 100;
+      allow delete: if droit('suspendre') && !protege(uid);
     }
 
     // Comptes supprimés depuis la console : le jeu ne peut plus les recréer.
@@ -562,7 +590,7 @@ service cloud.firestore {
                             && request.resource.data.keys().hasOnly(['pseudo', 'droits', 'super', 'by', 'at'])
                             && request.resource.data.pseudo is string
                             && request.resource.data.droits is map
-                            && request.resource.data.droits.keys().hasOnly(['voir', 'modifier', 'motdepasse', 'supprimer', 'evenements'])
+                            && request.resource.data.droits.keys().hasOnly(['voir', 'modifier', 'motdepasse', 'supprimer', 'suspendre', 'evenements'])
                             && request.resource.data.get('super', false) == (uid == request.auth.uid);
       allow delete: if estSuper() && uid != request.auth.uid;
     }
@@ -577,6 +605,14 @@ service cloud.firestore {
                    && request.resource.data.mult >= 1 && request.resource.data.mult <= 5
                    && request.resource.data.start is int && request.resource.data.end is int
                    && request.resource.data.title is string && request.resource.data.title.size() <= 60;
+    }
+
+    // Date de la dernière sauvegarde (console)
+    match /config/sauvegarde {
+      allow read: if droit('voir');
+      allow write: if estSuper()
+                   && request.resource.data.keys().hasOnly(['at', 'by', 'joueurs'])
+                   && request.resource.data.at is int && request.resource.data.joueurs is int;
     }
 
     // Version des règles (la console vérifie qu'elles sont à jour)
@@ -630,14 +666,15 @@ function showWin(){hideLogin();$('#win').hidden=false;$('#task').classList.add('
    Lecture des progressions
    ========================================================= */
 async function detectRole(){
-  /* config/regles_v16 n'est lisible qu'avec les nouvelles règles (qui connaissent le super-administrateur) */
-  try{await S.F.getDoc(S.F.doc(S.db,'config',RULES_V));}
-  catch(x){if(String(x&&x.code)==='permission-denied')return {role:'legacy'};throw x;}
+  /* chaque version des règles a un document config/regles_vNN lisible par tous */
+  const ok=async v=>{try{await S.F.getDoc(S.F.doc(S.db,'config',v));return true;}catch(x){if(String(x&&x.code)==='permission-denied')return false;throw x;}};
+  S.rulesV=await ok(RULES_V)?17:await ok('regles_v16')?16:0;
+  if(!S.rulesV)return {role:'legacy'};
   const ref=S.F.doc(S.db,'admins',S.user.uid);
   const snap=await S.F.getDoc(ref);
   if(snap.exists()){const a=snap.data()||{};return a.super===true?{role:'super'}:{role:'admin',droits:Object.assign({},obj(a.droits),{voir:true})};}
   /* pas encore de fiche : seul le super-administrateur peut l'écrire, on essaie */
-  try{await S.F.setDoc(ref,{pseudo:me(),droits:ALL_DROITS,super:true,by:S.user.uid,at:Date.now()});return {role:'super',created:true};}
+  try{await S.F.setDoc(ref,{pseudo:me(),droits:S.rulesV>=17?ALL_DROITS:Object.fromEntries(['voir','modifier','motdepasse','supprimer','evenements'].map(k=>[k,true])),super:true,by:S.user.uid,at:Date.now()});return {role:'super',created:true};}
   catch(x){if(String(x&&x.code)==='permission-denied')return {role:'none'};throw x;}
 }
 async function loadPlayers(first){
@@ -663,12 +700,18 @@ async function loadPlayers(first){
     const list=[];
     snap.forEach(d=>{const x=d.data()||{};list.push({uid:d.id,pseudo:x.pseudo,progress:obj(x.progress),updatedAt:num(x.updatedAt)});});
     S.players=list;S.loaded=true;S.lastLoad=Date.now();
-    const [er,ar]=await Promise.allSettled([S.F.getDoc(S.F.doc(S.db,'config','evenement')),
-      S.role==='legacy'?Promise.reject({code:'anciennes-regles'}):S.F.getDocs(S.F.collection(S.db,'admins'))]);
+    const v17=S.rulesV>=17,no=Promise.reject({code:'anciennes-regles'});no.catch(()=>{});
+    const [er,ar,sr,br]=await Promise.allSettled([S.F.getDoc(S.F.doc(S.db,'config','evenement')),
+      S.role==='legacy'?no:S.F.getDocs(S.F.collection(S.db,'admins')),
+      v17?S.F.getDocs(S.F.collection(S.db,'suspendus')):no,
+      v17?S.F.getDoc(S.F.doc(S.db,'config','sauvegarde')):no]);
+    S.susp=[];
+    if(sr.status==='fulfilled')sr.value.forEach(d=>{const x=d.data()||{};S.susp.push({uid:d.id,pseudo:String(x.pseudo||''),until:num(x.until),motif:String(x.motif||'').slice(0,100)});});
+    S.lastBackup=br.status==='fulfilled'&&br.value.exists()?br.value.data():null;
     S.ev=er.status==='fulfilled'&&er.value.exists()?er.value.data():null;
     S.admins=[];
     if(ar.status==='fulfilled')ar.value.forEach(d=>{const a=d.data()||{};S.admins.push({uid:d.id,pseudo:String(a.pseudo||''),droits:Object.assign({},obj(a.droits),{voir:true}),super:a.super===true});});
-    S.rulesOld=S.role==='legacy';
+    S.rulesOld=S.role==='legacy'||S.rulesV<17;
     if(S.sel){const p=cur();if(p){if(!dirty()){S.orig=clone(p.progress);S.edit=clone(p.progress);}}else{S.sel=null;S.orig=S.edit=null;S.tab='ens';}}
     setStatus(`${list.length} joueur${list.length>1?'s':''} chargé${list.length>1?'s':''} à ${fmtTime(Date.now())}`);
     return true;
@@ -709,7 +752,7 @@ function renderList(){
     const r=rankOf(p.progress.xp);
     const nk=String(p.progress.nick||'').trim();
     return `<tr class="click${p.uid===S.sel?' sel':''}${isArch(p)?' arch':''}" data-act="pick" data-uid="${esc(p.uid)}" tabindex="0" aria-selected="${p.uid===S.sel}">
-      <td><span class="dot ${activity(p.updatedAt)}" aria-hidden="true"></span><span class="emo">${isArch(p)?'📦':r.e}</span> ${esc(nameOf(p)||'(sans pseudo)')}${nk&&nk!==p.pseudo?` <span class="muted">(${esc(p.pseudo||'')})</span>`:''}${(a=>a?` <span class="emo" title="${a.super?'Super-administrateur':'Administrateur'}">${a.super?'👑':'🛠️'}</span>`:'')(adminOf(p.uid))}${p.uid===S.user.uid?' <span class="muted">(toi)</span>':''}${isArch(p)?' <span class="muted">(archivée)</span>':''}</td>
+      <td><span class="dot ${activity(p.updatedAt)}" aria-hidden="true"></span><span class="emo">${isArch(p)?'📦':r.e}</span> ${esc(nameOf(p)||'(sans pseudo)')}${nk&&nk!==p.pseudo?` <span class="muted">(${esc(p.pseudo||'')})</span>`:''}${(a=>a?` <span class="emo" title="${a.super?'Super-administrateur':'Administrateur'}">${a.super?'👑':'🛠️'}</span>`:'')(adminOf(p.uid))}${suspOf(p.uid)?' <span class="emo" title="Compte suspendu">⏸️</span>':''}${p.uid===S.user.uid?' <span class="muted">(toi)</span>':''}${isArch(p)?' <span class="muted">(archivée)</span>':''}</td>
       <td class="n">${fmtN(p.progress.xp)}</td><td class="muted">${esc(ago(p.updatedAt))}</td></tr>`;}).join('')}</tbody></table>`;
 }
 function renderTabs(){
@@ -722,7 +765,7 @@ function renderTabs(){
 function renderTools(){
   const p=cur(),d=dirty();
   $('#t-save').disabled=!d||!canEdit();$('#t-cancel').disabled=!d;$('#t-reset').disabled=!canEdit();$('#t-pw').disabled=!canPw();$('#t-del').disabled=!canDel();
-  $('#t-ev').disabled=!can('evenements');$('#t-adm').hidden=!isSuper();
+  $('#t-ev').disabled=!can('evenements');$('#t-adm').hidden=!isSuper();$('#t-sus').disabled=!canSus();$('#t-bak').hidden=!isSuper();
   $('#fbtns').innerHTML=p&&S.tab!=='ens'?`<button class="btn" data-act="close">Fermer la fiche</button><button class="btn" data-act="cancel" ${d?'':'disabled'}>Annuler</button><button class="btn def" data-act="save" ${d&&canEdit()?'':'disabled'}>Enregistrer</button>`:'';
 }
 function renderStatus(){
@@ -741,13 +784,14 @@ function renderEns(){
   const xp=P.reduce((t,p)=>t+num(p.xp),0),gh=P.reduce((t,p)=>t+ghostsOf(p),0);
   const best=A.slice().sort((a,b)=>num(b.progress.xp)-num(a.progress.xp))[0];
   const rows=sorted();
-  return `${S.rulesOld?`<div class="info rulesbox" role="alert">⚠️ <b>Les règles de Firebase ne sont pas à jour.</b> Colle les nouvelles règles (une seule fois) : elles font de toi le <b>super-administrateur</b>, et les événements, la suppression de comptes et les autres administrateurs ne marchent pas sans elles. <button class="btn mini" data-act="rules">🛡️ Mettre à jour les règles…</button></div>`:''}<div class="kv">
+  return `${S.rulesOld&&isSuper()?`<div class="info rulesbox" role="alert">⚠️ <b>Les règles de Firebase ne sont pas à jour.</b> Colle les nouvelles règles (une seule fois) pour que tout marche : ${S.role==='legacy'?'elles font de toi le <b>super-administrateur</b>, ':''}administrateurs, événements, suppression et suspension de comptes, sauvegardes. <button class="btn mini" data-act="rules">🛡️ Mettre à jour les règles…</button></div>`:''}${isSuper()&&S.rulesV>=17&&(!S.lastBackup||Date.now()-num(S.lastBackup.at)>7*86400e3)?`<div class="info bkbox">💾 ${S.lastBackup?`Dernière sauvegarde ${esc(ago(num(S.lastBackup.at)))}`:'Aucune sauvegarde pour l\'instant'} : pense à en faire une (un fichier avec toute la progression des joueurs). <button class="btn mini" data-act="backup">💾 Sauvegarde…</button></div>`:''}<div class="kv">
     <div class="sunken">Joueurs<b>${A.length}</b></div>
     <div class="sunken">Actifs aujourd'hui<b>${today}</b></div>
     <div class="sunken">Actifs cette semaine<b>${week}</b></div>
     <div class="sunken">XP gagnés en tout<b>${fmtN(xp)}</b></div>
     <div class="sunken">Fantômes à vaincre<b>${fmtN(gh)}</b></div>
     <div class="sunken click${evState()!=='none'?' evon':''}" data-act="event" title="Lancer, arrêter ou annuler un événement XP / bretzels">🎉 Événement<b style="font-size:13px" id="ens-ev">${esc(evText())}</b></div>
+    ${S.susp.filter(x=>x.until>Date.now()).length?`<div class="sunken">Comptes suspendus<b>${S.susp.filter(x=>x.until>Date.now()).length}</b></div>`:''}
     <div class="sunken">En tête<b style="font-size:14px">${best?`${rankOf(best.progress.xp).e} ${esc(nameOf(best)||'?')}`:'—'}</b></div>
   </div>
   <fieldset><legend>Tous les joueurs</legend>
@@ -774,6 +818,7 @@ function renderGen(){
     <div class="row"><label for="f-nick">Nom affiché${chg(String(g.nick||''),String(o.nick||''))} :</label><span class="v"><input type="text" id="f-nick" data-f="nick" maxlength="20" value="${esc(g.nick||'')}" placeholder="${esc(p.pseudo||'')}" autocomplete="off" spellcheck="false"></span></div>
     <div class="row"><span class="l">Mot de passe :</span><span class="v">${p.uid===S.user.uid?'<span class="muted">(ton compte : change-le dans le jeu, écran Mon compte)</span>':`${canPw()?'<button class="btn mini" data-act="pw">🔑 Nouveau mot de passe…</button>':`<span class="muted">${shielded(p)?'(fiche d\'un administrateur)':'(tu n\'as pas ce droit)'}</span>`}${g.pwTemp?' <span class="tag">temporaire, pas encore changé</span>':''}`}</span></div>
     <div class="row"><span class="l">Rôle :</span><span class="v">${(a=>a?(a.super?'<span class="emo">👑</span> <b>Super-administrateur</b>':`<span class="emo">🛠️</span> <b>Administrateur</b> <span class="muted">(${esc(droitsTxt(a.droits))})</span>`):'Joueur')(adminOf(p.uid))}${S.role==='super'&&p.uid!==S.user.uid?` <button class="btn mini" data-act="admfor" data-uid="${esc(p.uid)}">👥 Droits d'administrateur…</button>`:''}</span></div>
+    <div class="row"><span class="l">Statut :</span><span class="v">${(x=>x?`<span class="emo">⏸️</span> <b>Suspendu</b> jusqu'à ${esc(whenTxt(x.until))}${x.motif?` <span class="muted">(${esc(x.motif)})</span>`:''}`:'Actif')(suspOf(p.uid))}${canSus()?` <button class="btn mini" data-act="suspend">${suspOf(p.uid)?'▶️ Lever ou changer…':'⏸️ Suspendre…'}</button>`:''}</span></div>
     <div class="row"><span class="l">Compte :</span><span class="v">${p.uid===S.user.uid?'<span class="muted">(ton compte : tu peux le supprimer dans le jeu, écran Mon compte)</span>':canDel()?'<button class="btn mini" data-act="delacc">🗑️ Supprimer ce compte…</button>':`<span class="muted">${shielded(p)?'(fiche d\'un administrateur)':'(tu n\'as pas ce droit)'}</span>`}</span></div>
     <div class="row"><span class="l">Identifiant technique :</span><span class="v"><code>${esc(p.uid)}</code></span></div>
     <div class="row"><span class="l">Dernière activité :</span><span class="v">${esc(fmtDate(p.updatedAt))} (${esc(ago(p.updatedAt))})</span></div>
@@ -1015,6 +1060,8 @@ function help(){
   <p><b>Mot de passe oublié ?</b> Bouton 🔑 <b>Mot de passe</b> : supprime l'ancien compte dans Firebase, puis la console recrée le compte avec un mot de passe temporaire et toute la progression. Le joueur choisit son propre mot de passe à sa prochaine connexion. Tu peux aussi lui donner un nouvel identifiant de connexion.</p>
   <p><b>Événements :</b> bouton 🎉 <b>Événement</b> : XP x2, bretzels x2 (ou x3) pendant 15 minutes, une heure, une soirée ou un week-end. Les joueurs voient un bandeau avec le temps restant.</p>
   <p><b>Administrateurs :</b> il y a un seul <b>super-administrateur</b> (celui dont l'identifiant est dans les règles de Firebase). Avec le bouton 👥 <b>Admins</b>, il nomme d'autres administrateurs et coche leurs droits dans la grille : 👁️ voir, ✏️ modifier, 🔑 mots de passe, 🗑️ supprimer, 🎉 événements. Un administrateur ne peut pas toucher à la fiche d'un autre administrateur.</p>
+  <p><b>Suspendre un compte :</b> bouton ⏸️ <b>Suspendre</b> : le joueur ne peut plus jouer avec son compte pendant 1 jour, 3 jours, une semaine… (sa progression est gardée). Le jeu lui dit jusqu'à quand, avec le motif si tu en écris un. Tu peux lever la suspension avant la fin.</p>
+  <p><b>Sauvegarde :</b> bouton 💾 <b>Sauvegarde</b> (super-administrateur) : télécharge un fichier avec la progression de tous les joueurs. Avec ce fichier, tu peux remettre les joueurs de ton choix comme ils étaient (tu vois la liste avant).</p>
   <p><b>Raccourcis :</b> F5 = actualiser, Ctrl+S = enregistrer, Échap = fermer une fenêtre.</p>
   <p><b>Supprimer un compte :</b> bouton 🗑️ <b>Supprimer</b> (il faut écrire l'identifiant du joueur pour confirmer). Sa progression est effacée et le jeu le déconnecte. Pour que l'identifiant puisse resservir, supprime aussi sa connexion dans Firebase (Authentication) : la console t'explique comment.</p>
   <p class="muted">Les mots de passe ne sont jamais visibles, ni ici ni dans la base. Ton propre compte ne peut pas être supprimé d'ici (fais-le dans le jeu, écran Mon compte).</p>`});
@@ -1238,6 +1285,7 @@ async function delDialog(){
     b.set(S.F.doc(S.db,'supprimes',p.uid),{pseudo:login,at:Date.now(),by:S.user.uid});
     b.delete(S.F.doc(S.db,'joueurs',p.uid));
     if(S.role==='super'&&adminOf(p.uid))b.delete(S.F.doc(S.db,'admins',p.uid));
+    if(S.susp.some(x=>x.uid===p.uid)&&can('suspendre')&&S.rulesV>=17)b.delete(S.F.doc(S.db,'suspendus',p.uid));
     await b.commit();
   }catch(x){
     S.busy=false;setStatus('Suppression annulée');
@@ -1247,7 +1295,7 @@ async function delDialog(){
     return;
   }
   S.busy=false;
-  S.players=S.players.filter(x=>x.uid!==p.uid);S.admins=S.admins.filter(x=>x.uid!==p.uid);S.sel=null;S.orig=S.edit=null;S.ghostSel=new Set();S.tab='ens';
+  S.players=S.players.filter(x=>x.uid!==p.uid);S.admins=S.admins.filter(x=>x.uid!==p.uid);S.susp=S.susp.filter(x=>x.uid!==p.uid);S.sel=null;S.orig=S.edit=null;S.ghostSel=new Set();S.tab='ens';
   addLog(`${name} : ${arch?'fiche archivée supprimée':'compte supprimé'}`);
   render();setStatus(`${arch?'Fiche archivée':'Compte'} de ${name} supprimé${arch?'e':''} à ${fmtTime(Date.now())}`);
   if(reused){
@@ -1313,7 +1361,7 @@ async function adminsDialog(focus){
       go.addEventListener('click',async e=>{
         e.stopPropagation();
         const err=q('#adm-err');err.textContent='';
-        const full=d=>Object.fromEntries(DROITS.map(x=>[x[0],x[0]==='voir'?true:!!d[x[0]]]));
+        const full=d=>Object.fromEntries(DROITS.filter(x=>x[0]==='voir'||d[x[0]]).map(x=>[x[0],true]));
         const sets=rows.filter(r=>!r.del&&(r.isNew||JSON.stringify(full(r.droits))!==JSON.stringify(full(JSON.parse(r.orig)))));
         const dels=rows.filter(r=>r.del&&!r.isNew);
         if(!sets.length&&!dels.length){done(1);return;}
@@ -1336,12 +1384,174 @@ async function adminsDialog(focus){
   if(saved){await loadPlayers(false);render();setStatus('Administrateurs enregistrés');}
 }
 
+/* =========================================================
+   Suspendre un compte
+   ========================================================= */
+async function susDialog(){
+  closeMenus();
+  const p=cur();if(!p)return;
+  if(!canSus()){if(adminOf(p.uid)&&can('suspendre'))await box({title:'Suspendre',icon:'ℹ️',html:'<p>On ne peut pas suspendre un administrateur : retire-lui d\'abord ses droits (👥 Admins).</p>'});return;}
+  if(!await askSave())return;
+  const name=nameOf(p)||p.pseudo||'?',cs=suspOf(p.uid);
+  let needRules=false,okUntil=0;
+  const v=await box({title:`Suspendre le compte – ${name}`,icon:'⏸️',wide:true,buttons:cs?['Changer la suspension','Lever la suspension','Annuler']:['Suspendre','Annuler'],def:0,cancel:cs?2:1,
+    html:`${cs?`<p class="warn"><b>Déjà suspendu</b> jusqu'à ${esc(whenTxt(cs.until))}${cs.motif?` (motif : ${esc(cs.motif)})`:''}.</p>`:''}
+    <p>Pendant la suspension, <b>${esc(name)}</b> ne peut plus jouer avec son compte : le jeu le déconnecte et lui dit jusqu'à quand. Sa progression est gardée, et il peut jouer sans compte.</p>
+    <fieldset><legend>Combien de temps ?</legend>
+      <div class="row"><label for="su-d">Durée :</label><span class="v"><select id="su-d"><option value="1">1 jour</option><option value="3">3 jours</option><option value="7" selected>1 semaine</option><option value="14">2 semaines</option><option value="perso">jusqu'au…</option></select>
+        <input type="datetime-local" id="su-end" value="${toLocalInput(Date.now()+7*86400e3)}" hidden></span></div>
+      <div class="row"><span class="l">Fin de la suspension :</span><span class="v"><b id="su-prev"></b></span></div>
+    </fieldset>
+    <fieldset><legend>Motif (le joueur le verra, facultatif)</legend>
+      <input type="text" id="su-motif" maxlength="100" style="width:100%" autocomplete="off" value="${esc(cs?cs.motif:'')}">
+    </fieldset>
+    <p class="err" id="su-err" role="alert"></p>`,
+    onOpen:(back,done)=>{
+      const q=x=>back.querySelector(x);
+      const end=()=>{const d=q('#su-d').value;return d==='perso'?new Date(q('#su-end').value).getTime():Date.now()+num(d)*86400e3;};
+      const prev=()=>{const t=end();q('#su-prev').textContent=Number.isFinite(t)?whenTxt(t):'—';};
+      q('#su-d').addEventListener('change',()=>{q('#su-end').hidden=q('#su-d').value!=='perso';prev();});
+      q('#su-end').addEventListener('input',prev);prev();
+      const go=q('[data-i="0"]');
+      go.addEventListener('click',async e=>{
+        e.stopPropagation();
+        const err=q('#su-err');err.textContent='';
+        const until=Math.round(end());
+        if(!Number.isFinite(until)||until<Date.now()+60000){err.textContent='La fin de la suspension doit être dans le futur.';return;}
+        if(until>Date.now()+366*86400e3){err.textContent='Une suspension dure un an au maximum.';return;}
+        const motif=String(q('#su-motif').value||'').replace(/[\u0000-\u001f\u007f<>]/g,'').trim().slice(0,100);
+        go.disabled=true;
+        try{
+          await S.F.setDoc(S.F.doc(S.db,'suspendus',p.uid),{pseudo:p.pseudo||'',until,motif,by:S.user.uid,at:Date.now()});
+          S.susp=S.susp.filter(x=>x.uid!==p.uid).concat([{uid:p.uid,pseudo:p.pseudo||'',until,motif}]);
+          addLog(`${name} : compte suspendu jusqu'à ${whenTxt(until)}${motif?` (motif : ${motif})`:''}`);
+          okUntil=until;done(0);
+        }catch(x){
+          go.disabled=false;
+          if(String(x&&x.code)==='permission-denied'){if(isSuper()){needRules=true;done(2);}else err.textContent='Accès refusé : tu n\'as pas (ou plus) le droit de suspendre ce compte.';}
+          else err.textContent='Ça n\'a pas marché : '+fsMsg(x);
+        }
+      });
+    }});
+  if(needRules){await rulesUpdate('Firestore refuse la suspension : les règles de sécurité ne connaissent pas encore les comptes suspendus.');return;}
+  if(v===1&&cs){
+    try{await S.F.deleteDoc(S.F.doc(S.db,'suspendus',p.uid));S.susp=S.susp.filter(x=>x.uid!==p.uid);addLog(`${name} : suspension levée`);setStatus(`Suspension de ${name} levée : il peut rejouer avec son compte`);}
+    catch(x){if(String(x&&x.code)==='permission-denied'&&!isSuper())await noRight('de lever cette suspension');else await box({title:'Erreur',icon:'⛔',html:`<p>${esc(fsMsg(x))}</p>`});}
+  }else if(okUntil)setStatus(`Compte de ${name} suspendu jusqu'à ${whenTxt(okUntil)}`);
+  render();
+}
+
+/* =========================================================
+   Sauvegarde (super-administrateur) : un fichier .json avec tous les joueurs
+   ========================================================= */
+function backupProblem(d){
+  if(!d||typeof d!=='object'||d.app!=='operation-bretzel'||d.type!=='sauvegarde'||!Array.isArray(d.joueurs))return 'Ce fichier n\'est pas une sauvegarde d\'Opération Bretzel.';
+  if(d.projectId&&FB_CFG&&d.projectId!==FB_CFG.projectId)return `Cette sauvegarde vient d'une autre base (${String(d.projectId).slice(0,40)}).`;
+  return '';
+}
+async function backupDialog(){
+  closeMenus();
+  if(!isSuper()){await noRight('de faire ou de remettre une sauvegarde');return;}
+  if(!await askSave())return;
+  const lb=S.lastBackup,byP=lb&&S.players.find(x=>x.uid===lb.by);
+  let action=null,file=null;
+  await box({title:'Sauvegarde',icon:'💾',wide:true,buttons:['Fermer'],def:0,cancel:0,
+    html:`<p>Une <b>sauvegarde</b> est un fichier (.json) avec la progression de <b>tous les joueurs</b>, la liste des administrateurs, les comptes suspendus et l'événement. Garde-le sur ton ordinateur ou sur une clé USB : en cas de problème, tu pourras remettre les joueurs comme avant.</p>
+    <fieldset><legend>Faire une sauvegarde</legend>
+      <p style="margin-top:0">Dernière sauvegarde : <b>${lb?`${esc(fmtDate(num(lb.at)))} (${esc(ago(num(lb.at)))})${byP?`, par ${esc(nameOf(byP))}`:''}, ${num(lb.joueurs)} joueurs`:'jamais'}</b></p>
+      <button type="button" class="btn" id="bk-dl">💾 Télécharger une sauvegarde</button>
+    </fieldset>
+    <fieldset><legend>Restaurer une sauvegarde</legend>
+      <p style="margin-top:0">Choisis un fichier de sauvegarde : tu verras d'abord la liste des joueurs. Rien ne change sans ta confirmation.</p>
+      <input type="file" id="bk-file" accept=".json,application/json" aria-label="Fichier de sauvegarde">
+      <p class="err" id="bk-err" role="alert"></p>
+    </fieldset>
+    <p class="muted">Le fichier contient les pseudos et la progression de tous les joueurs (pas les mots de passe) : ne le partage pas.</p>`,
+    onOpen:(back,done)=>{
+      back.querySelector('#bk-dl').addEventListener('click',e=>{e.stopPropagation();action='dl';done(0);});
+      back.querySelector('#bk-file').addEventListener('change',async e=>{
+        const f=e.target.files&&e.target.files[0];if(!f)return;
+        const err=back.querySelector('#bk-err');err.textContent='';
+        if(f.size>20e6){err.textContent='Ce fichier est trop gros pour être une sauvegarde.';e.target.value='';return;}
+        let data=null;try{data=JSON.parse(await f.text());}catch(x){}
+        const prob=backupProblem(data);if(prob){err.textContent=prob;e.target.value='';return;}
+        file={data,name:f.name};action='restore';done(0);
+      });
+    }});
+  if(action==='dl')await downloadBackup();
+  else if(action==='restore')await restoreDialog(file.data,file.name);
+}
+async function downloadBackup(){
+  setStatus('Préparation de la sauvegarde…');
+  if(!await loadPlayers(false))return;
+  const t=Date.now();
+  const data={app:'operation-bretzel',type:'sauvegarde',version:1,createdAt:t,by:me(),projectId:FB_CFG.projectId,
+    joueurs:S.players.map(p=>({uid:p.uid,pseudo:p.pseudo||'',updatedAt:p.updatedAt,progress:p.progress})),
+    admins:S.admins.map(a=>({uid:a.uid,pseudo:a.pseudo,droits:a.droits,super:!!a.super})),
+    suspendus:S.susp.map(x=>({uid:x.uid,pseudo:x.pseudo,until:x.until,motif:x.motif})),
+    evenement:S.ev||null};
+  const d=new Date(t);
+  const name=`sauvegarde-operation-bretzel-${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}-${pad(d.getHours())}h${pad(d.getMinutes())}.json`;
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,1)],{type:'application/json'}));a.download=name;
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},800);
+  if(S.rulesV>=17){try{const info={at:t,by:S.user.uid,joueurs:data.joueurs.length};await S.F.setDoc(S.F.doc(S.db,'config','sauvegarde'),info);S.lastBackup=info;}catch(x){}}
+  addLog(`Sauvegarde téléchargée (${data.joueurs.length} joueur${data.joueurs.length>1?'s':''})`);
+  setStatus(`Sauvegarde téléchargée : ${name}`);render();
+}
+async function restoreDialog(data,fname){
+  if(!await loadPlayers(false))return;
+  const t=num(data.createdAt);
+  const strip=g=>{const x=clone(obj(g));delete x.adminAt;delete x.updatedAt;return JSON.stringify(x);};
+  const ST={gone:'compte supprimé depuis : pas restauré',same:'identique',less:'⚠️ a moins d\'XP que dans la sauvegarde',played:'a joué depuis la sauvegarde',diff:'différent'};
+  const rows=data.joueurs.filter(j=>j&&typeof j.uid==='string'&&/^[A-Za-z0-9_-]{1,128}$/.test(j.uid)&&j.progress&&typeof j.progress==='object'&&!Array.isArray(j.progress)).map(j=>{
+    const p=S.players.find(x=>x.uid===j.uid),then=num(j.progress.xp),now=p?num(p.progress.xp):null;
+    const st=!p?'gone':strip(p.progress)===strip(j.progress)?'same':now<then?'less':p.updatedAt>t?'played':'diff';
+    return {uid:j.uid,name:p?(nameOf(p)||p.pseudo||'?'):(String(j.pseudo||'')||'?'),now,then,st,on:st==='less',prog:j.progress};
+  }).sort((a,b)=>pseudoKey(a.name).localeCompare(pseudoKey(b.name)));
+  const can1=r=>r.st!=='gone'&&r.st!=='same';
+  const grid=()=>`<table class="grid"><thead><tr><th scope="col"><span class="sr">Restaurer</span></th><th scope="col">Joueur</th><th scope="col" class="n">XP maintenant</th><th scope="col" class="n">XP dans la sauvegarde</th><th scope="col">État</th></tr></thead><tbody>
+    ${rows.map(r=>`<tr${r.on?' class="sel2"':''}><td>${can1(r)?`<input type="checkbox" data-rs="${esc(r.uid)}" ${r.on?'checked':''} aria-label="Restaurer ${esc(r.name)}">`:''}</td><td>${esc(r.name)}</td><td class="n">${r.now===null?'—':fmtN(r.now)}</td><td class="n">${fmtN(r.then)}</td><td class="${r.st==='less'?'warn':'muted'}">${esc(ST[r.st])}</td></tr>`).join('')}</tbody></table>`;
+  let done1=0;
+  await box({title:'Restaurer une sauvegarde',icon:'📂',wide:true,buttons:['Restaurer','Annuler'],def:1,cancel:1,
+    html:`<p>Fichier <b>${esc(fname)}</b> : sauvegarde du <b>${esc(fmtDate(t))}</b>${data.by?` faite par <b>${esc(String(data.by).slice(0,40))}</b>`:''}, ${rows.length} joueur${rows.length>1?'s':''}. Coche les joueurs à remettre comme dans la sauvegarde.</p>
+      <div class="list sunken" id="rs-grid" style="max-height:40vh">${grid()}</div>
+      <p><button type="button" class="btn mini" id="rs-all">Tout cocher</button> <button type="button" class="btn mini" id="rs-none">Tout décocher</button></p>
+      <p class="warn">⚠️ Pour les joueurs cochés, ce qu'ils ont gagné depuis la sauvegarde sera perdu. Le jeu leur dira que l'administrateur a mis leur progression à jour.</p>
+      <p class="err" id="rs-err" role="alert"></p>`,
+    onOpen:(back,done)=>{
+      const q=x=>back.querySelector(x),go=q('[data-i="0"]');
+      const upd=()=>{const n=rows.filter(r=>r.on).length;go.textContent=n?`Restaurer (${n})`:'Restaurer';go.disabled=!n;};
+      const redraw=()=>{q('#rs-grid').innerHTML=grid();upd();};
+      back.addEventListener('change',e=>{const x=e.target;if(!x.dataset||x.dataset.rs===undefined)return;e.stopPropagation();const r=rows.find(y=>y.uid===x.dataset.rs);if(r)r.on=x.checked;redraw();});
+      q('#rs-all').addEventListener('click',e=>{e.stopPropagation();rows.forEach(r=>{if(can1(r))r.on=true;});redraw();});
+      q('#rs-none').addEventListener('click',e=>{e.stopPropagation();rows.forEach(r=>{r.on=false;});redraw();});
+      upd();
+      go.addEventListener('click',async e=>{
+        e.stopPropagation();
+        const sel=rows.filter(r=>r.on&&can1(r));if(!sel.length)return;
+        go.disabled=true;q('#rs-err').textContent='';
+        try{
+          const now=Date.now();
+          for(let i=0;i<sel.length;i+=400){
+            const b=S.F.writeBatch(S.db);
+            for(const r of sel.slice(i,i+400)){const p=S.players.find(x=>x.uid===r.uid);const prog=clone(r.prog);prog.adminAt=now;prog.updatedAt=now;
+              b.set(S.F.doc(S.db,'joueurs',r.uid),{pseudo:p.pseudo,progress:prog,updatedAt:now});}
+            await b.commit();
+          }
+          addLog(`Sauvegarde du ${fmtDate(t)} restaurée pour ${sel.length} joueur${sel.length>1?'s':''} : ${sel.map(r=>r.name).join(', ')}`);
+          done1=sel.length;done(0);
+        }catch(x){go.disabled=false;q('#rs-err').textContent='La restauration a échoué : '+fsMsg(x);}
+      });
+    }});
+  if(done1){await loadPlayers(false);render();setStatus(`Sauvegarde restaurée pour ${done1} joueur${done1>1?'s':''}`);}
+}
+
 /* ---------- menus ---------- */
 const MENUS={
-  fichier:()=>[['🔄 Actualiser','F5','refresh'],['📤 Exporter la liste…','','export'],'-',['🎮 Ouvrir le jeu','','game'],'-',['🚪 Se déconnecter','','logout']],
+  fichier:()=>[['🔄 Actualiser','F5','refresh'],['📤 Exporter la liste…','','export'],['💾 Sauvegarde…','','backup',!isSuper()],'-',['🎮 Ouvrir le jeu','','game'],'-',['🚪 Se déconnecter','','logout']],
   edition:()=>[['💾 Enregistrer','Ctrl+S','save',!dirty()||!canEdit()],['↩️ Annuler les modifications','','cancel',!dirty()],'-',['👻 Supprimer tous les fantômes','','gdelall',!canEdit()]],
   affichage:()=>[['📊 Vue d\'ensemble','','tab:ens'],[`${S.showArch?'☑':'☐'} Afficher les fiches archivées`,'','arch'],'-',['Trier par pseudo','','sort:pseudo'],['Trier par XP','','sort:xp'],['Trier par activité','','sort:act'],'-',['📒 Journal des modifications','','journal']],
-  joueur:()=>[['Général','','tab:gen',!cur()],['Missions','','tab:mis',!cur()],['Fantômes','','tab:fan',!cur()],['Badges','','tab:bad',!cur()],['Boutique','','tab:bou',!cur()],'-',['🧹 Remettre à zéro…','','reset',!canEdit()],['🔑 Mot de passe / identifiant…','','pw',!canPw()],['🗑️ Supprimer le compte…','','delacc',!canDel()],['Fermer la fiche','','close',!cur()]],
+  joueur:()=>[['Général','','tab:gen',!cur()],['Missions','','tab:mis',!cur()],['Fantômes','','tab:fan',!cur()],['Badges','','tab:bad',!cur()],['Boutique','','tab:bou',!cur()],'-',['🧹 Remettre à zéro…','','reset',!canEdit()],['🔑 Mot de passe / identifiant…','','pw',!canPw()],['🗑️ Supprimer le compte…','','delacc',!canDel()],['⏸️ Suspendre / lever la suspension…','','suspend',!canSus()],['Fermer la fiche','','close',!cur()]],
   outils:()=>[['🎉 Événement XP / bretzels…','','event',!can('evenements')],[`⏹ Arrêter / annuler l'événement`,'','evstop',evState()==='none'||!can('evenements')],'-',['👥 Administrateurs et droits…','','admins',!isSuper()],'-',['📤 Exporter la liste…','','export'],['📒 Journal des modifications','','journal']],
   aide:()=>[['❓ Aide','F1','help'],['🥨 À propos de Bretzel Admin','','about']]
 };
@@ -1356,7 +1566,7 @@ function openMenu(name){
 function startMenu(){
   if($('.startmenu')){closeMenus();return;}closeMenus();
   const d=document.createElement('div');d.className='startmenu raised';
-  d.innerHTML=`<div class="side">Bretzel Admin</div><div class="items"><button data-act="mi" data-do="game"><span class="emo">🎮</span>Ouvrir le jeu</button><button data-act="mi" data-do="tab:ens"><span class="emo">📊</span>Vue d'ensemble</button><button data-act="mi" data-do="event"><span class="emo">🎉</span>Événement…</button>${isSuper()?'<button data-act="mi" data-do="admins"><span class="emo">👥</span>Administrateurs…</button>':''}<button data-act="mi" data-do="help"><span class="emo">❓</span>Aide</button><hr style="border:0;border-top:1px solid var(--shadow);border-bottom:1px solid var(--light);margin:2px"><button data-act="mi" data-do="logout"><span class="emo">🚪</span>Se déconnecter…</button></div>`;
+  d.innerHTML=`<div class="side">Bretzel Admin</div><div class="items"><button data-act="mi" data-do="game"><span class="emo">🎮</span>Ouvrir le jeu</button><button data-act="mi" data-do="tab:ens"><span class="emo">📊</span>Vue d'ensemble</button><button data-act="mi" data-do="event"><span class="emo">🎉</span>Événement…</button>${isSuper()?'<button data-act="mi" data-do="admins"><span class="emo">👥</span>Administrateurs…</button><button data-act="mi" data-do="backup"><span class="emo">💾</span>Sauvegarde…</button>':''}<button data-act="mi" data-do="help"><span class="emo">❓</span>Aide</button><hr style="border:0;border-top:1px solid var(--shadow);border-bottom:1px solid var(--light);margin:2px"><button data-act="mi" data-do="logout"><span class="emo">🚪</span>Se déconnecter…</button></div>`;
   document.body.appendChild(d);
 }
 async function doAction(a){
@@ -1364,7 +1574,7 @@ async function doAction(a){
   if(a.startsWith('tab:'))return setTab(a.slice(4));
   if(a.startsWith('sort:')){const k=a.slice(5);S.sort={k,d:k==='pseudo'?1:-1};return render();}
   if(a==='arch'){S.showArch=!S.showArch;return render();}
-  ({refresh,export:exportCsv,pw:pwDialog,event:evDialog,evstop:()=>evStop(true),delacc:delDialog,admins:()=>adminsDialog(),
+  ({refresh,export:exportCsv,pw:pwDialog,event:evDialog,evstop:()=>evStop(true),delacc:delDialog,admins:()=>adminsDialog(),suspend:susDialog,backup:backupDialog,
     rules:()=>rulesUpdate('Les règles de sécurité de Firebase datent d\'avant les dernières nouveautés : les événements et la suppression de comptes ne peuvent pas marcher.'),game:()=>window.open('./','_blank','noopener'),logout,save,cancel,reset:resetPlayer,journal:showJournal,help,about,
     gdelall:()=>delGhosts(true),close:closeFiche})[a]?.();
 }
