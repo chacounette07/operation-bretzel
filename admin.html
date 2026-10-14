@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Bretzel Admin – Console</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A5%A8%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --face:#D4D0C8;--face-hi:#ECEAE4;--light:#FFFFFF;--shadow:#808080;--dark:#404040;
+  --sel:#0A246A;--sel-t:#FFFFFF;--desk:#3A6EA5;--tip:#FFFFE1;--red:#A40000;--green:#006B2E;--link:#0000CC;
+  --t1:#0A246A;--t2:#A6CAF0;--ti1:#808080;--ti2:#C0C0C0;--zebra:#F3F6FB;--hover:#DCE6F5;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--desk);color:#000;font:12px Tahoma,"MS Sans Serif","Segoe UI",Verdana,Geneva,sans-serif;overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit;margin:0}
+button{cursor:default}
+.raised{border:1px solid;border-color:var(--light) var(--dark) var(--dark) var(--light);box-shadow:inset -1px -1px var(--shadow),inset 1px 1px var(--face-hi)}
+.sunken{border:1px solid;border-color:var(--shadow) var(--light) var(--light) var(--shadow);box-shadow:inset 1px 1px var(--dark),inset -1px -1px var(--face-hi)}
+.emo{font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif}
+[hidden]{display:none!important}
+
+/* ---------- fenêtres ---------- */
+.win{position:fixed;inset:6px 6px 36px;display:flex;flex-direction:column;background:var(--face);padding:3px;min-width:0}
+.win.max{inset:0 0 30px}
+.titlebar{display:flex;align-items:center;gap:6px;height:22px;flex:none;padding:0 2px 0 4px;background:linear-gradient(90deg,var(--t1),var(--t2));color:#fff;font-weight:bold;user-select:none}
+.titlebar.off{background:linear-gradient(90deg,var(--ti1),var(--ti2))}
+.titlebar .tt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.titlebar .tico{font-size:14px;line-height:1}
+.tbtn{width:18px;height:16px;padding:0;display:grid;place-items:center;font:bold 10px/1 Tahoma,sans-serif;background:var(--face);color:#000;margin-left:2px}
+.tbtn:active{border-color:var(--shadow) var(--light) var(--light) var(--shadow)}
+
+/* ---------- menus ---------- */
+.menubar{display:flex;flex-wrap:wrap;padding:1px 0 2px;flex:none;position:relative;user-select:none}
+.menubar>.m{position:relative}
+.menubar>.m>button{background:none;border:1px solid transparent;padding:2px 8px}
+.menubar>.m>button:hover{border-color:var(--light) var(--shadow) var(--shadow) var(--light)}
+.menubar>.m.open>button{border-color:var(--shadow) var(--light) var(--light) var(--shadow)}
+.menu{position:absolute;left:0;top:100%;z-index:60;min-width:250px;background:var(--face);padding:2px;box-shadow:2px 2px 0 rgba(0,0,0,.35)}
+.menu button{display:flex;width:100%;justify-content:space-between;gap:24px;background:none;border:0;padding:4px 18px 4px 22px;text-align:left;white-space:nowrap}
+.menu button:hover:not(:disabled),.menu button:focus-visible{background:var(--sel);color:var(--sel-t);outline:none}
+.menu button:disabled{color:var(--shadow);text-shadow:1px 1px var(--light)}
+.menu .k{opacity:.8}
+.menu hr{border:0;border-top:1px solid var(--shadow);border-bottom:1px solid var(--light);margin:3px 2px}
+.u{text-decoration:underline}
+
+/* ---------- barre d'outils (gros boutons) ---------- */
+.toolbar{display:flex;flex-wrap:wrap;align-items:stretch;gap:1px;padding:3px 2px;flex:none;border-top:1px solid var(--shadow);border-bottom:1px solid var(--shadow);box-shadow:inset 0 1px var(--light),0 1px var(--light)}
+.tool{min-width:76px;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:1px solid transparent;padding:2px 6px}
+.tool:hover:not(:disabled){border-color:var(--light) var(--shadow) var(--shadow) var(--light)}
+.tool:active:not(:disabled){border-color:var(--shadow) var(--light) var(--light) var(--shadow)}
+.tool .i{font-size:22px;line-height:1}
+.tool:disabled{color:var(--shadow);text-shadow:1px 1px var(--light)}
+.tool:disabled .i{filter:grayscale(1);opacity:.45}
+.tsep{width:2px;margin:3px 3px;border-left:1px solid var(--shadow);border-right:1px solid var(--light)}
+.tool.save:not(:disabled) .lbl{font-weight:bold}
+
+/* ---------- zone principale ---------- */
+.main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(250px,330px) minmax(0,1fr);gap:5px;padding:5px 2px 3px}
+.pane{display:flex;flex-direction:column;min-height:0;min-width:0}
+.caption{background:linear-gradient(90deg,#5E6E8C,#A9B6CC);color:#fff;font-weight:bold;padding:3px 6px;flex:none;display:flex;justify-content:space-between;gap:8px;white-space:nowrap;overflow:hidden}
+.search{display:flex;align-items:center;gap:6px;padding:5px 2px;flex:none}
+.search input{flex:1;min-width:0}
+.list{flex:1;min-height:0;overflow:auto;background:#fff}
+input[type=text],input[type=password],input[type=number],input[type=search],select,textarea{background:#fff;border:1px solid;border-color:var(--shadow) var(--light) var(--light) var(--shadow);box-shadow:inset 1px 1px var(--dark),inset -1px -1px var(--face-hi);padding:2px 4px;height:22px;border-radius:0;outline:none}
+input:focus,select:focus,textarea:focus{outline:1px dotted #000;outline-offset:1px}
+input[readonly]{background:var(--face-hi)}
+input[type=number]{width:92px;text-align:right}
+textarea{height:auto;font:11px "Courier New",Courier,monospace;width:100%;resize:vertical}
+input[type=checkbox]{width:13px;height:13px;accent-color:var(--sel)}
+
+/* grilles (listes) */
+table.grid{border-collapse:separate;border-spacing:0;width:100%;background:#fff}
+.grid th{position:sticky;top:0;z-index:1;background:var(--face);font-weight:normal;text-align:left;padding:2px 6px;white-space:nowrap;border:1px solid;border-color:var(--light) var(--shadow) var(--shadow) var(--light);user-select:none}
+.grid th.sort{cursor:pointer}
+.grid th.sort:active{border-color:var(--shadow) var(--light) var(--light) var(--shadow)}
+.grid th .ar{font-size:9px;margin-left:4px}
+.grid td{padding:2px 6px;border-bottom:1px solid #E4E4E4;white-space:nowrap}
+.grid tbody tr:nth-child(even) td{background:var(--zebra)}
+.grid tbody tr.click{cursor:pointer}
+.grid tbody tr.click:hover td{background:var(--hover)}
+.grid tbody tr.sel td,.grid tbody tr.sel:hover td{background:var(--sel);color:var(--sel-t)}
+.grid tbody tr.sel:focus-visible{outline:1px dotted #fff;outline-offset:-2px}
+.grid td.n,.grid th.n{text-align:right;font-variant-numeric:tabular-nums}
+.grid td.c,.grid th.c{text-align:center}
+.grid .sub td{background:#E6E3DB!important;font-weight:bold;color:#202020}
+.grid .muted{color:var(--shadow)}
+.grid tr.sel .muted{color:#C9D3EE}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:0}
+.dot.on{background:#21A33A}.dot.mid{background:#E0A800}.dot.off{background:#B7B7B7}
+
+/* onglets façon « feuille de propriétés » */
+.tabs{display:flex;flex-wrap:wrap;padding:6px 6px 0;flex:none;gap:0}
+.tab{background:var(--face);border:1px solid;border-color:var(--light) var(--dark) transparent var(--light);border-radius:3px 3px 0 0;padding:3px 11px;margin:2px -1px 0 0;position:relative;top:1px;box-shadow:inset -1px 0 var(--shadow)}
+.tab[aria-selected=true]{margin-top:0;padding-bottom:5px;z-index:2;background:var(--face)}
+.tab:disabled{color:var(--shadow);text-shadow:1px 1px var(--light)}
+.tab:focus-visible{outline:1px dotted #000;outline-offset:-4px}
+.sheet{flex:1;min-height:0;overflow:auto;padding:10px;margin:0 6px 4px;border:1px solid;border-color:var(--light) var(--dark) var(--dark) var(--light);box-shadow:inset -1px -1px var(--shadow)}
+.fiche-h{display:flex;align-items:center;gap:12px;padding:2px 0 8px}
+.fiche-h .av{font-size:38px;line-height:1;width:58px;height:58px;display:grid;place-items:center;background:#fff;position:relative}
+.fiche-h .av .h{position:absolute;top:-6px;left:50%;transform:translateX(-50%);font-size:20px}
+.fiche-h .av .a{position:absolute;right:-6px;bottom:-4px;font-size:18px}
+.fiche-h b{font-size:16px}
+.fiche-h .who{display:flex;flex-direction:column;gap:2px;min-width:0}
+fieldset{border:1px solid var(--shadow);box-shadow:inset 1px 1px var(--light),1px 1px var(--light);margin:0 0 10px;padding:6px 10px 9px;min-width:0}
+legend{padding:0 4px;color:#00248F}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:0 10px}
+.row{display:grid;grid-template-columns:150px minmax(0,1fr);align-items:center;gap:6px;margin:5px 0}
+.row>label,.row>.l{white-space:nowrap}
+.row .v{display:flex;align-items:center;flex-wrap:wrap;gap:4px;min-width:0}
+.row .v code{font:11px "Courier New",monospace;word-break:break-all}
+.btn.mini{min-width:0;height:21px;padding:0 7px}
+.btn.mini:active:not(:disabled){padding:1px 6px 0 8px}
+.info{background:var(--tip);border:1px solid #000;padding:6px 8px;margin:0 0 10px;line-height:1.45}
+.warn{color:var(--red)}
+.okc{color:var(--green)}
+.btn{min-width:78px;height:23px;padding:0 10px;background:var(--face);border:1px solid;border-color:var(--light) var(--dark) var(--dark) var(--light);box-shadow:inset -1px -1px var(--shadow),inset 1px 1px var(--face-hi);white-space:nowrap}
+.btn:active:not(:disabled){border-color:var(--dark) var(--light) var(--light) var(--dark);box-shadow:inset 1px 1px var(--shadow);padding:1px 9px 0 11px}
+.btn:focus-visible{outline:1px dotted #000;outline-offset:-5px}
+.btn.def{outline:1px solid #000;outline-offset:0}
+.btn:disabled{color:var(--shadow);text-shadow:1px 1px var(--light)}
+.btn.danger{color:var(--red)}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;padding:6px 6px 2px}
+.stat{font-variant-numeric:tabular-nums}
+.empty{padding:28px 14px;text-align:center;color:#333}
+.empty .big{font-size:40px;display:block;margin-bottom:8px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px;margin:0 0 10px}
+.kv>div{background:#fff;padding:6px 8px}
+.kv b{display:block;font-size:17px;font-variant-numeric:tabular-nums}
+
+/* barre d'état */
+.status{display:flex;gap:2px;flex:none;padding-top:2px;min-width:0}
+.status>div{padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status .s1{flex:1;min-width:0}
+.status .dirty{color:var(--red);font-weight:bold}
+
+/* barre des tâches */
+.taskbar{position:fixed;left:0;right:0;bottom:0;height:30px;background:var(--face);display:flex;align-items:center;gap:4px;padding:2px 3px;border-top:1px solid var(--light);box-shadow:0 -1px var(--face-hi);z-index:40}
+.start{font-weight:bold;height:24px;display:flex;align-items:center;gap:5px;padding:0 7px;background:var(--face)}
+.task{height:24px;flex:0 1 240px;min-width:0;display:flex;align-items:center;gap:5px;padding:0 6px;background:var(--face);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+.task.on{border-color:var(--dark) var(--light) var(--light) var(--dark);box-shadow:inset 1px 1px var(--shadow);background:repeating-conic-gradient(var(--face-hi) 0 25%,var(--face) 0 50%) 0 0/2px 2px;font-weight:bold}
+.clock{margin-left:auto;padding:0 10px;height:22px;display:flex;align-items:center;font-variant-numeric:tabular-nums}
+.startmenu{position:fixed;left:2px;bottom:30px;z-index:70;background:var(--face);display:flex;min-width:230px;box-shadow:2px 2px 0 rgba(0,0,0,.35)}
+.startmenu .side{width:24px;background:linear-gradient(0deg,var(--t1),#1C5FCF);color:#fff;font-weight:bold;writing-mode:vertical-rl;transform:rotate(180deg);padding:8px 3px;letter-spacing:1px;white-space:nowrap}
+.startmenu .items{flex:1;padding:2px}
+.startmenu button{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:7px 12px;text-align:left}
+.startmenu button .emo{font-size:20px}
+.startmenu button:hover{background:var(--sel);color:#fff}
+
+/* boîtes de dialogue */
+.dlg-back{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:12px;background:rgba(0,0,0,.08)}
+.dlg{width:min(460px,100%);max-height:calc(100vh - 24px);display:flex;flex-direction:column;background:var(--face);padding:3px;box-shadow:4px 4px 0 rgba(0,0,0,.35)}
+.dlg.wide{width:min(720px,100%)}
+.dlg .body{display:flex;gap:14px;padding:14px 12px 10px;overflow:auto;line-height:1.45}
+.dlg .ico{font-size:32px;line-height:1;flex:none}
+.dlg .txt{flex:1;min-width:0}
+.dlg .txt p{margin:0 0 8px}
+.dlg .btns{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;padding:4px 10px 10px;flex:none}
+.dlg .fld{display:grid;grid-template-columns:110px minmax(0,1fr);align-items:center;gap:6px;margin:6px 0}
+.dlg .fld input{width:100%}
+.dlg .fld input[type=checkbox]{width:auto}
+.dlg .fld label.ck{display:inline-flex;align-items:center;gap:6px}
+.dlg .err{color:var(--red);min-height:1.4em;margin:4px 0 0}
+.dlg ol{margin:6px 0 8px;padding-left:20px}
+.dlg ol li{margin:3px 0}
+.logo{display:flex;align-items:center;gap:12px;padding:12px 12px 4px}
+.logo .emo{font-size:40px}
+.logo b{font-size:18px;display:block}
+.logo span{color:#333}
+.progress{height:16px;background:#fff;padding:2px;margin:8px 0 0}
+.progress i{display:block;height:100%;width:40%;background:repeating-linear-gradient(90deg,var(--sel) 0 9px,transparent 9px 11px);animation:load 1.2s linear infinite}
+@keyframes load{from{margin-left:-40%}to{margin-left:100%}}
+@media (prefers-reduced-motion:reduce){.progress i{animation:none;width:100%}}
+
+@media (max-width:760px){
+  body{overflow:auto}
+  .win,.win.max{position:relative;inset:auto;min-height:calc(100vh - 30px);margin:0 0 30px}
+  .main{grid-template-columns:1fr;grid-template-rows:auto auto}
+  .pane.left .list{max-height:38vh;min-height:150px}
+  .pane.right{min-height:460px}
+  .tool{min-width:60px;height:46px;padding:2px 3px}
+  .tool .lbl{font-size:11px}
+  .tsep{display:none}
+  .row{grid-template-columns:1fr}
+  .cols{grid-template-columns:1fr}
+  .status .s3,.status .s4{display:none}
+  .task{flex-basis:150px}
+}
+</style>
+<script src="firebase-config.js" onerror="window.__cfgMissing=true"></script>
+</head>
+<body>
+
+<!-- ======================= la fenêtre principale ======================= -->
+<div class="win raised" id="win" hidden>
+  <div class="titlebar" id="titlebar">
+    <span class="tico emo">🥨</span>
+    <span class="tt" id="wtitle">Bretzel Admin – Opération Bretzel – Mode administrateur</span>
+    <button class="tbtn raised" data-act="win-min" title="Réduire" aria-label="Réduire">_</button>
+    <button class="tbtn raised" data-act="win-max" title="Agrandir" aria-label="Agrandir">□</button>
+    <button class="tbtn raised" data-act="logout" title="Fermer (se déconnecter)" aria-label="Fermer et se déconnecter">✕</button>
+  </div>
+  <nav class="menubar" id="menubar" aria-label="Menu">
+    <div class="m" data-menu="fichier"><button data-act="menu" data-m="fichier"><span class="u">F</span>ichier</button></div>
+    <div class="m" data-menu="edition"><button data-act="menu" data-m="edition"><span class="u">É</span>dition</button></div>
+    <div class="m" data-menu="affichage"><button data-act="menu" data-m="affichage"><span class="u">A</span>ffichage</button></div>
+    <div class="m" data-menu="joueur"><button data-act="menu" data-m="joueur"><span class="u">J</span>oueur</button></div>
+    <div class="m" data-menu="aide"><button data-act="menu" data-m="aide"><span class="u">?</span></button></div>
+  </nav>
+  <div class="toolbar" role="toolbar" aria-label="Outils">
+    <button class="tool" data-act="refresh" title="Recharger toutes les progressions (F5)"><span class="i emo">🔄</span><span class="lbl">Actualiser</span></button>
+    <span class="tsep"></span>
+    <button class="tool save" data-act="save" id="t-save" title="Enregistrer la fiche (Ctrl+S)"><span class="i emo">💾</span><span class="lbl">Enregistrer</span></button>
+    <button class="tool" data-act="cancel" id="t-cancel" title="Annuler les modifications de la fiche"><span class="i emo">↩️</span><span class="lbl">Annuler</span></button>
+    <button class="tool" data-act="reset" id="t-reset" title="Remettre à zéro la progression du joueur"><span class="i emo">🧹</span><span class="lbl">Remise à zéro</span></button>
+    <span class="tsep"></span>
+    <button class="tool" data-act="tab" data-tab="ens" title="Vue d'ensemble de tous les joueurs"><span class="i emo">📊</span><span class="lbl">Ensemble</span></button>
+    <button class="tool" data-act="export" title="Exporter la liste (tableur)"><span class="i emo">📤</span><span class="lbl">Exporter</span></button>
+    <button class="tool" data-act="journal" title="Journal des modifications"><span class="i emo">📒</span><span class="lbl">Journal</span></button>
+    <span class="tsep"></span>
+    <button class="tool" data-act="help" title="Aide"><span class="i emo">❓</span><span class="lbl">Aide</span></button>
+    <button class="tool" data-act="logout" title="Se déconnecter"><span class="i emo">🚪</span><span class="lbl">Quitter</span></button>
+  </div>
+  <div class="main">
+    <section class="pane left" aria-label="Liste des joueurs">
+      <div class="caption"><span>Joueurs</span><span id="cnt">0</span></div>
+      <div class="search"><label for="q">Rechercher :</label><input type="search" id="q" placeholder="pseudo…" autocomplete="off"></div>
+      <div class="list sunken" id="list"></div>
+    </section>
+    <section class="pane right" aria-label="Fiche">
+      <div class="caption"><span id="ftitle">Vue d'ensemble</span><span id="fsub"></span></div>
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div class="sheet" id="sheet" role="tabpanel"></div>
+      <div class="btnrow" id="fbtns"></div>
+    </section>
+  </div>
+  <div class="status" id="status">
+    <div class="s1 sunken" id="st1">Prêt</div>
+    <div class="s2 sunken" id="st2"></div>
+    <div class="s3 sunken" id="st3"></div>
+    <div class="s4 sunken" id="st4"></div>
+  </div>
+</div>
+
+<div class="taskbar" id="taskbar">
+  <button class="start raised" data-act="start"><span class="emo">🥨</span> Démarrer</button>
+  <button class="task raised" id="task" data-act="task"><span class="emo">🛠️</span> <span id="tasklbl">Bretzel Admin</span></button>
+  <div class="clock sunken" id="clock">--:--</div>
+</div>
+<div id="layer"></div>
+
+<script>
+'use strict';
+/* =========================================================
+   Bretzel Admin : console d'administration d'Opération Bretzel
+   Voir et modifier la progression des joueurs (Firestore « joueurs/{uid} »).
+   L'accès est contrôlé par les règles Firestore : seuls les comptes administrateurs
+   (leur identifiant technique est dans les règles) peuvent lire les autres fiches.
+   ========================================================= */
+const DATA={"worlds":{"cast":{"n":"Qui est qui ?","e":"🎬"},"fam":{"n":"Die Familie","e":"🌳"},"num":{"n":"Die Zahlen","e":"🔢"},"wg":{"n":"Wie geht's ?","e":"🗣️"},"pr":{"n":"Prononciation","e":"🎧"},"moi":{"n":"Ich stelle mich vor","e":"🙋"},"land":{"n":"Länder und Farben","e":"🌍"},"hobby":{"n":"Das ist mein Hobby!","e":"⚽"},"konj":{"n":"Konjugation","e":"🔧"},"meine":{"n":"Meine Familie","e":"🏠"},"plur":{"n":"Wir mögen Sport!","e":"👯"},"patch":{"n":"Die Patchworkfamilie","e":"🧩"},"exam":{"n":"Spécial contrôle","e":"📝"},"tier":{"n":"Mein Haustier","e":"🐱"},"dict":{"n":"Dictée","e":"✍️"}},"themes":[{"t":"Thema 1 : Ich stelle mich vor","w":["moi","land","hobby","konj","wg"]},{"t":"Thema 2 : Die Familie","w":["cast","fam","meine","num","plur","patch","tier"]}],"ranks":[{"xp":0,"de":"Kartoffel","e":"🥔"},{"xp":120,"de":"Brezel","e":"🥨"},{"xp":300,"de":"Würstchen","e":"🌭"},{"xp":550,"de":"Schnitzel","e":"🍖"},{"xp":850,"de":"Kirschtorte","e":"🍰"},{"xp":1250,"de":"Deutsch-Profi","e":"😎"},{"xp":1800,"de":"Legende","e":"🏆"},{"xp":2500,"de":"Superstar","e":"🌟"},{"xp":3300,"de":"Ritter","e":"🛡️"},{"xp":4200,"de":"Zauberer","e":"🧙"},{"xp":5200,"de":"Drachenreiter","e":"🐉"},{"xp":6400,"de":"Weltmeister","e":"🏅"},{"xp":7800,"de":"Astronaut","e":"🚀"},{"xp":9500,"de":"Superheld","e":"🦸"},{"xp":11500,"de":"Genie","e":"🧠"},{"xp":14000,"de":"Großmeister","e":"♟️"},{"xp":17000,"de":"Bretzel-Kaiser","e":"👑"}],"badges":[{"id":"start","e":"🎒","n":"Los geht's!","d":"Finir ta première mission"},{"id":"ghost1","e":"👻","n":"Geisterjäger","d":"Vaincre ton premier fantôme"},{"id":"ghost10","e":"🔦","n":"Ghostbuster","d":"Vaincre 10 fantômes"},{"id":"ghost50","e":"🏰","n":"Geisterschloss","d":"Vaincre 50 fantômes"},{"id":"combo5","e":"🔥","n":"Feuer!","d":"Faire un combo x5"},{"id":"combo10","e":"☄️","n":"Komet","d":"Faire un combo x10"},{"id":"combo20","e":"🌋","n":"Vulkan","d":"Faire un combo x20"},{"id":"perfekt","e":"⭐","n":"Perfekt!","d":"Avoir 3 étoiles à une mission"},{"id":"thema1","e":"🙋","n":"Thema 1 : top !","d":"3 étoiles à toutes les missions du Thema 1"},{"id":"thema2","e":"👨‍👩‍👧‍👦","n":"Thema 2 : top !","d":"3 étoiles à toutes les missions du Thema 2"},{"id":"explorer","e":"🗺️","n":"Entdecker","d":"Jouer toutes les missions des Themas"},{"id":"daily1","e":"📅","n":"Tag eins","d":"Réussir ton premier défi du jour"},{"id":"streak3","e":"🕯️","n":"Drei Tage","d":"Une série de 3 jours"},{"id":"streak7","e":"🗓️","n":"Eine Woche!","d":"Une série de 7 jours"},{"id":"streak30","e":"🌞","n":"Ein Monat!","d":"Une série de 30 jours"},{"id":"blitz10","e":"⚡","n":"Blitz","d":"10 bonnes réponses au Blitz"},{"id":"blitz20","e":"🌩️","n":"Donnerwetter!","d":"20 bonnes réponses au Blitz"},{"id":"memory","e":"🐘","n":"Elefant","d":"Finir le Memory en 10 coups ou moins"},{"id":"dict10","e":"✍️","n":"Diktat-Profi","d":"Réussir 10 dictées"},{"id":"dict50","e":"🖋️","n":"Schreibmeister","d":"Réussir 50 dictées"},{"id":"boss1","e":"🧛","n":"Graf besiegt","d":"Battre le boss du Thema 1"},{"id":"boss2","e":"🐲","n":"Hydra besiegt","d":"Battre le boss du Thema 2"},{"id":"c100","e":"💯","n":"Hundert!","d":"100 bonnes réponses"},{"id":"c1000","e":"🧠","n":"Tausend!","d":"1 000 bonnes réponses"},{"id":"legende","e":"🏆","n":"Legende","d":"Atteindre le rang Legende (1 800 XP)"}],"shop":[{"id":"bear","c":"char","e":"🐻","de":"der Berliner Bär","fr":"l'ours de Berlin","p":0},{"id":"fox","c":"char","e":"🦊","de":"der Fuchs","fr":"le renard","p":40},{"id":"cat","c":"char","e":"🐱","de":"die Katze","fr":"le chat","p":40},{"id":"dog","c":"char","e":"🐶","de":"der Hund","fr":"le chien","p":40},{"id":"frog","c":"char","e":"🐸","de":"der Frosch","fr":"la grenouille","p":60},{"id":"panda","c":"char","e":"🐼","de":"der Panda","fr":"le panda","p":60},{"id":"owl","c":"char","e":"🦉","de":"die Eule","fr":"la chouette","p":80},{"id":"penguin","c":"char","e":"🐧","de":"der Pinguin","fr":"le pingouin","p":80},{"id":"robot","c":"char","e":"🤖","de":"der Roboter","fr":"le robot","p":120},{"id":"alien","c":"char","e":"👽","de":"der Außerirdische","fr":"l'extraterrestre","p":150},{"id":"unicorn","c":"char","e":"🦄","de":"das Einhorn","fr":"la licorne","p":200},{"id":"dragon","c":"char","e":"🐲","de":"der Drache","fr":"le dragon","p":300},{"id":"cap","c":"hat","e":"🧢","de":"die Kappe","fr":"la casquette","p":30},{"id":"bow","c":"hat","e":"🎀","de":"die Schleife","fr":"le nœud","p":30},{"id":"straw","c":"hat","e":"👒","de":"der Strohhut","fr":"le chapeau de paille","p":50},{"id":"tophat","c":"hat","e":"🎩","de":"der Zylinder","fr":"le haut-de-forme","p":80},{"id":"grad","c":"hat","e":"🎓","de":"der Doktorhut","fr":"le chapeau de diplômé","p":120},{"id":"crown","c":"hat","e":"👑","de":"die Krone","fr":"la couronne","p":250},{"id":"pretzel","c":"acc","e":"🥨","de":"die Brezel","fr":"le bretzel","p":20},{"id":"balloon","c":"acc","e":"🎈","de":"der Luftballon","fr":"le ballon","p":30},{"id":"ball","c":"acc","e":"⚽","de":"der Fußball","fr":"le ballon de foot","p":40},{"id":"icecream","c":"acc","e":"🍦","de":"das Eis","fr":"la glace","p":40},{"id":"violin","c":"acc","e":"🎻","de":"die Geige","fr":"le violon","p":60},{"id":"skate","c":"acc","e":"🛹","de":"das Skateboard","fr":"le skate","p":80},{"id":"trophy","c":"acc","e":"🏆","de":"der Pokal","fr":"la coupe","p":150},{"id":"gold","c":"bg","e":"","de":"das Gold","fr":"l'or","p":0},{"id":"sky","c":"bg","e":"","de":"der Himmel","fr":"le ciel","p":60},{"id":"mint","c":"bg","e":"","de":"die Minze","fr":"la menthe","p":60},{"id":"candy","c":"bg","e":"","de":"die Zuckerwatte","fr":"la barbe à papa","p":80},{"id":"night","c":"bg","e":"","de":"die Sternennacht","fr":"la nuit étoilée","p":150}],"bosses":{"t1":{"n":"Graf Grammatik","e":"🧛","th":0},"t2":{"n":"Die Familien-Hydra","e":"🐲","th":1}},"map":[{"id":"moi","c":"Berlin","w":"moi","b":null},{"id":"land","c":"Hamburg","w":"land","b":null},{"id":"hobby","c":"Köln","w":"hobby","b":null},{"id":"konj","c":"Frankfurt","w":"konj","b":null},{"id":"wg","c":"München","w":"wg","b":null},{"id":"t1","c":"Neuschwanstein","w":null,"b":"t1"},{"id":"cast","c":"Wien","w":"cast","b":null},{"id":"fam","c":"Salzburg","w":"fam","b":null},{"id":"meine","c":"Zürich","w":"meine","b":null},{"id":"num","c":"Vaduz","w":"num","b":null},{"id":"plur","c":"Dortmund","w":"plur","b":null},{"id":"patch","c":"Bremen","w":"patch","b":null},{"id":"tier","c":"Stuttgart","w":"tier","b":null},{"id":"t2","c":"Drachenfels","w":null,"b":"t2"}],"bonus":10,"news":"2026-10-carte-boutique","fresh":{"v":1,"xp":0,"stars":{},"ghosts":{},"best":{"blitz":0,"memory":0,"combo":0},"stats":{"answered":0,"correct":0,"rounds":0,"slain":0,"dict":0,"daily":0,"boss":0},"settings":{"sound":true,"voice":true},"seenIntro":false,"streak":{"days":0,"best":0,"last":""},"badges":{},"boss":{},"news":"","shop":{"owned":{},"spent":0,"bonus":0,"eq":{"char":"bear","hat":"","acc":"","bg":"gold"}},"mapDone":{},"mapInit":false,"adminAt":0,"updatedAt":0,"rev":0,"syncedRev":0,"syncBase":0}};
+const FB_VERSION='12.19.0';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clone=o=>JSON.parse(JSON.stringify(o==null?{}:o));
+const num=(v,d=0)=>{const n=Number(v);return Number.isFinite(n)?n:d;};
+const int=(v,min=0,max=1e7)=>Math.max(min,Math.min(max,Math.round(num(v))));
+const obj=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
+const pad=n=>String(n).padStart(2,'0');
+const fmtDate=t=>{if(!t)return '—';const d=new Date(num(t));if(isNaN(d))return '—';return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;};
+const fmtTime=t=>{const d=new Date(t);return `${pad(d.getHours())}:${pad(d.getMinutes())}`;};
+const fmtN=n=>num(n).toLocaleString('fr-FR');
+const ago=t=>{if(!t)return '—';const s=(Date.now()-num(t))/1000;if(s<90)return 'à l\'instant';if(s<3600)return `il y a ${Math.round(s/60)} min`;if(s<86400)return `il y a ${Math.round(s/3600)} h`;const j=Math.round(s/86400);return j===1?'hier':`il y a ${j} jours`;};
+/* tables sans prototype : une donnée bizarre (« __proto__ »…) ne peut rien casser */
+const dict=e=>Object.assign(Object.create(null),Object.fromEntries(e));
+const SHOPK=dict(DATA.shop.map(x=>[x.id,x]));
+const BADGEK=dict(DATA.badges.map(b=>[b.id,b]));
+const WORLDK=dict(Object.entries(DATA.worlds));
+const THEMED=DATA.themes.flatMap(t=>t.w);
+const wname=w=>WORLDK[w]?WORLDK[w].n:String(w);
+const wemo=w=>WORLDK[w]?WORLDK[w].e:'❔';
+const rankOf=xp=>{let r=DATA.ranks[0];for(const x of DATA.ranks)if(num(xp)>=x.xp)r=x;return r;};
+const spentOf=p=>Object.keys(obj(obj(p.shop).owned)).reduce((t,id)=>t+((SHOPK[id]&&SHOPK[id].p)||0),0);
+const coinsOf=p=>Math.max(0,Math.floor(num(p.xp)/10)+num(obj(p.shop).bonus)-spentOf(p));
+const starsOf=p=>Object.values(obj(p.stars)).reduce((t,n)=>t+Math.max(0,Math.min(3,num(n))),0);
+const ghostsOf=p=>Object.keys(obj(p.ghosts)).length;
+const badgesOf=p=>Object.keys(obj(p.badges)).length;
+const winsOf=(p,b)=>num(obj(obj(p.boss)[b]).wins);
+function mapOf(p){
+  let open=true,done=0,next=null;
+  for(const s of DATA.map){const ok=s.b?winsOf(p,s.b)>=1:num(obj(p.stars)[s.w])>=1;if(open&&ok)done++;else if(open&&!next)next=s;open=open&&ok;}
+  return{done,total:DATA.map.length,next};
+}
+const activity=t=>{const s=(Date.now()-num(t))/1000;return !t?'off':s<86400?'on':s<7*86400?'mid':'off';};
+
+/* ---------- configuration Firebase (même fichier que le jeu) ---------- */
+const FB_CFG=(()=>{try{return(typeof firebaseConfig!=='undefined'&&firebaseConfig&&typeof firebaseConfig==='object')?firebaseConfig:null;}catch(e){return null;}})();
+const CFG_OK=!window.__cfgMissing&&!!FB_CFG&&!!FB_CFG.apiKey&&!!FB_CFG.projectId&&!/COLLE|ton-projet/i.test(String(FB_CFG.apiKey)+String(FB_CFG.projectId));
+const pseudoKey=p=>String(p||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+function authMsg(e){
+  const c=String((e&&e.code)||'');
+  if(/invalid-credential|wrong-password|user-not-found|invalid-login-credentials|invalid-email|user-mismatch/.test(c))return 'Identifiant ou mot de passe incorrect.';
+  if(c.includes('too-many-requests'))return 'Trop d\'essais. Attends quelques minutes, puis réessaie.';
+  if(c.includes('network-request-failed'))return 'Pas de connexion internet ? Vérifie ta connexion, puis réessaie.';
+  if(/api-key-not-valid|invalid-api-key/.test(c))return 'La configuration Firebase est incorrecte (firebase-config.js).';
+  return 'La connexion a échoué ('+(c||'erreur inconnue')+').';
+}
+function fsMsg(e){
+  const c=String((e&&e.code)||'');
+  if(c==='permission-denied')return 'Accès refusé par Firestore : les règles de sécurité ne te reconnaissent pas comme administrateur.';
+  if(c==='unavailable'||c==='deadline-exceeded')return 'Pas de connexion avec la base. Vérifie internet, puis réessaie.';
+  if(c==='unauthenticated')return 'Ta session a expiré : reconnecte-toi.';
+  if(c==='not-found')return 'La base Firestore est introuvable.';
+  return 'Erreur de la base ('+(c||'inconnue')+').';
+}
+
+/* ---------- état ---------- */
+const S={A:null,F:null,auth:null,db:null,user:null,players:[],sel:null,orig:null,edit:null,tab:'ens',
+  sort:{k:'xp',d:-1},q:'',log:[],busy:false,loaded:false,lastLoad:0,ghostSel:new Set()};
+const cur=()=>S.players.find(p=>p.uid===S.sel)||null;
+const dirty=()=>!!S.sel&&!!S.edit&&JSON.stringify(S.edit)!==JSON.stringify(S.orig);
+const me=()=>S.user?pseudoKey(String(S.user.email||'').split('@')[0]):'';
+
+/* =========================================================
+   Boîtes de dialogue façon Windows
+   ========================================================= */
+function box({title='Bretzel Admin',icon='ℹ️',html='',buttons=['OK'],def=0,cancel=null,wide=false,onOpen=null}){
+  return new Promise(res=>{
+    const back=document.createElement('div');back.className='dlg-back';
+    back.innerHTML=`<div class="dlg raised${wide?' wide':''}" role="dialog" aria-modal="true" aria-labelledby="dt">
+      <div class="titlebar"><span class="tt" id="dt">${esc(title)}</span><button class="tbtn raised" data-x aria-label="Fermer">✕</button></div>
+      <div class="body">${icon?`<div class="ico emo">${icon}</div>`:''}<div class="txt">${html}</div></div>
+      <div class="btns">${buttons.map((b,i)=>`<button class="btn${i===def?' def':''}" data-i="${i}">${esc(b)}</button>`).join('')}</div></div>`;
+    const prevFocus=document.activeElement;
+    const done=v=>{back.remove();document.removeEventListener('keydown',key,true);try{prevFocus&&prevFocus.focus&&prevFocus.focus();}catch(e){}res(v);};
+    const key=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();done(cancel===null?buttons.length-1:cancel);}};
+    back.addEventListener('click',e=>{const b=e.target.closest('[data-i]');if(b&&!b.disabled)done(+b.dataset.i);else if(e.target.closest('[data-x]'))done(cancel===null?buttons.length-1:cancel);});
+    document.addEventListener('keydown',key,true);
+    $('#layer').appendChild(back);
+    if(onOpen)onOpen(back,done);
+    const f=back.querySelector('input')||back.querySelector('.btn.def');if(f)setTimeout(()=>f.focus(),20);
+  });
+}
+
+/* =========================================================
+   Connexion
+   ========================================================= */
+let loginBack=null;
+function showLogin(msg){
+  $('#win').hidden=true;closeMenus();
+  if(loginBack)loginBack.remove();
+  loginBack=document.createElement('div');loginBack.className='dlg-back';loginBack.style.background='none';
+  loginBack.innerHTML=`<form class="dlg raised" id="loginf" role="dialog" aria-labelledby="lt" autocomplete="on">
+    <div class="titlebar"><span class="tt" id="lt">Connexion – Bretzel Admin</span></div>
+    <div class="logo"><span class="emo">🥨</span><div><b>Bretzel Admin</b><span>Console d'administration d'Opération Bretzel</span></div></div>
+    <div class="body" style="display:block;padding-top:6px">
+      <p style="margin:0 0 8px">Connecte-toi avec ton compte du jeu (le même identifiant et le même mot de passe).</p>
+      <div class="fld"><label for="l-p">Identifiant :</label><input type="text" id="l-p" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="40"></div>
+      <div class="fld"><label for="l-w">Mot de passe :</label><input type="password" id="l-w" autocomplete="current-password" maxlength="100"></div>
+      <div class="fld"><span></span><label class="ck"><input type="checkbox" id="l-show"> Afficher le mot de passe</label></div>
+      <p class="err" id="l-err" role="alert">${esc(msg||'')}</p>
+      <div class="progress sunken" id="l-prog" hidden><i></i></div>
+    </div>
+    <div class="btns"><button class="btn def" type="submit" id="l-go">Se connecter</button><a class="btn" href="./" style="display:inline-grid;place-items:center;text-decoration:none;color:#000">Ouvrir le jeu</a></div>
+  </form>`;
+  $('#layer').appendChild(loginBack);
+  const f=$('#loginf');
+  $('#l-show').addEventListener('change',e=>{$('#l-w').type=e.target.checked?'text':'password';});
+  f.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const p=pseudoKey($('#l-p').value),w=$('#l-w').value;
+    if(!p||!w){$('#l-err').textContent='Écris ton identifiant et ton mot de passe.';return;}
+    if(!S.A){$('#l-err').textContent='Le système de comptes n\'est pas encore chargé. Patiente un instant…';return;}
+    $('#l-go').disabled=true;$('#l-prog').hidden=false;$('#l-err').textContent='';
+    try{await S.A.signInWithEmailAndPassword(S.auth,`${p}@${FB_CFG.projectId}.firebaseapp.com`,w);
+      setTimeout(()=>{if(loginBack&&S.user&&!S.busyLogin)onLogin();},600);}
+    catch(x){$('#l-err').textContent=authMsg(x);$('#l-go').disabled=false;$('#l-prog').hidden=true;}
+  });
+  setTimeout(()=>{const i=$('#l-p');if(i)i.focus();},30);
+}
+function hideLogin(){if(loginBack){loginBack.remove();loginBack=null;}}
+
+async function init(){
+  tick();setInterval(tick,15000);
+  if(!CFG_OK){
+    showLogin();
+    $('#l-go').disabled=true;
+    $('#l-err').innerHTML='Les comptes ne sont pas configurés : le fichier <b>firebase-config.js</b> est absent ou pas rempli.';
+    return;
+  }
+  showLogin();
+  try{
+    const base=`https://www.gstatic.com/firebasejs/${FB_VERSION}/`;
+    const [appM,A,F]=await Promise.all([import(base+'firebase-app.js'),import(base+'firebase-auth.js'),import(base+'firebase-firestore-lite.js')]);
+    S.A=A;S.F=F;
+    const app=appM.initializeApp(FB_CFG,'bretzel-admin');
+    /* session limitée à l'onglet : on est déconnecté en le fermant */
+    S.auth=A.initializeAuth(app,{persistence:[A.browserSessionPersistence]});
+    S.db=F.getFirestore(app);
+    const em=window.FIREBASE_EMULATORS;
+    if(em){A.connectAuthEmulator(S.auth,em.auth,{disableWarnings:true});F.connectFirestoreEmulator(S.db,em.firestore[0],em.firestore[1]);}
+    A.onAuthStateChanged(S.auth,u=>{S.user=u;if(u)onLogin();else{S.players=[];S.sel=null;S.orig=S.edit=null;S.loaded=false;showLogin();}});
+  }catch(e){
+    const el=$('#l-err');if(el)el.textContent='Le système de comptes n\'a pas pu se charger. Vérifie ta connexion internet, puis recharge la page.';
+  }
+}
+async function onLogin(){
+  if(S.busyLogin)return;S.busyLogin=true;
+  let ok;try{ok=await loadPlayers(true);}finally{S.busyLogin=false;}
+  if(ok===false)return;
+  addLog(`Connexion de ${me()}`);
+  showWin();
+}
+
+/* ---------- les règles Firestore à coller pour devenir administrateur ---------- */
+function rulesText(uid,pseudo){
+  return `rules_version = '2';
+
+// Règles de sécurité d'Opération Bretzel, avec la console d'administration (admin.html).
+// À coller dans la console Firebase : Firestore Database > onglet « Règles » > Publier.
+//
+// Chaque joueur ne peut lire, modifier et supprimer QUE sa propre progression.
+// Les administrateurs peuvent voir et modifier toutes les progressions,
+// mais ils ne peuvent ni les supprimer ni changer les pseudos.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Administrateur(s) : identifiant technique du compte « ${pseudo.replace(/[^a-z0-9_-]/g,'')} »
+    function estAdmin() {
+      return request.auth != null && request.auth.uid in ['${uid}'];
+    }
+
+    match /joueurs/{uid} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null
+                            && request.auth.uid == uid
+                            && request.resource.data.keys().hasOnly(['pseudo', 'progress', 'updatedAt'])
+                            && request.resource.data.progress is map;
+
+      allow read: if estAdmin();
+      allow update: if estAdmin()
+                    && request.resource.data.keys().hasOnly(['pseudo', 'progress', 'updatedAt'])
+                    && request.resource.data.progress is map
+                    && request.resource.data.pseudo == resource.data.pseudo;
+    }
+  }
+}
+`;
+}
+async function notAdmin(){
+  const uid=S.user.uid,ps=me();
+  const rules=rulesText(uid,ps);
+  const url=`https://console.firebase.google.com/project/${encodeURIComponent(FB_CFG.projectId)}/firestore/rules`;
+  $('#win').hidden=true;
+  const v=await box({title:'Accès refusé',icon:'⛔',wide:true,buttons:['Copier les règles','Ouvrir Firebase','Réessayer','Se déconnecter'],def:2,cancel:3,
+    html:`<p>Ton compte <b>${esc(ps)}</b> n'est pas encore <b>administrateur</b> : Firestore refuse de montrer la progression des autres joueurs.</p>
+      <p>Ton identifiant technique : <code style="font:11px 'Courier New',monospace">${esc(uid)}</code></p>
+      <p><b>Pour devenir administrateur (une seule fois) :</b></p>
+      <ol><li>Clique sur <b>Copier les règles</b>.</li>
+      <li>Clique sur <b>Ouvrir Firebase</b> : Firestore Database, onglet <b>Règles</b>.</li>
+      <li>Efface l'ancien texte, colle le nouveau, puis clique sur <b>Publier</b>.</li>
+      <li>Reviens ici et clique sur <b>Réessayer</b> (attends une minute si ça ne marche pas tout de suite).</li></ol>
+      <p class="okc">Ces règles gardent la protection des joueurs : chacun ne voit toujours que sa propre progression. Seul ton compte peut tout voir.</p>
+      <textarea id="rules" rows="12" readonly spellcheck="false" aria-label="Règles Firestore à coller">${esc(rules)}</textarea>
+      <p class="err" id="r-msg" role="status"></p>`,
+    onOpen:(back)=>{
+      const msg=back.querySelector('#r-msg');
+      back.querySelector('[data-i="0"]').addEventListener('click',async e=>{
+        e.stopPropagation();let ok=false;
+        try{await navigator.clipboard.writeText(rules);ok=true;}catch(x){}
+        if(!ok){const ta=back.querySelector('#rules');ta.focus();ta.select();try{ok=document.execCommand('copy');}catch(x){}}
+        msg.className=ok?'okc':'err';msg.textContent=ok?'✅ Règles copiées ! Colle-les dans Firebase (onglet Règles), puis clique sur Publier.':'Je n\'ai pas pu copier : sélectionne le texte ci-dessus, puis Ctrl+C.';
+      });
+      back.querySelector('[data-i="1"]').addEventListener('click',e=>{e.stopPropagation();window.open(url,'_blank','noopener');});
+    }});
+  if(v===2){const ok=await loadPlayers(true);if(ok!==false)showWin();return;}
+  try{await S.A.signOut(S.auth);}catch(e){showLogin();}
+}
+function showWin(){hideLogin();$('#win').hidden=false;$('#task').classList.add('on');render();}
+
+/* =========================================================
+   Lecture des progressions
+   ========================================================= */
+async function loadPlayers(first){
+  setStatus('Chargement des progressions…');
+  try{
+    const snap=await S.F.getDocs(S.F.collection(S.db,'joueurs'));
+    const list=[];
+    snap.forEach(d=>{const x=d.data()||{};list.push({uid:d.id,pseudo:x.pseudo,progress:obj(x.progress),updatedAt:num(x.updatedAt)});});
+    S.players=list;S.loaded=true;S.lastLoad=Date.now();
+    if(S.sel){const p=cur();if(p){if(!dirty()){S.orig=clone(p.progress);S.edit=clone(p.progress);}}else{S.sel=null;S.orig=S.edit=null;S.tab='ens';}}
+    setStatus(`${list.length} joueur${list.length>1?'s':''} chargé${list.length>1?'s':''} à ${fmtTime(Date.now())}`);
+    return true;
+  }catch(e){
+    if(String(e&&e.code)==='permission-denied'){hideLogin();await notAdmin();return false;}
+    setStatus(fsMsg(e));
+    if(first){showLogin(fsMsg(e));return false;}
+    await box({title:'Erreur',icon:'⛔',html:`<p>${esc(fsMsg(e))}</p>`});
+    return false;
+  }
+}
+
+/* =========================================================
+   Affichage
+   ========================================================= */
+const TABS=[['ens','Vue d\'ensemble'],['gen','Général'],['mis','Missions'],['fan','Fantômes'],['bad','Badges'],['bou','Boutique']];
+function render(){
+  renderTitle();renderList();renderTabs();renderSheet();renderStatus();renderTools();
+}
+function renderTitle(){
+  const p=cur();
+  $('#wtitle').textContent=`Bretzel Admin – Opération Bretzel – Mode administrateur – ${me()}${p?` – [${p.pseudo||'?'}]`:''}`;
+  $('#tasklbl').textContent=p?`Bretzel Admin – ${p.pseudo||'?'}`:'Bretzel Admin';
+}
+function sorted(){
+  const q=pseudoKey(S.q);
+  const arr=S.players.filter(p=>!q||pseudoKey(p.pseudo).includes(q));
+  const k=S.sort.k,d=S.sort.d;
+  const val=p=>k==='pseudo'?pseudoKey(p.pseudo):k==='xp'?num(p.progress.xp):k==='act'?p.updatedAt:k==='stars'?starsOf(p.progress):k==='ghosts'?ghostsOf(p.progress):k==='coins'?coinsOf(p.progress):k==='streak'?num(obj(p.progress.streak).days):k==='badges'?badgesOf(p.progress):k==='map'?mapOf(p.progress).done:0;
+  return arr.sort((a,b)=>{const x=val(a),y=val(b);return (x<y?-1:x>y?1:0)*d||pseudoKey(a.pseudo).localeCompare(pseudoKey(b.pseudo));});
+}
+const th=(k,label,cls='')=>`<th scope="col" class="sort ${cls}" data-act="sort" data-k="${k}" aria-sort="${S.sort.k===k?(S.sort.d>0?'ascending':'descending'):'none'}">${label}${S.sort.k===k?`<span class="ar">${S.sort.d>0?'▲':'▼'}</span>`:''}</th>`;
+function renderList(){
+  const rows=sorted();
+  $('#cnt').textContent=`${rows.length}${rows.length!==S.players.length?' / '+S.players.length:''} joueur${S.players.length>1?'s':''}`;
+  if(!S.players.length){$('#list').innerHTML='<div class="empty"><span class="big emo">🗂️</span>Aucun joueur pour l\'instant.</div>';return;}
+  $('#list').innerHTML=`<table class="grid"><thead><tr>${th('pseudo','Pseudo')}${th('xp','XP','n')}${th('act','Activité')}</tr></thead><tbody>${rows.map(p=>{
+    const r=rankOf(p.progress.xp);
+    return `<tr class="click${p.uid===S.sel?' sel':''}" data-act="pick" data-uid="${esc(p.uid)}" tabindex="0" aria-selected="${p.uid===S.sel}">
+      <td><span class="dot ${activity(p.updatedAt)}" aria-hidden="true"></span><span class="emo">${r.e}</span> ${esc(p.pseudo||'(sans pseudo)')}${p.uid===S.user.uid?' <span class="muted">(toi)</span>':''}</td>
+      <td class="n">${fmtN(p.progress.xp)}</td><td class="muted">${esc(ago(p.updatedAt))}</td></tr>`;}).join('')}</tbody></table>`;
+}
+function renderTabs(){
+  const p=cur(),g=p?ghostsOf(S.edit):0;
+  $('#tabs').innerHTML=TABS.map(([k,l])=>{const dis=k!=='ens'&&!p;const lab=k==='fan'&&p?`${l} (${g})`:k==='bad'&&p?`${l} (${badgesOf(S.edit)})`:l;
+    return `<button class="tab" role="tab" data-act="tab" data-tab="${k}" aria-selected="${S.tab===k}" ${dis?'disabled':''}>${esc(lab)}</button>`;}).join('');
+  $('#ftitle').textContent=p?`Fiche du joueur : ${p.pseudo||'?'}`:'Vue d\'ensemble';
+  $('#fsub').textContent=p?`dernière activité : ${fmtDate(p.updatedAt)}`:'';
+}
+function renderTools(){
+  const p=cur(),d=dirty();
+  $('#t-save').disabled=!d;$('#t-cancel').disabled=!d;$('#t-reset').disabled=!p;
+  $('#fbtns').innerHTML=p&&S.tab!=='ens'?`<button class="btn" data-act="close">Fermer la fiche</button><button class="btn" data-act="cancel" ${d?'':'disabled'}>Annuler</button><button class="btn def" data-act="save" ${d?'':'disabled'}>Enregistrer</button>`:'';
+}
+function renderStatus(){
+  const d=dirty();
+  $('#st2').innerHTML=d?'<span class="dirty">● Modifications non enregistrées</span>':'Aucune modification';
+  $('#st3').textContent=`${S.players.length} joueur${S.players.length>1?'s':''}`;
+  $('#st4').innerHTML=`Connecté : <b>${esc(me())}</b> (administrateur)`;
+}
+function setStatus(t){const el=$('#st1');if(el)el.textContent=t;}
+
+/* ---------- vue d'ensemble ---------- */
+function renderEns(){
+  const P=S.players.map(p=>p.progress);
+  const today=S.players.filter(p=>Date.now()-p.updatedAt<86400e3).length,week=S.players.filter(p=>Date.now()-p.updatedAt<7*86400e3).length;
+  const xp=P.reduce((t,p)=>t+num(p.xp),0),gh=P.reduce((t,p)=>t+ghostsOf(p),0);
+  const best=S.players.slice().sort((a,b)=>num(b.progress.xp)-num(a.progress.xp))[0];
+  const rows=sorted();
+  return `<div class="kv">
+    <div class="sunken">Joueurs<b>${S.players.length}</b></div>
+    <div class="sunken">Actifs aujourd'hui<b>${today}</b></div>
+    <div class="sunken">Actifs cette semaine<b>${week}</b></div>
+    <div class="sunken">XP gagnés en tout<b>${fmtN(xp)}</b></div>
+    <div class="sunken">Fantômes à vaincre<b>${fmtN(gh)}</b></div>
+    <div class="sunken">En tête<b style="font-size:14px">${best?`${rankOf(best.progress.xp).e} ${esc(best.pseudo||'?')}`:'—'}</b></div>
+  </div>
+  <fieldset><legend>Tous les joueurs</legend>
+  ${S.players.length?`<div class="list sunken" style="max-height:none"><table class="grid"><thead><tr>${th('pseudo','Pseudo')}${th('xp','XP','n')}<th scope="col">Rang</th>${th('coins','🥨','n')}${th('stars','★','n')}${th('ghosts','👻','n')}${th('streak','Série','n')}${th('badges','Badges','n')}${th('map','Carte','n')}${th('act','Dernière activité')}</tr></thead><tbody>${rows.map(p=>{const g=p.progress,r=rankOf(g.xp),m=mapOf(g);
+    return `<tr class="click${p.uid===S.sel?' sel':''}" data-act="pick" data-uid="${esc(p.uid)}" tabindex="0"><td><span class="dot ${activity(p.updatedAt)}"></span>${esc(p.pseudo||'(sans pseudo)')}</td><td class="n">${fmtN(g.xp)}</td><td><span class="emo">${r.e}</span> ${esc(r.de)}</td><td class="n">${fmtN(coinsOf(g))}</td><td class="n">${starsOf(g)}</td><td class="n">${ghostsOf(g)}</td><td class="n">${num(obj(g.streak).days)} j</td><td class="n">${badgesOf(g)}</td><td class="n">${m.done}/${m.total}</td><td>${esc(fmtDate(p.updatedAt))}</td></tr>`;}).join('')}</tbody></table></div>`:'<div class="empty"><span class="big emo">🗂️</span>Aucun joueur n\'a encore créé de compte.</div>'}
+  </fieldset>
+  <div class="info"><b>Astuce :</b> clique sur un joueur pour ouvrir sa fiche. Les points de couleur montrent l'activité : <span class="dot on"></span>aujourd'hui, <span class="dot mid"></span>cette semaine, <span class="dot off"></span>plus ancienne.</div>`;
+}
+
+/* ---------- fiche : Général ---------- */
+function avatarHtml(g){
+  const eq=obj(obj(g.shop).eq),ch=SHOPK[eq.char]||SHOPK.bear,hat=eq.hat&&SHOPK[eq.hat],acc=eq.acc&&SHOPK[eq.acc];
+  return `<span class="av sunken emo" aria-hidden="true">${ch?ch.e:'🐻'}${hat?`<span class="h">${hat.e}</span>`:''}${acc?`<span class="a">${acc.e}</span>`:''}</span>`;
+}
+function renderGen(){
+  const p=cur(),g=S.edit,o=S.orig,r=rankOf(g.xp),m=mapOf(g),st=obj(g.stats),sk=obj(g.streak);
+  const pct=num(st.answered)?Math.round(100*num(st.correct)/num(st.answered)):0;
+  const chg=(a,b)=>JSON.stringify(a)!==JSON.stringify(b)?' <span class="warn" title="modifié">✎</span>':'';
+  return `<div class="fiche-h">${avatarHtml(g)}<div class="who"><b>${esc(p.pseudo||'(sans pseudo)')}</b><span><span class="emo">${r.e}</span> Rang : <b data-c="rank">${esc(r.de)}</b></span><span class="muted">${p.uid===S.user.uid?'C\'est ton compte.':''}</span></div></div>
+  <div class="cols">
+  <fieldset><legend>Identité</legend>
+    <div class="row"><span class="l">Pseudo :</span><span class="v"><input type="text" readonly value="${esc(p.pseudo||'')}" aria-label="Pseudo"></span></div>
+    <div class="row"><span class="l">Identifiant technique :</span><span class="v"><code>${esc(p.uid)}</code></span></div>
+    <div class="row"><span class="l">Dernière activité :</span><span class="v">${esc(fmtDate(p.updatedAt))} (${esc(ago(p.updatedAt))})</span></div>
+    <div class="row"><span class="l">Modifié par l'admin :</span><span class="v">${o.adminAt?esc(fmtDate(o.adminAt)):'jamais'}</span></div>
+  </fieldset>
+  <fieldset><legend>Progression</legend>
+    <div class="row"><label for="f-xp">XP${chg(g.xp,o.xp)} :</label><span class="v"><input type="number" id="f-xp" data-f="xp" min="0" max="1000000" step="1" value="${int(g.xp)}">
+      <button class="btn mini" data-act="xp" data-v="-10">−10</button><button class="btn mini" data-act="xp" data-v="10">+10</button><button class="btn mini" data-act="xp" data-v="50">+50</button><button class="btn mini" data-act="xp" data-v="100">+100</button></span></div>
+    <div class="row"><span class="l">Rang :</span><span class="v"><span class="emo">${r.e}</span> <span data-c="rank2">${esc(r.de)}</span></span></div>
+    <div class="row"><label for="f-bonus">Bretzels offerts${chg(obj(g.shop).bonus,obj(o.shop).bonus)} :</label><span class="v"><input type="number" id="f-bonus" data-f="bonus" min="0" max="100000" value="${int(obj(g.shop).bonus)}"><button class="btn mini" data-act="bonus" data-v="10">+10</button><button class="btn mini" data-act="bonus" data-v="50">+50</button></span></div>
+    <div class="row"><span class="l">Bretzels à dépenser :</span><span class="v"><b data-c="coins">${fmtN(coinsOf(g))}</b> 🥨 <span class="muted">(1 tous les 10 XP + offerts − achats)</span></span></div>
+    <div class="row"><span class="l">Carte d'aventure :</span><span class="v">${m.done} / ${m.total} étapes${m.next?` · prochaine : ${esc(m.next.c)}`:' · voyage fini !'}</span></div>
+  </fieldset>
+  <fieldset><legend>Série de jours</legend>
+    <div class="row"><label for="f-sd">Jours d'affilée${chg(sk.days,obj(o.streak).days)} :</label><span class="v"><input type="number" id="f-sd" data-f="streak.days" min="0" max="3650" value="${int(sk.days)}"></span></div>
+    <div class="row"><label for="f-sb">Record${chg(sk.best,obj(o.streak).best)} :</label><span class="v"><input type="number" id="f-sb" data-f="streak.best" min="0" max="3650" value="${int(sk.best)}"></span></div>
+    <div class="row"><span class="l">Dernier jour joué :</span><span class="v">${esc(sk.last||'—')}</span></div>
+  </fieldset>
+  <fieldset><legend>Boss</legend>
+    ${Object.entries(DATA.bosses).map(([k,b])=>`<div class="row"><label for="f-b-${k}"><span class="emo">${b.e}</span> ${esc(b.n)}${chg(winsOf(g,k),winsOf(o,k))} :</label><span class="v"><input type="number" id="f-b-${k}" data-f="boss.${k}" min="0" max="1000" value="${winsOf(g,k)}"> victoire(s)</span></div>`).join('')}
+  </fieldset>
+  <fieldset><legend>Statistiques (lecture seule)</legend>
+    <div class="row"><span class="l">Réponses :</span><span class="v stat">${fmtN(st.answered)} dont ${fmtN(st.correct)} justes (${pct} %)</span></div>
+    <div class="row"><span class="l">Missions terminées :</span><span class="v stat">${fmtN(st.rounds)}</span></div>
+    <div class="row"><span class="l">Fantômes vaincus :</span><span class="v stat">${fmtN(st.slain)}</span></div>
+    <div class="row"><span class="l">Dictées / défis du jour :</span><span class="v stat">${fmtN(st.dict)} / ${fmtN(st.daily)}</span></div>
+    <div class="row"><span class="l">Records :</span><span class="v stat">Blitz ${num(obj(g.best).blitz)} · Memory ${num(obj(g.best).memory)||'—'} coups · combo x${num(obj(g.best).combo)}</span></div>
+  </fieldset>
+  </div>
+  <div class="btnrow" style="justify-content:flex-start;padding:0"><button class="btn danger" data-act="reset">🧹 Remettre à zéro…</button></div>`;
+}
+
+/* ---------- fiche : Missions ---------- */
+function renderMis(){
+  const g=S.edit,o=S.orig,stars=obj(g.stars),gh=obj(g.ghosts);
+  const gcount=w=>Object.values(gh).filter(x=>obj(x).world===w).length;
+  const sel=w=>{const has=w in stars,v=has?Math.max(0,Math.min(3,num(stars[w]))):-1;const ch=JSON.stringify(stars[w])!==JSON.stringify(obj(o.stars)[w]);
+    return `<select data-star="${esc(w)}" aria-label="Étoiles : ${esc(wname(w))}"><option value="-1"${v<0?' selected':''}>— jamais jouée</option>${[0,1,2,3].map(n=>`<option value="${n}"${v===n?' selected':''}>${n===0?'0 étoile':'★'.repeat(n)+'☆'.repeat(3-n)}</option>`).join('')}</select>${ch?' <span class="warn">✎</span>':''}`;};
+  const row=w=>`<tr><td><span class="emo">${wemo(w)}</span> ${esc(wname(w))}</td><td>${sel(w)}</td><td class="n">${gcount(w)||''}</td></tr>`;
+  const others=[...new Set([...Object.keys(WORLDK).filter(w=>!THEMED.includes(w)&&!['blitz','mem'].includes(w)),...Object.keys(stars).filter(w=>!THEMED.includes(w))])];
+  return `<div class="info">Choisis le nombre d'étoiles de chaque mission. Les villes de la carte d'aventure se débloquent avec au moins 1 étoile.</div>
+  <div class="list sunken" style="max-height:none"><table class="grid"><thead><tr><th scope="col">Mission</th><th scope="col">Étoiles</th><th scope="col" class="n">👻</th></tr></thead><tbody>
+  ${DATA.themes.map(t=>`<tr class="sub"><td colspan="3">${esc(t.t)}</td></tr>${t.w.map(row).join('')}`).join('')}
+  ${others.length?`<tr class="sub"><td colspan="3">Révisions</td></tr>${others.map(row).join('')}`:''}
+  </tbody></table></div>`;
+}
+
+/* ---------- fiche : Fantômes ---------- */
+function renderFan(){
+  const gh=obj(S.edit.ghosts),ids=Object.keys(gh).sort((a,b)=>num(obj(gh[a]).due)-num(obj(gh[b]).due));
+  if(!ids.length)return `<div class="empty"><span class="big emo">👻</span>Aucun fantôme : toutes les erreurs ont été corrigées !</div>`;
+  const removed=Object.keys(obj(S.orig.ghosts)).length-ids.length;
+  return `<div class="info">Un fantôme est une question ratée qui revient jusqu'à ce qu'elle soit réussie. Tu peux en supprimer (le joueur n'aura plus à la refaire).</div>
+  ${removed>0?`<p class="warn">${removed} fantôme${removed>1?'s':''} supprimé${removed>1?'s':''} (pas encore enregistré).</p>`:''}
+  <div class="list sunken" style="max-height:none"><table class="grid"><thead><tr><th scope="col" class="c"><input type="checkbox" data-act="gall" aria-label="Tout sélectionner" ${ids.every(i=>S.ghostSel.has(i))?'checked':''}></th><th scope="col">Question</th><th scope="col">Mission</th><th scope="col" class="n">Erreurs</th><th scope="col">Revient</th></tr></thead><tbody>
+  ${ids.map(id=>{const x=obj(gh[id]);return `<tr><td class="c"><input type="checkbox" data-ghost="${esc(id)}" ${S.ghostSel.has(id)?'checked':''} aria-label="Sélectionner ${esc(id)}"></td><td><code>${esc(id)}</code></td><td><span class="emo">${wemo(x.world)}</span> ${esc(wname(x.world))}</td><td class="n">${num(x.fails,1)}</td><td>${num(x.due)>Date.now()?esc(fmtDate(x.due)):'maintenant'}</td></tr>`;}).join('')}
+  </tbody></table></div>
+  <div class="btnrow" style="justify-content:flex-start;padding:8px 0 0"><button class="btn" data-act="gdel" ${S.ghostSel.size?'':'disabled'}>Supprimer la sélection</button><button class="btn danger" data-act="gdelall">Supprimer tous les fantômes</button></div>`;
+}
+
+/* ---------- fiche : Badges ---------- */
+function renderBad(){
+  const b=obj(S.edit.badges),o=obj(S.orig.badges);
+  return `<div class="info">Coche ou décoche les badges. Attention : le jeu redonne automatiquement un badge dont le défi est réussi.</div>
+  <div class="list sunken" style="max-height:none"><table class="grid"><thead><tr><th scope="col" class="c">Obtenu</th><th scope="col">Badge</th><th scope="col">Défi</th><th scope="col">Date</th></tr></thead><tbody>
+  ${DATA.badges.map(x=>`<tr><td class="c"><input type="checkbox" data-badge="${esc(x.id)}" ${x.id in b?'checked':''} aria-label="${esc(x.n)}">${(x.id in b)!==(x.id in o)?' <span class="warn">✎</span>':''}</td><td><span class="emo">${x.e}</span> ${esc(x.n)}</td><td>${esc(x.d)}</td><td>${x.id in b&&num(b[x.id])>1?esc(fmtDate(b[x.id])):''}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+/* ---------- fiche : Boutique ---------- */
+function renderBou(){
+  const g=S.edit,sh=obj(g.shop),owned=Object.keys(obj(sh.owned)),eq=obj(sh.eq);
+  const cat={char:'Personnage',hat:'Chapeau',acc:'Accessoire',bg:'Fond d\'écran'};
+  const it=id=>SHOPK[id];
+  return `<div class="cols"><fieldset><legend>Bretzels</legend>
+    <div class="row"><span class="l">Gagnés avec l'XP :</span><span class="v stat">${fmtN(Math.floor(num(g.xp)/10))} 🥨</span></div>
+    <div class="row"><span class="l">Offerts (bonus) :</span><span class="v stat">${fmtN(sh.bonus)} 🥨</span></div>
+    <div class="row"><span class="l">Dépensés :</span><span class="v stat">${fmtN(spentOf(g))} 🥨</span></div>
+    <div class="row"><span class="l">À dépenser :</span><span class="v"><b>${fmtN(coinsOf(g))} 🥨</b></span></div>
+    <p class="muted" style="margin:6px 0 0">Pour offrir des bretzels, utilise « Bretzels offerts » dans l'onglet Général.</p>
+  </fieldset>
+  <fieldset><legend>Tenue de l'avatar</legend>
+    ${Object.entries(cat).map(([k,l])=>{const x=it(eq[k]);return `<div class="row"><span class="l">${l} :</span><span class="v">${x?`<span class="emo">${x.e||'🎨'}</span> ${esc(x.de)} <span class="muted">(${esc(x.fr)})</span>`:'—'}</span></div>`;}).join('')}
+  </fieldset></div>
+  <fieldset><legend>Objets achetés (${owned.length})</legend>
+    ${owned.length?`<div class="list sunken" style="max-height:none"><table class="grid"><thead><tr><th scope="col">Objet</th><th scope="col">Catégorie</th><th scope="col" class="n">Prix</th><th scope="col">Acheté le</th></tr></thead><tbody>${owned.map(id=>{const x=it(id);return `<tr><td>${x?`<span class="emo">${x.e||'🎨'}</span> ${esc(x.de)} <span class="muted">(${esc(x.fr)})</span>`:`<code>${esc(id)}</code>`}</td><td>${x?cat[x.c]||'':''}</td><td class="n">${x?x.p:''}</td><td>${num(sh.owned[id])>1?esc(fmtDate(sh.owned[id])):''}</td></tr>`;}).join('')}</tbody></table></div>`:'<p class="muted" style="margin:0">Rien acheté pour l\'instant.</p>'}
+  </fieldset>`;
+}
+function renderSheet(){
+  const el=$('#sheet');const y=el.scrollTop;
+  const p=cur();if(!p&&S.tab!=='ens')S.tab='ens';
+  el.innerHTML=S.tab==='ens'?renderEns():S.tab==='gen'?renderGen():S.tab==='mis'?renderMis():S.tab==='fan'?renderFan():S.tab==='bad'?renderBad():renderBou();
+  el.scrollTop=y;
+}
+function refreshLive(){
+  const g=S.edit;if(!g)return;
+  const r=rankOf(g.xp);
+  document.querySelectorAll('[data-c=rank],[data-c=rank2]').forEach(e=>e.textContent=r.de);
+  document.querySelectorAll('[data-c=coins]').forEach(e=>e.textContent=fmtN(coinsOf(g)));
+  renderStatus();renderTools();renderTabs();
+}
+
+/* =========================================================
+   Actions
+   ========================================================= */
+async function askSave(){
+  if(!dirty())return true;
+  const p=cur();
+  const v=await box({title:'Bretzel Admin',icon:'❓',html:`<p>Enregistrer les modifications de la fiche de <b>${esc(p.pseudo||'?')}</b> ?</p>`,buttons:['Oui','Non','Annuler'],def:0,cancel:2});
+  if(v===0)return await save();
+  if(v===1){S.edit=clone(S.orig);return true;}
+  return false;
+}
+async function pick(uid){
+  if(uid===S.sel){if(S.tab==='ens'){S.tab='gen';render();}return;}
+  if(!await askSave())return;
+  const p=S.players.find(x=>x.uid===uid);if(!p)return;
+  S.sel=uid;S.orig=clone(p.progress);S.edit=clone(p.progress);S.ghostSel=new Set();
+  if(S.tab==='ens')S.tab='gen';
+  render();setStatus(`Fiche de ${p.pseudo||'?'} ouverte`);
+}
+function summary(a,b){
+  const out=[];
+  if(num(a.xp)!==num(b.xp))out.push(`XP ${fmtN(a.xp)} → ${fmtN(b.xp)}`);
+  if(num(obj(a.shop).bonus)!==num(obj(b.shop).bonus))out.push(`bretzels offerts ${num(obj(a.shop).bonus)} → ${num(obj(b.shop).bonus)}`);
+  const sa=obj(a.stars),sb=obj(b.stars);for(const w of new Set([...Object.keys(sa),...Object.keys(sb)]))if(JSON.stringify(sa[w])!==JSON.stringify(sb[w]))out.push(`${wname(w)} : ${w in sa?sa[w]+'★':'—'} → ${w in sb?sb[w]+'★':'—'}`);
+  const ga=Object.keys(obj(a.ghosts)).length,gb=Object.keys(obj(b.ghosts)).length;if(ga!==gb)out.push(`fantômes ${ga} → ${gb}`);
+  const ba=Object.keys(obj(a.badges)),bb=Object.keys(obj(b.badges));if(JSON.stringify(ba.sort())!==JSON.stringify(bb.sort()))out.push(`badges ${ba.length} → ${bb.length}`);
+  if(JSON.stringify(obj(a.streak))!==JSON.stringify(obj(b.streak)))out.push(`série ${num(obj(a.streak).days)} → ${num(obj(b.streak).days)} j`);
+  for(const k of Object.keys(DATA.bosses))if(winsOf(a,k)!==winsOf(b,k))out.push(`${DATA.bosses[k].n} ${winsOf(a,k)} → ${winsOf(b,k)}`);
+  if(b.__reset)out.unshift('remise à zéro');
+  return out.length?out.join(', '):'aucun changement visible';
+}
+async function save(){
+  const p=cur();if(!p||!dirty()||S.busy)return true;
+  S.busy=true;setStatus('Enregistrement…');
+  try{
+    /* quelqu'un a-t-il joué depuis l'ouverture de la fiche ? */
+    const snap=await S.F.getDoc(S.F.doc(S.db,'joueurs',p.uid));
+    const live=snap.exists()?snap.data():null;
+    if(live&&num(live.updatedAt)!==num(p.updatedAt)){
+      S.busy=false;
+      const v=await box({title:'Conflit',icon:'⚠️',html:`<p><b>${esc(p.pseudo||'?')}</b> a joué pendant que tu modifiais sa fiche (dernière activité : ${esc(fmtDate(live.updatedAt))}).</p><p>Si tu enregistres quand même, ce qu'il vient de gagner sera remplacé par ta version.</p>`,buttons:['Recharger sa fiche','Enregistrer quand même','Annuler'],def:0,cancel:2});
+      if(v===2){setStatus('Enregistrement annulé');return false;}
+      if(v===0){p.progress=obj(live.progress);p.updatedAt=num(live.updatedAt);S.orig=clone(p.progress);S.edit=clone(p.progress);render();setStatus(`Fiche de ${p.pseudo} rechargée`);return false;}
+      S.busy=true;
+    }
+    const before=S.orig,prog=clone(S.edit),t=Date.now();
+    const sum=summary(before,prog);delete prog.__reset;
+    prog.adminAt=t;prog.updatedAt=t;
+    await S.F.setDoc(S.F.doc(S.db,'joueurs',p.uid),{pseudo:p.pseudo,progress:prog,updatedAt:t});
+    p.progress=prog;p.updatedAt=t;S.orig=clone(prog);S.edit=clone(prog);S.ghostSel=new Set();
+    addLog(`${p.pseudo} : ${sum}`);
+    setStatus(`Fiche de ${p.pseudo} enregistrée à ${fmtTime(t)}`);
+    return true;
+  }catch(e){
+    await box({title:'Erreur',icon:'⛔',html:`<p>L'enregistrement a échoué.</p><p>${esc(fsMsg(e))}</p>`});
+    setStatus('Échec de l\'enregistrement');return false;
+  }finally{S.busy=false;render();}
+}
+function cancel(){if(!dirty())return;S.edit=clone(S.orig);S.ghostSel=new Set();render();setStatus('Modifications annulées');}
+async function resetPlayer(){
+  const p=cur();if(!p)return;
+  const name=p.pseudo||'';
+  const v=await box({title:'Remise à zéro',icon:'⚠️',buttons:['Remettre à zéro','Annuler'],def:1,cancel:1,
+    html:`<p>Tout effacer pour <b>${esc(name)}</b> : XP, étoiles, fantômes, badges, série, boss, carte et objets achetés ?</p>
+    <p>Pour confirmer, écris son pseudo :</p><input type="text" id="rz" autocomplete="off" spellcheck="false" style="width:100%">
+    <p class="muted" style="margin-top:6px">Rien n'est effacé tant que tu n'as pas cliqué sur <b>Enregistrer</b>.</p>`,
+    onOpen:(back)=>{const b=back.querySelector('[data-i="0"]');b.disabled=true;back.querySelector('#rz').addEventListener('input',e=>{b.disabled=pseudoKey(e.target.value)!==pseudoKey(name);});}});
+  if(v!==0)return;
+  const keep=obj(S.edit.settings);
+  const f=clone(DATA.fresh);
+  delete f.rev;delete f.syncedRev;delete f.syncBase;
+  f.settings=Object.assign({},f.settings,keep);f.seenIntro=true;f.news=DATA.news;f.__reset=true;
+  S.edit=f;S.ghostSel=new Set();S.tab='gen';render();
+  setStatus(`Remise à zéro préparée pour ${name} : clique sur Enregistrer pour confirmer`);
+}
+function addLog(t){S.log.unshift({t:Date.now(),m:t});if(S.log.length>200)S.log.pop();}
+function showJournal(){
+  box({title:'Journal des modifications (cette session)',icon:'📒',wide:true,
+    html:S.log.length?`<div class="list sunken" style="max-height:50vh"><table class="grid"><thead><tr><th scope="col">Heure</th><th scope="col">Action</th></tr></thead><tbody>${S.log.map(l=>`<tr><td>${fmtTime(l.t)}</td><td style="white-space:normal">${esc(l.m)}</td></tr>`).join('')}</tbody></table></div>`:'<p>Aucune action pour l\'instant.</p>'});
+}
+function csvCell(v){let s=String(v==null?'':v);if(/^[=+\-@]/.test(s))s="'"+s;return /[";\n]/.test(s)?`"${s.replace(/"/g,'""')}"`:s;}
+function exportCsv(){
+  const head=['pseudo','xp','rang','bretzels','etoiles','fantomes','serie_jours','badges','carte','derniere_activite'];
+  const rows=sorted().map(p=>{const g=p.progress,m=mapOf(g);return [p.pseudo||'',num(g.xp),rankOf(g.xp).de,coinsOf(g),starsOf(g),ghostsOf(g),num(obj(g.streak).days),badgesOf(g),`${m.done}/${m.total}`,fmtDate(p.updatedAt)];});
+  const csv=[head,...rows].map(r=>r.map(csvCell).join(';')).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));
+  const d=new Date();a.download=`joueurs-operation-bretzel-${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}.csv`;
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
+  addLog('Export de la liste des joueurs');setStatus('Liste exportée');
+}
+async function refresh(){
+  if(dirty()){const v=await box({title:'Actualiser',icon:'❓',html:'<p>Ta fiche a des modifications non enregistrées. Les garder pendant l\'actualisation ?</p>',buttons:['Garder','Les abandonner','Annuler'],def:0,cancel:2});if(v===2)return;if(v===1)S.edit=clone(S.orig);}
+  const ok=await loadPlayers(false);if(ok)render();
+}
+async function logout(){
+  if(!await askSave())return;
+  const v=await box({title:'Quitter',icon:'❓',html:'<p>Se déconnecter de la console d\'administration ?</p>',buttons:['Oui','Non'],def:0,cancel:1});
+  if(v!==0)return;
+  addLog('Déconnexion');
+  try{await S.A.signOut(S.auth);}catch(e){showLogin();}
+}
+function help(){
+  box({title:'Aide – Bretzel Admin',icon:'❓',wide:true,html:`<p><b>À quoi sert cette console ?</b> À voir la progression de tous les joueurs d'Opération Bretzel et à corriger une fiche si besoin.</p>
+  <ol><li>Choisis un joueur dans la liste de gauche (ou dans la <b>Vue d'ensemble</b>).</li>
+  <li>Modifie sa fiche dans les onglets <b>Général</b>, <b>Missions</b>, <b>Fantômes</b> ou <b>Badges</b>. Un ✎ rouge montre ce qui a changé.</li>
+  <li>Clique sur <b>Enregistrer</b> (ou Ctrl+S). Rien n'est envoyé avant.</li></ol>
+  <p>La prochaine fois que le joueur ouvre le jeu (ou dès sa prochaine sauvegarde), il reçoit ta version et un petit message lui dit que l'administrateur a mis sa progression à jour.</p>
+  <p><b>Raccourcis :</b> F5 = actualiser, Ctrl+S = enregistrer, Échap = fermer une fenêtre.</p>
+  <p class="muted">Les mots de passe ne sont jamais visibles, ni ici ni dans la base. Personne ne peut supprimer un compte depuis cette console.</p>`});
+}
+function about(){box({title:'À propos de Bretzel Admin',icon:'🥨',html:`<p><b>Bretzel Admin</b> – version 1.0<br>Console d'administration d'Opération Bretzel.</p><p class="muted">Base : ${esc(FB_CFG?FB_CFG.projectId:'?')}<br>Connecté : ${esc(me())}</p>`});}
+
+/* ---------- menus ---------- */
+const MENUS={
+  fichier:()=>[['🔄 Actualiser','F5','refresh'],['📤 Exporter la liste…','','export'],'-',['🎮 Ouvrir le jeu','','game'],'-',['🚪 Se déconnecter','','logout']],
+  edition:()=>[['💾 Enregistrer','Ctrl+S','save',!dirty()],['↩️ Annuler les modifications','','cancel',!dirty()],'-',['👻 Supprimer tous les fantômes','','gdelall',!cur()]],
+  affichage:()=>[['📊 Vue d\'ensemble','','tab:ens'],'-',['Trier par pseudo','','sort:pseudo'],['Trier par XP','','sort:xp'],['Trier par activité','','sort:act'],'-',['📒 Journal des modifications','','journal']],
+  joueur:()=>[['Général','','tab:gen',!cur()],['Missions','','tab:mis',!cur()],['Fantômes','','tab:fan',!cur()],['Badges','','tab:bad',!cur()],['Boutique','','tab:bou',!cur()],'-',['🧹 Remettre à zéro…','','reset',!cur()],['Fermer la fiche','','close',!cur()]],
+  aide:()=>[['❓ Aide','F1','help'],['🥨 À propos de Bretzel Admin','','about']]
+};
+function closeMenus(){document.querySelectorAll('.menubar .m.open').forEach(m=>{m.classList.remove('open');const x=m.querySelector('.menu');if(x)x.remove();});const sm=$('.startmenu');if(sm)sm.remove();}
+function openMenu(name){
+  const m=document.querySelector(`.menubar .m[data-menu="${name}"]`);const was=m.classList.contains('open');closeMenus();if(was)return;
+  m.classList.add('open');
+  const div=document.createElement('div');div.className='menu raised';div.setAttribute('role','menu');
+  div.innerHTML=MENUS[name]().map(it=>it==='-'?'<hr>':`<button role="menuitem" data-act="mi" data-do="${it[2]}" ${it[3]?'disabled':''}><span>${esc(it[0])}</span><span class="k">${esc(it[1])}</span></button>`).join('');
+  m.appendChild(div);const f=div.querySelector('button:not(:disabled)');if(f)f.focus();
+}
+function startMenu(){
+  if($('.startmenu')){closeMenus();return;}closeMenus();
+  const d=document.createElement('div');d.className='startmenu raised';
+  d.innerHTML=`<div class="side">Bretzel Admin</div><div class="items"><button data-act="mi" data-do="game"><span class="emo">🎮</span>Ouvrir le jeu</button><button data-act="mi" data-do="tab:ens"><span class="emo">📊</span>Vue d'ensemble</button><button data-act="mi" data-do="help"><span class="emo">❓</span>Aide</button><hr style="border:0;border-top:1px solid var(--shadow);border-bottom:1px solid var(--light);margin:2px"><button data-act="mi" data-do="logout"><span class="emo">🚪</span>Se déconnecter…</button></div>`;
+  document.body.appendChild(d);
+}
+async function doAction(a){
+  closeMenus();
+  if(a.startsWith('tab:'))return setTab(a.slice(4));
+  if(a.startsWith('sort:')){const k=a.slice(5);S.sort={k,d:k==='pseudo'?1:-1};return render();}
+  ({refresh,export:exportCsv,game:()=>window.open('./','_blank','noopener'),logout,save,cancel,reset:resetPlayer,journal:showJournal,help,about,
+    gdelall:()=>delGhosts(true),close:closeFiche})[a]?.();
+}
+function setTab(t){if(t!=='ens'&&!cur())return;S.tab=t;renderTabs();renderSheet();renderTools();$('#sheet').scrollTop=0;}
+async function closeFiche(){if(!await askSave())return;S.sel=null;S.orig=S.edit=null;S.tab='ens';render();}
+async function delGhosts(all){
+  const g=S.edit;if(!g)return;const gh=obj(g.ghosts);const ids=all?Object.keys(gh):[...S.ghostSel].filter(i=>i in gh);
+  if(!ids.length)return;
+  if(all){const v=await box({title:'Fantômes',icon:'❓',html:`<p>Supprimer les <b>${ids.length}</b> fantôme${ids.length>1?'s':''} de ${esc(cur().pseudo||'?')} ?</p>`,buttons:['Oui','Non'],def:1,cancel:1});if(v!==0)return;}
+  g.ghosts=Object.fromEntries(Object.entries(gh).filter(([k])=>!ids.includes(k)));
+  S.ghostSel=new Set();S.tab='fan';render();
+}
+
+/* ---------- événements ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act]');
+  if(!t){if(!e.target.closest('.menu,.startmenu'))closeMenus();return;}
+  const a=t.dataset.act;
+  if(a==='menu'){e.stopPropagation();return openMenu(t.dataset.m);}
+  if(a==='start'){e.stopPropagation();return startMenu();}
+  if(a==='mi')return doAction(t.dataset.do);
+  closeMenus();
+  if(a==='pick')return pick(t.dataset.uid);
+  if(a==='sort'){const k=t.dataset.k;S.sort=S.sort.k===k?{k,d:-S.sort.d}:{k,d:k==='pseudo'?1:-1};return render();}
+  if(a==='tab')return setTab(t.dataset.tab);
+  if(a==='xp'){S.edit.xp=int(num(S.edit.xp)+num(t.dataset.v),0,1e6);const i=$('#f-xp');if(i)i.value=S.edit.xp;return renderSheet(),refreshLive();}
+  if(a==='bonus'){S.edit.shop=obj(S.edit.shop);S.edit.shop.bonus=int(num(S.edit.shop.bonus)+num(t.dataset.v),0,1e5);return renderSheet(),refreshLive();}
+  if(a==='gdel')return delGhosts(false);
+  if(a==='gall')return;
+  if(a==='win-max'){$('#win').classList.toggle('max');return;}
+  if(a==='win-min'){$('#win').hidden=true;$('#task').classList.remove('on');return;}
+  if(a==='task'){const w=$('#win');if(!S.user)return;w.hidden=!w.hidden;$('#task').classList.toggle('on',!w.hidden);return;}
+  return doAction(a);
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.target.matches('tr[data-act=pick]')){e.preventDefault();pick(e.target.dataset.uid);}
+  if(!S.user||$('.dlg-back:not([style])'))return;
+  if(e.key==='F5'){e.preventDefault();refresh();}
+  else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();save();}
+  else if(e.key==='F1'){e.preventDefault();help();}
+  else if(e.key==='Escape')closeMenus();
+});
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.id==='q'){S.q=t.value;renderList();if(S.tab==='ens')renderSheet();return;}
+  const f=t.dataset.f;if(!f||!S.edit)return;
+  const g=S.edit;
+  if(f==='xp')g.xp=int(t.value,0,1e6);
+  else if(f==='bonus'){g.shop=obj(g.shop);g.shop.bonus=int(t.value,0,1e5);}
+  else if(f==='streak.days'||f==='streak.best'){g.streak=Object.assign({days:0,best:0,last:''},obj(g.streak));g.streak[f.split('.')[1]]=int(t.value,0,3650);}
+  else if(f.startsWith('boss.')){const k=f.slice(5);g.boss=obj(g.boss);const c=obj(g.boss[k]);const w=int(t.value,0,1000);g.boss[k]=Object.assign({},c,{wins:w,tries:Math.max(num(c.tries),w)});}
+  refreshLive();
+});
+document.addEventListener('change',e=>{
+  const t=e.target;if(!S.edit)return;const g=S.edit;
+  if(t.dataset.star!==undefined){const w=t.dataset.star,v=+t.value;g.stars=obj(g.stars);if(v<0)delete g.stars[w];else g.stars[w]=v;renderSheet();refreshLive();return;}
+  if(t.dataset.ghost!==undefined){t.checked?S.ghostSel.add(t.dataset.ghost):S.ghostSel.delete(t.dataset.ghost);renderSheet();return;}
+  if(t.dataset.act==='gall'){const ids=Object.keys(obj(g.ghosts));S.ghostSel=t.checked?new Set(ids):new Set();renderSheet();return;}
+  if(t.dataset.badge!==undefined){const id=t.dataset.badge;g.badges=obj(g.badges);if(t.checked)g.badges[id]=num(obj(S.orig.badges)[id])||Date.now();else delete g.badges[id];renderSheet();refreshLive();return;}
+  if(t.dataset.f){renderSheet();}
+});
+window.addEventListener('beforeunload',e=>{if(dirty()){e.preventDefault();e.returnValue='';}});
+function tick(){const d=new Date();$('#clock').textContent=`${pad(d.getHours())}:${pad(d.getMinutes())}`;}
+init();
+</script>
+</body>
+</html>

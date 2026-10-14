@@ -1343,7 +1343,7 @@ const SHOPK=Object.fromEntries(SHOP.map(x=>[x.id,x]));
 /* le nom allemand sans les petits tirets cachés (pour la voix), et les deux noms ensemble pour les messages */
 const deTxt=x=>String(x.de||'').replace(/\u00AD/g,'');
 const deFr=x=>`<b lang="de">${esc(x.de)}</b> (${esc(x.name)})`;
-KEEP_KEYS.push('shop','mapDone','mapInit');
+KEEP_KEYS.push('shop','mapDone','mapInit','adminAt');
 
 function kindOf(id){
   if(STATIC[id])return STATIC[id].kind;
@@ -1370,7 +1370,7 @@ function answerText(q){
    État + sauvegarde
    ========================================================= */
 const KEY='operation-bretzel-v1';
-const fresh=()=>({v:1,xp:0,stars:{},ghosts:{},best:{blitz:0,memory:0,combo:0},stats:{answered:0,correct:0,rounds:0,slain:0,dict:0,daily:0,boss:0},settings:{sound:true,voice:true},seenIntro:false,streak:{days:0,best:0,last:''},badges:{},boss:{},news:'',shop:{owned:{},spent:0,bonus:0,eq:{char:'bear',hat:'',acc:'',bg:'gold'}},mapDone:{},mapInit:false,updatedAt:0,rev:0,syncedRev:0,syncBase:0});
+const fresh=()=>({v:1,xp:0,stars:{},ghosts:{},best:{blitz:0,memory:0,combo:0},stats:{answered:0,correct:0,rounds:0,slain:0,dict:0,daily:0,boss:0},settings:{sound:true,voice:true},seenIntro:false,streak:{days:0,best:0,last:''},badges:{},boss:{},news:'',shop:{owned:{},spent:0,bonus:0,eq:{char:'bear',hat:'',acc:'',bg:'gold'}},mapDone:{},mapInit:false,adminAt:0,updatedAt:0,rev:0,syncedRev:0,syncBase:0});
 function merge(base,o){
   if(!o||typeof o!=='object')return base;
   for(const k of Object.keys(base)){
@@ -1423,6 +1423,7 @@ function combine(a,b){
   o.shop={owned:Object.assign({},pb.owned||{},pa.owned||{}),bonus:(pa.bonus||0)+(pb.bonus||0),eq:Object.assign({char:'bear',hat:'',acc:'',bg:'gold'},bLast?pa.eq||{}:pb.eq||{},bLast?pb.eq||{}:pa.eq||{}),eqAt:Math.max(pa.eqAt||0,pb.eqAt||0)};
   o.shop.spent=spentOf(o.shop);
   o.mapDone=Object.assign({},b.mapDone||{},a.mapDone||{});o.mapInit=!!(a.mapInit||b.mapInit);
+  o.adminAt=Math.max(a.adminAt||0,b.adminAt||0);
   return o;
 }
 
@@ -1445,6 +1446,7 @@ function keepBoth(x,y){
   px.bonus=Math.max(px.bonus||0,py.bonus||0);
   if((py.eqAt||0)>(px.eqAt||0)){px.eq=Object.assign({},py.eq||{});px.eqAt=py.eqAt;}
   px.spent=spentOf(px);
+  x.adminAt=Math.max(x.adminAt||0,y.adminAt||0);
   return x;
 }
 
@@ -1520,6 +1522,9 @@ const Sync={
     if(!this.can()||!this.pulled)return;
     if(this.busy){this.again=true;return;}
     this.busy=true;
+    // Si l'administrateur vient de modifier la progression en ligne, on prend sa version au lieu de l'écraser.
+    try{const r=await this.pull();if(!this.can()){this.busy=false;return;}
+      if(r&&r.progress&&(r.progress.adminAt||0)>(state.adminAt||0)){this.busy=false;this.again=false;adoptAdmin(r);renderSave();return;}}catch(e){}
     const uid=profile.uid,r0=state.rev||0,t=Date.now();
     const prog=JSON.parse(JSON.stringify(state));SYNC_FIELDS.forEach(k=>delete prog[k]);
     try{
@@ -1533,6 +1538,14 @@ const Sync={
   },
   async pull(){const snap=await Acc.F.getDoc(this.ref());return snap.exists()?snap.data():null;}
 };
+/* L'administrateur a modifié la progression en ligne (console admin.html) : c'est sa version qui gagne. */
+function adoptAdmin(r){
+  const x=merge(fresh(),r.progress);
+  x.settings=Object.assign({},fresh().settings,state.settings);
+  x.syncBase=r.updatedAt||0;x.rev=0;x.syncedRev=0;
+  state=x;writeLocal();refresh();
+  try{toast('🛠️ Ta progression a été mise à jour par l\'administrateur.');}catch(e){}
+}
 function syncFromCloud(){
   if(!Sync.can())return Promise.resolve();
   if(Sync.pulling)return Sync.pulling;
@@ -1545,6 +1558,7 @@ function syncFromCloud(){
       if(!r||!r.progress){await Sync.push();return;}
       const Rt=r.updatedAt||0,local=state;
       const take=(x,dirty)=>{for(const k of KEEP_KEYS)if(r.progress&&r.progress[k]===undefined&&local[k]!==undefined)x[k]=JSON.parse(JSON.stringify(local[k]));x.settings=Object.assign({},fresh().settings,local.settings);x.syncBase=Rt;x.rev=dirty?1:0;x.syncedRev=0;state=x;writeLocal();refresh();};
+      if(((r.progress&&r.progress.adminAt)||0)>(local.adminAt||0)){adoptAdmin(r);return;}
       if(!local.syncBase){
         // Premier contact de cet appareil avec ce compte : ce qui a été joué ici s'ajoute à la version en ligne.
         if(isDirty()&&hasProgress(local)){take(combine(merge(fresh(),r.progress),local),true);await Sync.push();}
