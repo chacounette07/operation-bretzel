@@ -432,6 +432,48 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.05;
 .seasonban>.emo{font-size:40px;line-height:1;flex:none}
 .seasonban h3{margin:0;font-size:21px;color:#FFB15C}
 .seasonban p{margin:4px 0 10px;font-weight:700}
+/* calendrier de l'Avent */
+.seasonban.s-avent{background:linear-gradient(135deg,#0D5233,#1C7F46 58%,#B3122B);color:#FFF8E7}
+.seasonban.s-avent h3{color:#FFE27A}
+.avhead{display:flex;gap:14px;align-items:flex-start;background:linear-gradient(160deg,#0D5233,#156B3D);color:#FFF8E7;margin-top:14px}
+.avhead>.emo{font-size:46px;line-height:1;flex:none}
+.avhead h3{font-size:25px;margin:0;color:#FFE27A;hyphens:manual}
+.avhead p{margin:6px 0 0;font-weight:700}
+.avhead .avfr{margin-top:0;opacity:.9}
+.avcount{display:inline-block;background:#FFE27A;color:var(--ink);border:2.5px solid var(--ink);border-radius:999px;padding:1px 10px;font-weight:900}
+.avwrap{background:linear-gradient(160deg,#A3182F,#6B0E1F);padding:16px 14px 20px}
+.avgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 10px}
+@media (min-width:560px){.avgrid{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.avc{appearance:none;position:relative;aspect-ratio:1;border:3px solid var(--ink);border-radius:14px;background:#FFF8E7;box-shadow:3px 3px 0 var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding:4px;min-width:0;color:var(--ink);font:inherit}
+.avc .avn{font-family:var(--f-display);font-size:26px;line-height:1}
+.avc.locked{background:repeating-linear-gradient(45deg,#FFF8E7 0 8px,#F2E3C2 8px 16px)}
+.avc.locked .avn{opacity:.7}
+.avc.today{background:var(--gold);animation:avglow 1.4s ease-in-out infinite}
+.avc.past{background:#FFE9A8}
+.avc.missed{background:#D6CFC2;color:#5E574C}
+.avc.open{background:#E3F6E8}
+.avc.open .avn{position:absolute;top:3px;left:6px;font-size:14px}
+.avc.open>.emo{font-size:32px;line-height:1}
+.avc .avb{font-size:26px;line-height:1}
+.avc .avtag{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);white-space:nowrap;background:var(--ink);color:#fff;font-size:10.5px;font-weight:900;border-radius:999px;padding:1px 7px}
+.avc:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.avc.nope{animation:shake .4s}
+@keyframes avglow{50%{box-shadow:3px 3px 0 var(--ink),0 0 0 6px rgba(255,226,122,.75)}}
+.avmodal,.codemodal{text-align:center}
+.avbig{font-size:84px;line-height:1;margin:4px 0 0;animation:popin .5s}
+.avmodal h2{font-size:26px}
+.avmodal .row,.codemodal .row{justify-content:center}
+.avfact{background:var(--gold-soft);border:2.5px dashed var(--ink);border-radius:14px;padding:8px 10px;font-weight:700;font-size:14.5px;text-align:left}
+@media (prefers-reduced-motion: reduce){.avc.today,.avbig{animation:none}}
+/* code cadeau */
+.codepanel{background:#FFF0F6}
+.codepanel h2{display:flex;align-items:center;gap:8px}
+.codepanel p{margin:6px 0 12px}
+.codemodal form{text-align:left}
+.field.code{text-transform:uppercase;letter-spacing:2px;font-family:'Courier New',Courier,monospace;font-weight:900}
+.codeok{font-size:22px;margin:8px 0 0}
+.codemsg{font-weight:800;font-size:18px;margin:8px 0 0}
+.codegot{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:6px;font-size:17px;font-weight:700}
 .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translate(-50%,160%);z-index:60;width:max-content;max-width:min(30rem,calc(100vw - 32px));background:var(--ink);color:var(--paper);border-radius:16px;padding:10px 16px;font-weight:800;box-shadow:4px 4px 0 var(--red);transition:transform .25s ease-out;pointer-events:none;text-align:center}
 .toast.on{transform:translate(-50%,0)}
 /* carte */
@@ -505,6 +547,7 @@ body[data-bg="geisternacht"]:not(.paper) :is(.h2,.h2sub,.pitch,.savenote,.reset,
   <section id="scr-account" hidden aria-label="Mon compte"></section>
   <section id="scr-map" hidden aria-label="Carte d'aventure"></section>
   <section id="scr-shop" hidden aria-label="Boutique"></section>
+  <section id="scr-avent" hidden aria-label="Calendrier de l'Avent"></section>
 </main>
 <div id="sheet" class="sheet" hidden role="dialog" aria-live="polite" aria-label="Correction"></div>
 
@@ -1380,23 +1423,65 @@ const SHOP=[
   {id:'kerze',cat:'acc',emo:'🕯️',de:'die Kerze',name:'la bougie',price:50,season:'halloween'},
   {id:'besen',cat:'acc',emo:'🧹',de:'der Besen',name:'le balai de sorcière',price:80,season:'halloween'},
   {id:'kugel',cat:'acc',emo:'🔮',de:'die Kristall\u00ADkugel',name:'la boule de cristal',price:120,season:'halloween'},
-  {id:'geisternacht',cat:'bg',sw:'#2B1240',de:'die Geister\u00ADnacht',name:'la nuit des fantômes',price:150,season:'halloween'}
+  {id:'geisternacht',cat:'bg',sw:'#2B1240',de:'die Geister\u00ADnacht',name:'la nuit des fantômes',price:150,season:'halloween'},
+  /* Noël : pas en vente, on les trouve dans le calendrier de l'Avent (ou avec un code cadeau) ;
+     le prix sert seulement au calcul des bretzels (un cadeau ne coûte rien) */
+  {id:'schneemann',cat:'char',emo:'⛄',de:'der Schnee\u00ADmann',name:'le bonhomme de neige',price:150,gift:'avent'},
+  {id:'rentier',cat:'char',emo:'🦌',de:'das Rentier',name:'le renne',price:150,gift:'avent'},
+  {id:'wichtel',cat:'char',emo:'🧝',de:'der Wichtel',name:'le lutin',price:150,gift:'avent'},
+  {id:'engel',cat:'char',emo:'👼',de:'der Engel',name:'l\'ange',price:150,gift:'avent'},
+  {id:'weihnachtsmann',cat:'char',emo:'🎅',de:'der Weih\u00ADnachts\u00ADmann',name:'le père Noël',price:250,gift:'avent'},
+  {id:'stern',cat:'hat',emo:'⭐',de:'der Stern',name:'l\'étoile',price:80,gift:'avent'},
+  {id:'flocke',cat:'hat',emo:'❄️',de:'die Schnee\u00ADflocke',name:'le flocon de neige',price:80,gift:'avent'},
+  {id:'geschenk',cat:'acc',emo:'🎁',de:'das Geschenk',name:'le cadeau',price:60,gift:'avent'},
+  {id:'glocke',cat:'acc',emo:'🔔',de:'die Glocke',name:'la cloche',price:60,gift:'avent'},
+  {id:'tannenbaum',cat:'acc',emo:'🎄',de:'der Tannen\u00ADbaum',name:'le sapin de Noël',price:80,gift:'avent'},
+  {id:'plaetzchen',cat:'acc',emo:'🍪',de:'das Plätz\u00ADchen',name:'le biscuit de Noël',price:40,gift:'avent'},
+  {id:'schal',cat:'acc',emo:'🧣',de:'der Schal',name:'l\'écharpe',price:60,gift:'avent'},
+  {id:'stiefel',cat:'acc',emo:'🥾',de:'der Stiefel',name:'la botte',price:60,gift:'avent'},
+  {id:'schlitten',cat:'acc',emo:'🛷',de:'der Schlitten',name:'la luge',price:80,gift:'avent'}
 ];
 const SHOPK=Object.fromEntries(SHOP.map(x=>[x.id,x]));
-/* objets de saison : en vente seulement pendant leur période (chaque année), annoncés « soon » jours avant */
-const SEASONS={halloween:{from:[9,17],to:[10,2],soon:7,emo:'🎃',title:'Spécial Halloween',de:'Süßes oder Saures!',fr:'des bonbons ou un sort !',teaser:'citrouille, fantôme, vampire, sorcière…'}};
-function seasonWin(id,now=Date.now()){
+/* Saisons : réglées dans la console (document config/saisons) : état « off » (rien), « apercu » (annoncé,
+   mais rien n'est en vente / aucune case ne s'ouvre) ou « tout » (annoncé « soon » jours avant, puis actif
+   pendant les dates). Sans réglage : Halloween revient chaque année du 17 octobre au 2 novembre, et le
+   calendrier de l'Avent (1er → 24 décembre) est seulement annoncé. */
+const SEASONS={
+  halloween:{kind:'shop',from:[9,17],to:[10,2],soon:7,mode:'tout',max:62,emo:'🎃',title:'Spécial Halloween',de:'Süßes oder Saures!',fr:'des bonbons ou un sort !',teaser:'citrouille, fantôme, vampire, sorcière…'},
+  avent:{kind:'cal',from:[11,1],to:[11,24],soon:60,mode:'apercu',max:30,emo:'🎄',title:'Calendrier de l\'Avent',de:'der Advents\u00ADkalender',fr:'le calendrier de l\'Avent'}
+};
+const SEAS={cfg:null,key:''};
+const SEAS_KEY='operation-bretzel-saisons';
+try{const c=JSON.parse(localStorage.getItem(SEAS_KEY)||'null');SEAS.cfg=c&&typeof c==='object'?c:null;}catch(e){}
+/* « AAAA-MM-JJ » → minuit ce jour-là (heure de l'appareil) */
+const ymdT=v=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v||''));if(!m)return NaN;const d=new Date(+m[1],+m[2]-1,+m[3]);return d.getMonth()===+m[2]-1&&d.getDate()===+m[3]?d.getTime():NaN;};
+/* les réglages d'une saison : ceux de la console s'ils sont bons, sinon ceux par défaut */
+function seasonCfg(id,now=Date.now()){
   const z=SEASONS[id];if(!z)return null;
-  const win=y=>({a:new Date(y,z.from[0],z.from[1]).getTime(),b:new Date(y,z.to[0],z.to[1],23,59,59,999).getTime()});
-  let w=win(new Date(now).getFullYear());if(now>w.b)w=win(new Date(now).getFullYear()+1);
-  return Object.assign(w,{st:now>=w.a?'on':now>=w.a-z.soon*86400e3?'soon':'off'});
+  const all=SEAS.cfg&&typeof SEAS.cfg==='object'?SEAS.cfg:null;
+  const c=all&&all[id]&&typeof all[id]==='object'&&!Array.isArray(all[id])?all[id]:null;
+  const mode=c&&['off','apercu','tout'].includes(c.mode)?c.mode:z.mode;
+  const soon=c&&c.teaser!==undefined&&c.teaser!==null&&Number.isFinite(+c.teaser)?Math.max(0,Math.min(120,Math.round(+c.teaser))):z.soon;
+  let a=c?ymdT(c.start):NaN,b=c?ymdT(c.end):NaN;
+  if(a<=b&&b-a<=z.max*86400e3){const e=new Date(b);e.setHours(23,59,59,999);b=e.getTime();}
+  else{
+    const win=y=>[new Date(y,z.from[0],z.from[1]).getTime(),new Date(y,z.to[0],z.to[1],23,59,59,999).getTime()];
+    [a,b]=win(new Date(now).getFullYear());if(now>b)[a,b]=win(new Date(now).getFullYear()+1);
+  }
+  return {id,mode,a,b,soon,c:c||{},set:!!c};
 }
-const forSale=x=>!x.season||seasonWin(x.season).st==='on';
+function seasonWin(id,now=Date.now()){
+  const k=seasonCfg(id,now);if(!k)return null;
+  const early=now>=k.a-k.soon*86400e3;
+  const st=k.mode==='off'||now>k.b?'off':k.mode==='apercu'?(k.set||early?'soon':'off'):now>=k.a?'on':early?'soon':'off';
+  return {a:k.a,b:k.b,st,mode:k.mode};
+}
+const forSale=x=>!x.gift&&(!x.season||seasonWin(x.season).st==='on');
 const dayMonth=t=>{const d=new Date(t);return `${['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'][d.getDay()]} ${d.getDate()}${d.getDate()===1?'er':''} ${['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'][d.getMonth()]}`;};
 /* le nom allemand sans les petits tirets cachés (pour la voix), et les deux noms ensemble pour les messages */
 const deTxt=x=>String(x.de||'').replace(/\u00AD/g,'');
 const deFr=x=>`<b lang="de">${esc(x.de)}</b> (${esc(x.name)})`;
-KEEP_KEYS.push('shop','mapDone','mapInit','adminAt','nick','pwTemp');
+KEEP_KEYS.push('shop','mapDone','mapInit','adminAt','nick','pwTemp','avent','codes');
 
 function kindOf(id){
   if(STATIC[id])return STATIC[id].kind;
@@ -1423,7 +1508,7 @@ function answerText(q){
    État + sauvegarde
    ========================================================= */
 const KEY='operation-bretzel-v1';
-const fresh=()=>({v:1,xp:0,stars:{},ghosts:{},best:{blitz:0,memory:0,combo:0},stats:{answered:0,correct:0,rounds:0,slain:0,dict:0,daily:0,boss:0},settings:{sound:true,voice:true},seenIntro:false,streak:{days:0,best:0,last:''},badges:{},boss:{},news:'',shop:{owned:{},spent:0,bonus:0,eq:{char:'bear',hat:'',acc:'',bg:'gold'}},mapDone:{},mapInit:false,adminAt:0,nick:'',pwTemp:false,updatedAt:0,rev:0,syncedRev:0,syncBase:0});
+const fresh=()=>({v:1,xp:0,stars:{},ghosts:{},best:{blitz:0,memory:0,combo:0},stats:{answered:0,correct:0,rounds:0,slain:0,dict:0,daily:0,boss:0},settings:{sound:true,voice:true},seenIntro:false,streak:{days:0,best:0,last:''},badges:{},boss:{},news:'',shop:{owned:{},spent:0,bonus:0,eq:{char:'bear',hat:'',acc:'',bg:'gold'}},mapDone:{},mapInit:false,adminAt:0,nick:'',pwTemp:false,avent:{},codes:{},updatedAt:0,rev:0,syncedRev:0,syncBase:0});
 function merge(base,o){
   if(!o||typeof o!=='object')return base;
   for(const k of Object.keys(base)){
@@ -1478,8 +1563,12 @@ function combine(a,b){
   o.mapDone=Object.assign({},b.mapDone||{},a.mapDone||{});o.mapInit=!!(a.mapInit||b.mapInit);
   o.adminAt=Math.max(a.adminAt||0,b.adminAt||0);
   o.nick=a.nick||b.nick||'';o.pwTemp=!!(a.pwTemp||b.pwTemp);
+  o.avent=avUnion(a.avent,b.avent);o.codes=Object.assign({},objOr(b.codes),objOr(a.codes));
   return o;
 }
+const objOr=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
+/* cases du calendrier ouvertes sur deux appareils : on garde tout (par année) */
+function avUnion(p,q){const o={};for(const x of [q,p])for(const [y,m] of Object.entries(objOr(x)))if(m&&typeof m==='object')o[y]=Object.assign({},o[y]||{},m);return o;}
 
 /* Deux appareils ont changé des choses chacun de son côté : on garde la version x
    et on y ajoute ce que y a gagné ou acheté (achats, carte, badges, boss, étoiles, série,
@@ -1503,6 +1592,7 @@ function keepBoth(x,y){
   x.adminAt=Math.max(x.adminAt||0,y.adminAt||0);
   if(!x.nick&&y.nick)x.nick=y.nick;
   x.pwTemp=!!(x.pwTemp&&y.pwTemp);
+  x.avent=avUnion(x.avent,y.avent);x.codes=Object.assign({},objOr(y.codes),objOr(x.codes));
   return x;
 }
 
@@ -1819,7 +1909,7 @@ const ghostIds=()=>Object.entries(state.ghosts).sort((a,b)=>(b[1].fails-a[1].fai
 /* =========================================================
    Écrans
    ========================================================= */
-const SCR={home:$('#scr-home'),play:$('#scr-play'),result:$('#scr-result'),memory:$('#scr-memory'),auth:$('#scr-auth'),account:$('#scr-account'),map:$('#scr-map'),shop:$('#scr-shop')};
+const SCR={home:$('#scr-home'),play:$('#scr-play'),result:$('#scr-result'),memory:$('#scr-memory'),auth:$('#scr-auth'),account:$('#scr-account'),map:$('#scr-map'),shop:$('#scr-shop'),avent:$('#scr-avent')};
 let screen='home';
 function show(name){
   for(const [k,el] of Object.entries(SCR))el.hidden=k!==name;
@@ -2034,6 +2124,9 @@ function renderAccount(){
     ${Acc.role?`<section class="panel adminpanel" id="adminpanel"><h2><span class="emo">${Acc.role==='super'?'👑':'🛠️'}</span>${Acc.role==='super'?'Super-administrateur':'Administrateur'}</h2>
       <p>${Acc.role==='super'?'Tu as tous les droits sur le jeu, et tu choisis les autres administrateurs.':'Le super-administrateur t\'a donné des droits sur le jeu.'} Connecte-toi à la console avec ton identifiant et ton mot de passe.</p>
       <a class="btn full" href="admin.html" target="_blank" rel="noopener" id="admin-link"><span class="emo">🖥️</span> Ouvrir la console d'administration</a></section>`:''}
+    <section class="panel codepanel" id="codepanel"><h2><span class="emo">🎟️</span> Code cadeau</h2>
+      <p>Tu as reçu un code ? Tape-le pour gagner des bretzels, des XP ou un objet pour ton avatar.</p>
+      <button class="btn full" data-act="code" id="code-open">J'ai un code cadeau</button></section>
     <section class="panel">
       ${pwOpen?`<form id="pwform" novalidate><h2>Changer mon mot de passe</h2>
         <label class="lbl" for="f-pwold">Mot de passe actuel</label>
@@ -2175,6 +2268,7 @@ const evLeft=ms=>{const m=Math.max(1,Math.round(ms/60000));if(m<60)return `${m} 
 async function evLoad(){
   if(!Acc.F||!Acc.db)return;
   EV.loadedAt=Date.now();
+  seasLoad();
   try{
     const snap=await Acc.F.getDoc(Acc.F.doc(Acc.db,'config','evenement'));
     EV.cur=evSane(snap.exists()?snap.data():null);
@@ -2719,9 +2813,9 @@ function renderShop(){
   SCR.shop.innerHTML=`<div class="topbar"><button class="icon-btn" data-act="home" aria-label="Retour au QG">✕</button><h2 style="font-size:24px">Boutique</h2><span class="coins" style="margin-left:auto">🥨 ${c}</span></div>
   <div class="stack">
     <section class="panel shophead">${avatarHtml('big')}
-      <div><h3>Ton avatar</h3><p>Tu gagnes <b>1 🥨 tous les 10 XP</b>, et <b>+${MAP_BONUS} 🥨</b> à chaque nouvelle étape de la carte d'aventure.</p><p class="dds">Les noms sont en allemand : <b>der</b> = masculin, <b>die</b> = féminin, <b>das</b> = neutre.</p></div></section>
+      <div><h3>Ton avatar</h3><p>Tu gagnes <b>1 🥨 tous les 10 XP</b>, et <b>+${MAP_BONUS} 🥨</b> à chaque nouvelle étape de la carte d'aventure.</p><p class="dds">Les noms sont en allemand : <b>der</b> = masculin, <b>die</b> = féminin, <b>das</b> = neutre.</p><p class="dds"><button class="link" data-act="code">🎟️ J'ai un code cadeau</button></p></div></section>
     ${Object.keys(SEASONS).map(k=>seasonShop(k,s,c)).join('')}
-    ${SHOP_CATS.map(([cat,label])=>`<section><h2 class="h2" style="margin-top:6px">${label}</h2><div class="sgrid">${SHOP.filter(x=>x.cat===cat&&(!x.season||(owns(x.id)&&seasonWin(x.season).st==='off'))).map(x=>shopCard(x,s,c,false)).join('')}</div></section>`).join('')}
+    ${SHOP_CATS.map(([cat,label])=>`<section><h2 class="h2" style="margin-top:6px">${label}</h2><div class="sgrid">${SHOP.filter(x=>x.cat===cat&&(x.gift?owns(x.id):(!x.season||(owns(x.id)&&seasonWin(x.season).st==='off')))).map(x=>shopCard(x,s,c,false)).join('')}</div></section>`).join('')}
   </div>`;
 }
 function shopCard(x,s,c,locked){
@@ -2732,30 +2826,248 @@ function shopCard(x,s,c,locked){
 }
 /* la section d'une saison dans la boutique : en vente (« on ») ou annoncée (« soon ») */
 function seasonShop(k,s,c){
-  const w=seasonWin(k),z=SEASONS[k];if(w.st==='off')return '';
+  const w=seasonWin(k),z=SEASONS[k];if(w.st==='off'||z.kind!=='shop')return '';
   return `<section class="panel season s-${k}"><h2 class="h2"><span class="emo">${z.emo}</span> ${esc(z.title)}</h2>
     <p class="sde"><b lang="de">${esc(z.de)}</b> <span>(= ${esc(z.fr)})</span></p>
-    <p class="swhen">${w.st==='on'?`En vente seulement jusqu'au <b>${esc(dayMonth(w.b))}</b> ! Après, il faudra attendre l'année prochaine. Ce que tu achètes, tu le gardes.`:`Ces objets seront en vente du <b>${esc(dayMonth(w.a))}</b> au <b>${esc(dayMonth(w.b))}</b>, et seulement pendant ces jours-là. Prépare tes bretzels !`}</p>
+    <p class="swhen">${w.st==='on'?`En vente seulement jusqu'au <b>${esc(dayMonth(w.b))}</b> ! Après, il faudra attendre l'année prochaine. Ce que tu achètes, tu le gardes.`:Date.now()<w.a?`Ces objets seront en vente du <b>${esc(dayMonth(w.a))}</b> au <b>${esc(dayMonth(w.b))}</b>, et seulement pendant ces jours-là. Prépare tes bretzels !`:'Ces objets seront bientôt en vente, pour quelques jours seulement. Prépare tes bretzels !'}</p>
     <div class="sgrid">${SHOP.filter(x=>x.season===k).map(x=>shopCard(x,s,c,w.st!=='on')).join('')}</div></section>`;
 }
 /* bandeau sur le QG pendant la saison (et la semaine d'avant) */
 function seasonBanner(){
   return Object.keys(SEASONS).map(k=>{const w=seasonWin(k),z=SEASONS[k];if(w.st==='off')return '';
+    if(z.kind==='cal')return avBanner(w);
     return `<section class="panel seasonban s-${k}" id="seasonban-${k}"><span class="emo" aria-hidden="true">${z.emo}</span><div>
       <h3>${w.st==='on'?`${esc(z.title)} dans la boutique !`:`Bientôt : ${esc(z.title)}`}</h3>
-      <p>${w.st==='on'?`Des objets en plus (${esc(z.teaser)}), en vente seulement jusqu'au ${esc(dayMonth(w.b))}.`:`Des objets d'Halloween arrivent dans la boutique le ${esc(dayMonth(w.a))}, pour quelques jours seulement.`}</p>
+      <p>${w.st==='on'?`Des objets en plus (${esc(z.teaser)}), en vente seulement jusqu'au ${esc(dayMonth(w.b))}.`:Date.now()<w.a?`Des objets d'Halloween arrivent dans la boutique le ${esc(dayMonth(w.a))}, pour quelques jours seulement.`:'Des objets d\'Halloween arrivent bientôt dans la boutique, pour quelques jours seulement.'}</p>
       <button class="btn white" data-act="shop">Voir la boutique</button></div></section>`;}).join('');
 }
 function shopItem(id){
   const x=SHOPK[id];if(!x)return;const s=shopState();
   if(!owns(id)){
-    if(!forSale(x)){const w=seasonWin(x.season);toast(`${SEASONS[x.season].emo} ${deFr(x)} n'est en vente que du ${esc(dayMonth(w.a))} au ${esc(dayMonth(w.b))}.`);Sfx.play('bad');return;}
+    if(!forSale(x)){
+      if(x.gift){toast(`🎄 ${deFr(x)} n'est pas en vente : on le trouve dans le calendrier de l'Avent.`);Sfx.play('bad');return;}
+      const w=seasonWin(x.season);toast(w.st==='soon'&&Date.now()>=w.a?`${SEASONS[x.season].emo} ${deFr(x)} sera bientôt en vente.`:`${SEASONS[x.season].emo} ${deFr(x)} n'est en vente que du ${esc(dayMonth(w.a))} au ${esc(dayMonth(w.b))}.`);Sfx.play('bad');return;}
     const c=coins();
     if(c<x.price){toast(`Il te manque <b>${x.price-c} 🥨</b> pour ${deFr(x)}. Joue encore un peu !`);const m=$(`[data-id="${id}"]`);if(m){m.classList.remove('nope');void m.offsetWidth;m.classList.add('nope');}Sfx.play('bad');return;}
     s.owned[id]=Date.now();s.spent=spentOf(s);s.eq[x.cat]=id;s.eqAt=Date.now();toast(`Bravo ! Tu as acheté ${deFr(x)} <span class="emo">🎉</span>`);Sfx.play('rank');confetti(30);Voice.say(deTxt(x));
   }else if(s.eq[x.cat]===id&&(x.cat==='hat'||x.cat==='acc')){s.eq[x.cat]='';s.eqAt=Date.now();toast(`Tu as enlevé ${deFr(x)}.`);}
   else{s.eq[x.cat]=id;s.eqAt=Date.now();Sfx.play('good');Voice.say(deTxt(x));}
   save();applyBg();const y=window.scrollY;renderShop();window.scrollTo(0,y);
+}
+
+/* ---------- Calendrier de l'Avent ---------- */
+/* le contenu des cases par défaut (la console peut le changer) : 14 objets de Noël et des bretzels */
+const AV_DEF=[{t:'b',n:10},{t:'o',id:'stern'},{t:'b',n:15},{t:'o',id:'plaetzchen'},{t:'b',n:10},{t:'o',id:'stiefel'},{t:'b',n:20},{t:'o',id:'flocke'},
+  {t:'b',n:15},{t:'o',id:'glocke'},{t:'b',n:20},{t:'o',id:'schneemann'},{t:'b',n:15},{t:'o',id:'schal'},{t:'b',n:25},{t:'o',id:'schlitten'},
+  {t:'b',n:20},{t:'o',id:'wichtel'},{t:'o',id:'engel'},{t:'o',id:'geschenk'},{t:'o',id:'rentier'},{t:'b',n:30},{t:'o',id:'tannenbaum'},{t:'o',id:'weihnachtsmann'}];
+const AV_MOIS=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+const avItem=id=>{const x=SHOPK[id];return x&&x.cat!=='bg'?x:null;};
+/* une case : un objet pour l'avatar (personnage, chapeau ou accessoire) ou des bretzels (1 à 500) */
+function avBox(c,i){
+  if(c&&typeof c==='object'){if(c.t==='o'&&avItem(c.id))return {t:'o',id:c.id};const n=Math.round(+c.n);if(c.t==='b'&&n>=1&&n<=500)return {t:'b',n};}
+  const d=AV_DEF[i];return d&&d.t==='o'&&avItem(d.id)?{t:'o',id:d.id}:{t:'b',n:(d&&d.n)||10};
+}
+function avCal(now=Date.now()){
+  const k=seasonCfg('avent',now),w=seasonWin('avent',now);
+  const last=new Date(k.b);last.setHours(0,0,0,0);
+  const n=Math.max(1,Math.min(31,Math.round((last.getTime()-k.a)/86400e3)+1));
+  const cases=Array.isArray(k.c.cases)?k.c.cases:[],days=[];
+  for(let i=0;i<n;i++){const a=new Date(k.a);a.setDate(a.getDate()+i);a.setHours(0,0,0,0);const b=new Date(a);b.setHours(23,59,59,999);days.push({k:i+1,a:a.getTime(),b:b.getTime(),box:avBox(cases[i],i)});}
+  const deja=k.c.deja!==undefined&&k.c.deja!==null&&Number.isFinite(+k.c.deja)?Math.max(0,Math.min(500,Math.round(+k.c.deja))):20;
+  return {st:w.st,mode:k.mode,a:k.a,b:k.b,days,y:String(new Date(k.a).getFullYear()),rattrapage:k.c.rattrapage!==false,deja,today:w.st==='on'?days.find(d=>now>=d.a&&now<=d.b)||null:null};
+}
+const avOpened=y=>{const o=objOr(state.avent)[y];return o&&typeof o==='object'?o:{};};
+/* une case : « open » (déjà ouverte), « today », « past » (jour passé, on peut encore l'ouvrir), « missed » ou « locked » */
+function avState(cal,d,now=Date.now()){
+  if(avOpened(cal.y)[d.k])return 'open';
+  if(cal.st!=='on'||now<d.a)return 'locked';
+  if(now<=d.b)return 'today';
+  return cal.rattrapage?'past':'missed';
+}
+/* les cases dans le désordre, comme un vrai calendrier (toujours le même ordre) */
+function avOrder(n){const a=[...Array(n).keys()];let r=n*7919+13;for(let i=n-1;i>0;i--){r=(r*48271)%2147483647;const j=r%(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
+const avDate=t=>{const d=new Date(t);return `${d.getDate()}${d.getDate()===1?'er':''} ${AV_MOIS[d.getMonth()]}`;};
+function avBanner(w){
+  const cal=avCal(),now=Date.now();
+  let h,p,btn;
+  if(w.st==='on'){
+    const t=cal.today,todo=cal.days.filter(d=>{const x=avState(cal,d,now);return x==='today'||x==='past';}).length;
+    h='Calendrier de l\'Avent';btn='Ouvrir le calendrier';
+    p=t&&!avOpened(cal.y)[t.k]?`La case n° ${t.k} t'attend ! Dedans : un emoji pour ton avatar ou des bretzels 🥨.`:todo?`Il te reste ${todo} case${todo>1?'s':''} à ouvrir.`:'Tu as ouvert la case du jour. Reviens demain pour la suivante !';
+  }else{
+    h='Bientôt : le calendrier de l\'Avent !';btn='Voir le calendrier';
+    p=now<cal.a?`Du ${dayMonth(cal.a)} au ${dayMonth(cal.b)}, une case surprise à ouvrir chaque jour : un emoji pour ton avatar ou des bretzels 🥨.`:'Une case surprise à ouvrir chaque jour : un emoji pour ton avatar ou des bretzels 🥨. Il ouvre bientôt !';
+  }
+  return `<section class="panel seasonban s-avent" id="seasonban-avent"><span class="emo" aria-hidden="true">🎄</span><div>
+      <h3>${esc(h)}</h3><p>${esc(p)}</p><button class="btn white" data-act="avent">${btn}</button></div></section>`;
+}
+function renderAvent(){
+  const cal=avCal(),now=Date.now();
+  if(cal.st==='off'){show('home');renderHome();return;}
+  const op=avOpened(cal.y),nOpen=cal.days.filter(d=>op[d.k]).length,N=cal.days.length;
+  const txt=cal.st==='on'?`Une case par jour, jusqu'au <b>${esc(dayMonth(cal.b))}</b>. Dans chaque case : un emoji pour ton avatar ou des bretzels 🥨. ${cal.rattrapage?'Tu as raté un jour ? Tu peux encore ouvrir les cases d\'avant.':'Attention : une case qui n\'est pas ouverte le jour même est perdue !'}`
+    :now<cal.a?`Il ouvre le <b>${esc(dayMonth(cal.a))}</b> ! Ensuite, une case surprise chaque jour jusqu'au <b>${esc(dayMonth(cal.b))}</b> : un emoji pour ton avatar ou des bretzels 🥨.`
+    :'Il ouvre bientôt ! Chaque jour, une case surprise : un emoji pour ton avatar ou des bretzels 🥨.';
+  SCR.avent.innerHTML=`<div class="topbar"><button class="icon-btn" data-act="home" aria-label="Retour au QG">✕</button><h2 style="font-size:22px">Calendrier de l'Avent</h2><span class="coins" style="margin-left:auto">🥨 ${coins()}</span></div>
+  <div class="stack">
+    <section class="panel avhead"><span class="emo" aria-hidden="true">🎄</span><div><h3 lang="de">der Advents\u00ADkalender</h3><p class="avfr">= le calendrier de l'Avent</p><p>${txt}</p>${cal.st==='on'?`<p><span class="avcount">${nOpen} / ${N} case${N>1?'s':''} ouverte${N>1?'s':''}</span></p>`:''}</div></section>
+    <section class="panel avwrap"><div class="avgrid">${avOrder(N).map(i=>avCell(cal,cal.days[i],now)).join('')}</div></section>
+  </div>`;
+}
+function avCell(cal,d,now){
+  const st=avState(cal,d,now),b=d.box,x=b.t==='o'?SHOPK[b.id]:null;
+  const lab=st==='open'?(x?`ouverte : ${deTxt(x)} (${x.name})`:`ouverte : ${b.n} bretzels`):st==='today'?'à ouvrir aujourd\'hui':st==='past'?'à ouvrir (jour passé)':st==='missed'?'ratée':'fermée';
+  const inside=st==='open'?(x?`<span class="emo">${x.emo}</span>`:'<span class="avb">🥨</span>'):'';
+  const tag=st==='today'?'<span class="avtag">Aujourd\'hui</span>':st==='past'?'<span class="avtag">À ouvrir</span>':st==='missed'?'<span class="avtag">Ratée</span>':st==='open'&&!x?`<span class="avtag">+${b.n}</span>`:'';
+  return `<button class="avc ${st}" data-act="avbox" data-k="${d.k}" aria-label="Case ${d.k} (${esc(avDate(d.a))}) : ${esc(lab)}"><span class="avn">${d.k}</span>${inside}${tag}</button>`;
+}
+function avOpenBox(k){
+  const cal=avCal(),now=Date.now(),d=cal.days[k-1];if(!d)return;
+  const st=avState(cal,d,now),el=$(`.avc[data-k="${k}"]`);
+  const nope=m=>{toast(m);Sfx.play('bad');if(el){el.classList.remove('nope');void el.offsetWidth;el.classList.add('nope');}};
+  if(st==='open'){const b=d.box,x=b.t==='o'?SHOPK[b.id]:null;toast(`Case ${k} : ${x?deFr(x):`${b.n} 🥨`}. Tu l'as déjà ouverte !`);if(x)Voice.say(deTxt(x));return;}
+  if(st==='locked')return nope(cal.st==='on'?`Patience ! La case ${k} s'ouvre le ${esc(dayMonth(d.a))}.`:now<cal.a?`Patience ! Le calendrier ouvre le ${esc(dayMonth(cal.a))}.`:'Patience ! Le calendrier ouvre bientôt.');
+  if(st==='missed')return nope(`Trop tard : la case ${k} était pour le ${esc(dayMonth(d.a))}.`);
+  const s=shopState(),b=d.box,x=b.t==='o'?SHOPK[b.id]:null;let got;
+  if(x&&!owns(x.id)){s.owned[x.id]=now;s.bonus+=x.price||0;s.spent=spentOf(s);got={item:x};}
+  else{const n=x?cal.deja:b.n;s.bonus+=n;got={n,was:x};}
+  state.avent=Object.assign({},objOr(state.avent),{[cal.y]:Object.assign({},avOpened(cal.y),{[k]:now})});
+  save();Sync.flush();
+  renderAvent();avReveal(k,d,got);Sfx.play('rank');confetti(40);if(got.item)Voice.say(deTxt(got.item));
+}
+function avReveal(k,d,got){
+  const x=got.item,day=new Date(d.a),m=day.getMonth(),j=day.getDate();
+  const fact=m===11&&j===6?'<p class="avfact">🥾 Heute ist <b lang="de">Nikolaustag</b> ! En Allemagne, le soir du 5 décembre, les enfants posent leurs bottes devant la porte, et le matin <b lang="de">der Nikolaus</b> les a remplies de bonbons.</p>'
+    :m===11&&j===24?'<p class="avfact">🎄 <b lang="de">Frohe Weihnachten!</b> (= Joyeux Noël !) En Allemagne, on ouvre les cadeaux le soir du 24 décembre : <b lang="de">der Heiligabend</b>.</p>':'';
+  const body=x?`<div class="avbig emo" aria-hidden="true">${x.emo}</div><h2 id="av-t">Case ${k} : ${deFr(x)} !</h2><p>${x.cat==='char'?'Un nouveau personnage':x.cat==='hat'?'Un nouveau chapeau':'Un nouvel accessoire'} pour ton avatar. Il est rangé dans la boutique.</p>`
+    :`<div class="avbig emo" aria-hidden="true">🥨</div><h2 id="av-t">Case ${k} : +${got.n} bretzels !</h2><p>${got.was?`Tu avais déjà ${deFr(got.was)}, alors voici des bretzels à la place. `:''}Tu as maintenant <b>${coins()} 🥨</b>.</p>`;
+  avClose();
+  document.body.insertAdjacentHTML('beforeend',`<div class="modal" id="avmodal" role="dialog" aria-modal="true" aria-labelledby="av-t"><div class="modal-in avmodal">${body}${fact}
+    <div class="row">${x?`<button class="btn" data-act="avwear" data-id="${x.id}">Mettre sur mon avatar</button><button class="btn white" data-act="avclose" id="av-ok">Plus tard</button>`:'<button class="btn dark" data-act="avclose" id="av-ok">Super !</button>'}</div></div></div>`);
+  setTimeout(()=>{try{$('#av-ok').focus();}catch(e){}},60);
+}
+function avClose(){const m=$('#avmodal');if(m)m.remove();}
+function avWear(id){
+  const x=SHOPK[id];avClose();if(!x||!owns(id))return;
+  const s=shopState();s.eq[x.cat]=id;s.eqAt=Date.now();save();applyBg();
+  toast(`Tu portes ${deFr(x)} <span class="emo">${x.emo}</span>`);Sfx.play('good');
+  if(screen==='avent')renderAvent();
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#avmodal'))avClose();if($('#codemodal'))codeClose();}});
+document.addEventListener('click',e=>{if(e.target&&e.target.id==='avmodal')avClose();if(e.target&&e.target.id==='codemodal')codeClose();});
+
+/* ---------- les réglages des saisons (console) : lus avec l'événement, gardés pour la prochaine fois ---------- */
+async function seasLoad(){
+  if(!Acc.F||!Acc.db)return;
+  try{
+    const snap=await Acc.F.getDoc(Acc.F.doc(Acc.db,'config','saisons'));
+    const v=snap.exists()?snap.data():null;
+    if(JSON.stringify(v)!==JSON.stringify(SEAS.cfg)){SEAS.cfg=v&&typeof v==='object'?v:null;try{localStorage.setItem(SEAS_KEY,JSON.stringify(SEAS.cfg));}catch(e){}seasRedraw();}
+  }catch(e){/* hors ligne, ou règles pas encore mises à jour : on garde ce qu'on avait */}
+}
+const seasKey=()=>Object.keys(SEASONS).map(k=>seasonWin(k).st).join(',')+'|'+((avCal().today||{}).k||0);
+function seasRedraw(){
+  SEAS.key=seasKey();
+  if(screen==='home')renderHome();
+  else if(screen==='avent')renderAvent();
+  else if(screen==='shop'){const y=window.scrollY;renderShop();window.scrollTo(0,y);}
+}
+/* à minuit : nouvelle case, début ou fin d'une saison */
+SEAS.key=seasKey();
+setInterval(()=>{const k=seasKey();if(k!==SEAS.key)seasRedraw();},30000);
+
+/* ---------- Codes cadeaux (créés dans la console : codes/{CODE}) ---------- */
+const codeKey=v=>String(v||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'').replace(/[\u2010-\u2015]/g,'-');
+function codeSane(d){
+  d=objOr(d);const n=(v,max)=>{const x=Math.round(Number(v));return Number.isFinite(x)?Math.max(0,Math.min(max,x)):0;};
+  return {bretzels:n(d.bretzels,1000),xp:n(d.xp,1000),objets:Array.isArray(d.objets)?d.objets.filter(x=>typeof x==='string'&&SHOPK[x]).slice(0,10):[],
+    limite:n(d.limite,1e6),utilise:Number.isInteger(d.utilise)?d.utilise:0,debut:n(d.debut,9e15),fin:n(d.fin,9e15),
+    pour:Array.isArray(d.pour)?d.pour.filter(x=>typeof x==='string'):[],actif:d.actif===true,msg:String(d.msg||'').slice(0,120),
+    deja:d.deja!==undefined&&d.deja!==null&&Number.isFinite(+d.deja)?n(d.deja,500):20};
+}
+let codeBusy=false;
+function codeForm(){
+  if(profile.type!=='account'||!Acc.on)return `<p>Pour utiliser un code cadeau, connecte-toi à ton compte : ta surprise sera gardée dans ta progression.</p>
+    <div class="row">${Acc.on?'<button class="btn" data-act="codelogin">Me connecter</button>':''}<button class="btn white" data-act="codeclose">Fermer</button></div>`;
+  return `<form id="codeform" novalidate><p style="margin:0">Tu as reçu un code ? Tape-le ici pour gagner ta surprise.</p>
+    <label class="lbl" for="f-code">Ton code</label>
+    <input class="field code" id="f-code" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="30" placeholder="EX. NOEL-K7QX">
+    <p class="err" id="code-err" role="alert"></p>
+    <div class="row"><button class="btn" type="submit" id="code-go">Valider</button><button class="btn white" type="button" data-act="codeclose">Fermer</button></div></form>`;
+}
+function openCode(){
+  codeClose();
+  document.body.insertAdjacentHTML('beforeend',`<div class="modal" id="codemodal" role="dialog" aria-modal="true" aria-labelledby="code-t"><div class="modal-in codemodal"><h2 id="code-t"><span class="emo">🎟️</span> Code cadeau</h2><div id="code-body">${codeForm()}</div></div></div>`);
+  setTimeout(()=>{try{($('#f-code')||$('#codemodal .btn')).focus();}catch(e){}},60);
+}
+function codeClose(){if(codeBusy)return;const m=$('#codemodal');if(m)m.remove();}
+async function submitCode(){
+  if(codeBusy)return;
+  const inp=$('#f-code'),err=$('#code-err');if(!inp)return;
+  const fail=m=>{if(err)err.textContent=m;Sfx.play('bad');try{inp.focus();}catch(e){}};
+  const code=codeKey(inp.value);inp.value=code;
+  if(!code)return fail('Tape ton code.');
+  if(!/^[A-Z0-9-]{3,24}$/.test(code))return fail('Un code n\'a que des lettres, des chiffres et des tirets (3 à 24).');
+  if(objOr(state.codes)[code])return fail('Tu as déjà utilisé ce code.');
+  if(profile.type!=='account'||!Acc.user||!Acc.db||Sync.blocked)return fail('Ton compte n\'est pas connecté pour le moment. Réessaie dans un instant.');
+  codeBusy=true;const go=$('#code-go');if(go){go.disabled=true;go.textContent='Vérification…';}
+  let r;try{r=await claimCode(code);}catch(e){r={err:'Ça n\'a pas marché. Réessaie.'};}
+  codeBusy=false;
+  if(r.done){codeDone(r);return;}
+  if(r.err===null){codeClose();return;}
+  const g=$('#code-go');if(g){g.disabled=false;g.textContent='Valider';}
+  fail(r.err);
+}
+async function claimCode(code){
+  const F=Acc.F,db=Acc.db,uid=profile.uid,ref=F.doc(db,'codes',code),netMsg='Pas de connexion internet : réessaie un peu plus tard.';
+  let snap;
+  try{snap=await F.getDoc(ref);}
+  catch(e){const c=String(e&&e.code);return {err:c==='permission-denied'?'Les codes cadeaux ne sont pas encore activés dans le jeu.':c==='unavailable'?netMsg:`Ça n'a pas marché (${c}). Réessaie.`};}
+  if(profile.uid!==uid)return {err:null};
+  if(!snap.exists())return {err:'Ce code n\'existe pas. Vérifie les lettres et les chiffres.'};
+  const c=codeSane(snap.data()),now=Date.now();
+  if(!c.actif)return {err:'Ce code est en pause pour le moment.'};
+  if(c.debut&&now<c.debut)return {err:`Ce code ne marche pas encore : rendez-vous ${evDay(c.debut)} à ${evHm(c.debut)}.`};
+  if(c.fin&&now>c.fin)return {err:'Ce code a expiré.'};
+  if(c.pour.length&&!c.pour.includes(uid))return {err:'Ce code est réservé à d\'autres joueurs.'};
+  if(c.limite&&c.utilise>=c.limite)return {err:'Trop tard : ce code a déjà été utilisé par tous les joueurs prévus.'};
+  try{
+    const b=F.writeBatch(db);
+    b.update(ref,{utilise:c.utilise+1});
+    b.set(F.doc(db,'codes',code,'uses',uid),{at:now,pseudo:String(profile.pseudo||'').slice(0,40)});
+    await b.commit();
+  }catch(e){
+    const k=String(e&&e.code);
+    if(k!=='permission-denied')return {err:k==='unavailable'?netMsg:`Ça n'a pas marché (${k}). Réessaie.`};
+    try{const u=await F.getDoc(F.doc(db,'codes',code,'uses',uid));if(u.exists()){state.codes=Object.assign({},objOr(state.codes),{[code]:num0(u.data().at)||now});save();return {err:'Tu as déjà utilisé ce code.'};}}catch(x){}
+    if(await checkSuspended())return {err:null};
+    return {err:'Ce code ne marche plus : il vient peut-être d\'être utilisé par d\'autres joueurs. Réessaie.'};
+  }
+  if(profile.uid!==uid)return {err:null};
+  return giveCode(code,c);
+}
+const num0=v=>Number.isFinite(+v)?+v:0;
+function giveCode(code,c){
+  const s=shopState(),now=Date.now(),got=[];let extra=0;
+  if(c.bretzels){s.bonus+=c.bretzels;got.push(`<b>+${c.bretzels} 🥨</b> pour la boutique`);}
+  if(c.xp){state.xp=(state.xp||0)+c.xp;got.push(`<b>+${c.xp} XP</b>`);}
+  for(const id of c.objets){const x=SHOPK[id];if(!x)continue;
+    if(owns(id)){extra+=c.deja;continue;}
+    s.owned[id]=now;s.bonus+=x.price||0;got.push(`${x.emo?`<span class="emo">${x.emo}</span> `:'🎨 '}${deFr(x)}`);}
+  if(extra){s.bonus+=extra;got.push(`<b>+${extra} 🥨</b> à la place d'un objet que tu avais déjà`);}
+  s.spent=spentOf(s);
+  state.codes=Object.assign({},objOr(state.codes),{[code]:now});
+  save();Sync.flush();
+  return {done:true,code,got,msg:c.msg,items:c.objets.filter(id=>SHOPK[id]&&owns(id))};
+}
+function codeDone(r){
+  const b=$('#code-body');if(!b)return;
+  b.innerHTML=`<div class="avbig emo" aria-hidden="true">🎁</div><h3 class="codeok">Bravo, le code ${esc(r.code)} marche !</h3>${r.msg?`<p class="codemsg">« ${esc(r.msg)} »</p>`:''}
+    <p style="margin:6px 0 0">Tu as gagné :</p><ul class="codegot">${r.got.map(g=>`<li>${g}</li>`).join('')||'<li>une surprise !</li>'}</ul>
+    <div class="row">${r.items.length?'<button class="btn" data-act="codeshop">Voir la boutique</button>':''}<button class="btn ${r.items.length?'white':'dark'}" data-act="codeclose" id="code-ok">Super !</button></div>`;
+  Sfx.play('rank');confetti(40);
+  setTimeout(()=>{try{$('#code-ok').focus();}catch(e){}},60);
+  if(screen==='home')renderHome();else if(screen==='account')renderAccount();else if(screen==='shop'){const y=window.scrollY;renderShop();window.scrollTo(0,y);}
 }
 
 /* ---------- Carte d'aventure ---------- */
@@ -2952,6 +3264,14 @@ const ACT={
   shop(){show('shop');renderShop();},
   mapgo(a){mapGo(+a.dataset.i);},
   shopitem(a){shopItem(a.dataset.id);},
+  avent(){show('avent');renderAvent();},
+  avbox(a){avOpenBox(+a.dataset.k);},
+  avwear(a){avWear(a.dataset.id);},
+  avclose(){avClose();},
+  code(){openCode();},
+  codeclose(){codeClose();},
+  codelogin(){codeClose();openAuth('login',screen==='home'?'home':'welcome');},
+  codeshop(){codeClose();show('shop');renderShop();},
   home(){quitNow();},
   quit(){
     const box=$('#quitbox');if(!box||(run&&run.mode==='blitz'))return quitNow();
@@ -3014,6 +3334,7 @@ document.addEventListener('submit',e=>{
   if(e.target.id==='delform'){e.preventDefault();submitDelete();return;}
   if(e.target.id==='pwform'){e.preventDefault();submitPw();return;}
   if(e.target.id==='pwtempform'){e.preventDefault();submitPwTemp();return;}
+  if(e.target.id==='codeform'){e.preventDefault();submitCode();return;}
   if(e.target.id!=='typer')return;e.preventDefault();
   if(!run||run.answered)return;const q=run.queue[run.i].q;const inp=$('#ans');const given=inp.value;
   const r=checkTyped(given,q);

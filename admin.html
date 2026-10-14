@@ -64,7 +64,7 @@ button{cursor:default}
 .search{display:flex;align-items:center;gap:6px;padding:5px 2px;flex:none}
 .search input{flex:1;min-width:0}
 .list{flex:1;min-height:0;overflow:auto;background:#fff}
-input[type=text],input[type=password],input[type=number],input[type=search],input[type=datetime-local],select,textarea{background:#fff;border:1px solid;border-color:var(--shadow) var(--light) var(--light) var(--shadow);box-shadow:inset 1px 1px var(--dark),inset -1px -1px var(--face-hi);padding:2px 4px;height:22px;border-radius:0;outline:none}
+input[type=text],input[type=password],input[type=number],input[type=search],input[type=datetime-local],input[type=date],select,textarea{background:#fff;border:1px solid;border-color:var(--shadow) var(--light) var(--light) var(--shadow);box-shadow:inset 1px 1px var(--dark),inset -1px -1px var(--face-hi);padding:2px 4px;height:22px;border-radius:0;outline:none}
 input:focus,select:focus,textarea:focus{outline:1px dotted #000;outline-offset:1px}
 input[readonly]{background:var(--face-hi)}
 input[type=number]{width:92px;text-align:right}
@@ -87,6 +87,22 @@ tr.sel2 td{background:#FFF6C8}
 .kv>div.evon{background:#FFF6C8}
 .rulesbox{background:#FFE9A8}
 .rulesbox .btn{margin-left:6px}
+#szform .v label,#cdform .v label{display:inline-flex;align-items:center;gap:3px;margin-right:8px;white-space:nowrap}
+#szform input[type=date]{min-width:0}
+.szlive{margin:6px 0 0;font-weight:bold;color:#00248F}
+.szbar{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px}
+.szbar .btn{margin-left:4px}
+.avtab td{vertical-align:middle}
+.avtab select{max-width:300px}
+.codegrid td{vertical-align:top}
+.codegrid td.acts{white-space:nowrap}
+.codegrid td.acts .btn.mini{padding:0 4px;margin-left:2px}
+code.cd{font:bold 12px 'Courier New',Courier,monospace;letter-spacing:1px}
+code.cd.big{font-size:16px}
+.chip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--shadow);background:#fff;padding:1px 2px 1px 6px;margin:0 4px 4px 0}
+.chip .btn.mini{height:17px;padding:0 4px;line-height:1}
+.pls{max-height:150px;padding:4px 6px;margin-top:4px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px 10px}
+.pls label{display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kv>div.click:hover{outline:1px dotted #000;outline-offset:-3px}
 
 /* grilles (listes) */
@@ -245,6 +261,8 @@ legend{padding:0 4px;color:#00248F}
     <span class="tsep"></span>
     <button class="tool" data-act="tab" data-tab="ens" title="Vue d'ensemble de tous les joueurs"><span class="i emo">📊</span><span class="lbl">Ensemble</span></button>
     <button class="tool" data-act="event" id="t-ev" title="Lancer un événement XP ou bretzels"><span class="i emo">🎉</span><span class="lbl">Événement</span></button>
+    <button class="tool" data-act="seasons" id="t-sai" title="Saisons : Halloween et calendrier de l'Avent"><span class="i emo">🎄</span><span class="lbl">Saisons</span></button>
+    <button class="tool" data-act="codes" id="t-codes" title="Codes cadeaux"><span class="i emo">🎟️</span><span class="lbl">Codes</span></button>
     <button class="tool" data-act="admins" id="t-adm" title="Administrateurs et leurs droits (super-administrateur)" hidden><span class="i emo">👥</span><span class="lbl">Admins</span></button>
     <button class="tool" data-act="backup" id="t-bak" title="Sauvegarder ou restaurer toutes les progressions (super-administrateur)" hidden><span class="i emo">💾</span><span class="lbl">Sauvegarde</span></button>
     <button class="tool" data-act="export" title="Exporter la liste (tableur)"><span class="i emo">📤</span><span class="lbl">Exporter</span></button>
@@ -289,7 +307,7 @@ legend{padding:0 4px;color:#00248F}
    L'accès est contrôlé par les règles Firestore : seuls les comptes administrateurs
    (leur identifiant technique est dans les règles) peuvent lire les autres fiches.
    ========================================================= */
-const DATA={"worlds":{"cast":{"n":"Qui est qui ?","e":"🎬"},"fam":{"n":"Die Familie","e":"🌳"},"num":{"n":"Die Zahlen","e":"🔢"},"wg":{"n":"Wie geht's ?","e":"🗣️"},"pr":{"n":"Prononciation","e":"🎧"},"moi":{"n":"Ich stelle mich vor","e":"🙋"},"land":{"n":"Länder und Farben","e":"🌍"},"hobby":{"n":"Das ist mein Hobby!","e":"⚽"},"konj":{"n":"Konjugation","e":"🔧"},"meine":{"n":"Meine Familie","e":"🏠"},"plur":{"n":"Wir mögen Sport!","e":"👯"},"patch":{"n":"Die Patchworkfamilie","e":"🧩"},"exam":{"n":"Spécial contrôle","e":"📝"},"tier":{"n":"Mein Haustier","e":"🐱"},"dict":{"n":"Dictée","e":"✍️"}},"themes":[{"t":"Thema 1 : Ich stelle mich vor","w":["moi","land","hobby","konj","wg"]},{"t":"Thema 2 : Die Familie","w":["cast","fam","meine","num","plur","patch","tier"]}],"ranks":[{"xp":0,"de":"Kartoffel","e":"🥔"},{"xp":120,"de":"Brezel","e":"🥨"},{"xp":300,"de":"Würstchen","e":"🌭"},{"xp":550,"de":"Schnitzel","e":"🍖"},{"xp":850,"de":"Kirschtorte","e":"🍰"},{"xp":1250,"de":"Deutsch-Profi","e":"😎"},{"xp":1800,"de":"Legende","e":"🏆"},{"xp":2500,"de":"Superstar","e":"🌟"},{"xp":3300,"de":"Ritter","e":"🛡️"},{"xp":4200,"de":"Zauberer","e":"🧙"},{"xp":5200,"de":"Drachenreiter","e":"🐉"},{"xp":6400,"de":"Weltmeister","e":"🏅"},{"xp":7800,"de":"Astronaut","e":"🚀"},{"xp":9500,"de":"Superheld","e":"🦸"},{"xp":11500,"de":"Genie","e":"🧠"},{"xp":14000,"de":"Großmeister","e":"♟️"},{"xp":17000,"de":"Bretzel-Kaiser","e":"👑"}],"badges":[{"id":"start","e":"🎒","n":"Los geht's!","d":"Finir ta première mission"},{"id":"ghost1","e":"👻","n":"Geisterjäger","d":"Vaincre ton premier fantôme"},{"id":"ghost10","e":"🔦","n":"Ghostbuster","d":"Vaincre 10 fantômes"},{"id":"ghost50","e":"🏰","n":"Geisterschloss","d":"Vaincre 50 fantômes"},{"id":"combo5","e":"🔥","n":"Feuer!","d":"Faire un combo x5"},{"id":"combo10","e":"☄️","n":"Komet","d":"Faire un combo x10"},{"id":"combo20","e":"🌋","n":"Vulkan","d":"Faire un combo x20"},{"id":"perfekt","e":"⭐","n":"Perfekt!","d":"Avoir 3 étoiles à une mission"},{"id":"thema1","e":"🙋","n":"Thema 1 : top !","d":"3 étoiles à toutes les missions du Thema 1"},{"id":"thema2","e":"👨‍👩‍👧‍👦","n":"Thema 2 : top !","d":"3 étoiles à toutes les missions du Thema 2"},{"id":"explorer","e":"🗺️","n":"Entdecker","d":"Jouer toutes les missions des Themas"},{"id":"daily1","e":"📅","n":"Tag eins","d":"Réussir ton premier défi du jour"},{"id":"streak3","e":"🕯️","n":"Drei Tage","d":"Une série de 3 jours"},{"id":"streak7","e":"🗓️","n":"Eine Woche!","d":"Une série de 7 jours"},{"id":"streak30","e":"🌞","n":"Ein Monat!","d":"Une série de 30 jours"},{"id":"blitz10","e":"⚡","n":"Blitz","d":"10 bonnes réponses au Blitz"},{"id":"blitz20","e":"🌩️","n":"Donnerwetter!","d":"20 bonnes réponses au Blitz"},{"id":"memory","e":"🐘","n":"Elefant","d":"Finir le Memory en 10 coups ou moins"},{"id":"dict10","e":"✍️","n":"Diktat-Profi","d":"Réussir 10 dictées"},{"id":"dict50","e":"🖋️","n":"Schreibmeister","d":"Réussir 50 dictées"},{"id":"boss1","e":"🧛","n":"Graf besiegt","d":"Battre le boss du Thema 1"},{"id":"boss2","e":"🐲","n":"Hydra besiegt","d":"Battre le boss du Thema 2"},{"id":"c100","e":"💯","n":"Hundert!","d":"100 bonnes réponses"},{"id":"c1000","e":"🧠","n":"Tausend!","d":"1 000 bonnes réponses"},{"id":"legende","e":"🏆","n":"Legende","d":"Atteindre le rang Legende (1 800 XP)"}],"shop":[{"id":"bear","c":"char","e":"🐻","de":"der Berliner Bär","fr":"l'ours de Berlin","p":0,"s":""},{"id":"fox","c":"char","e":"🦊","de":"der Fuchs","fr":"le renard","p":40,"s":""},{"id":"cat","c":"char","e":"🐱","de":"die Katze","fr":"le chat","p":40,"s":""},{"id":"dog","c":"char","e":"🐶","de":"der Hund","fr":"le chien","p":40,"s":""},{"id":"frog","c":"char","e":"🐸","de":"der Frosch","fr":"la grenouille","p":60,"s":""},{"id":"panda","c":"char","e":"🐼","de":"der Panda","fr":"le panda","p":60,"s":""},{"id":"owl","c":"char","e":"🦉","de":"die Eule","fr":"la chouette","p":80,"s":""},{"id":"penguin","c":"char","e":"🐧","de":"der Pinguin","fr":"le pingouin","p":80,"s":""},{"id":"robot","c":"char","e":"🤖","de":"der Roboter","fr":"le robot","p":120,"s":""},{"id":"alien","c":"char","e":"👽","de":"der Außerirdische","fr":"l'extraterrestre","p":150,"s":""},{"id":"unicorn","c":"char","e":"🦄","de":"das Einhorn","fr":"la licorne","p":200,"s":""},{"id":"dragon","c":"char","e":"🐲","de":"der Drache","fr":"le dragon","p":300,"s":""},{"id":"cap","c":"hat","e":"🧢","de":"die Kappe","fr":"la casquette","p":30,"s":""},{"id":"bow","c":"hat","e":"🎀","de":"die Schleife","fr":"le nœud","p":30,"s":""},{"id":"straw","c":"hat","e":"👒","de":"der Strohhut","fr":"le chapeau de paille","p":50,"s":""},{"id":"tophat","c":"hat","e":"🎩","de":"der Zylinder","fr":"le haut-de-forme","p":80,"s":""},{"id":"grad","c":"hat","e":"🎓","de":"der Doktorhut","fr":"le chapeau de diplômé","p":120,"s":""},{"id":"crown","c":"hat","e":"👑","de":"die Krone","fr":"la couronne","p":250,"s":""},{"id":"pretzel","c":"acc","e":"🥨","de":"die Brezel","fr":"le bretzel","p":20,"s":""},{"id":"balloon","c":"acc","e":"🎈","de":"der Luftballon","fr":"le ballon","p":30,"s":""},{"id":"ball","c":"acc","e":"⚽","de":"der Fußball","fr":"le ballon de foot","p":40,"s":""},{"id":"icecream","c":"acc","e":"🍦","de":"das Eis","fr":"la glace","p":40,"s":""},{"id":"violin","c":"acc","e":"🎻","de":"die Geige","fr":"le violon","p":60,"s":""},{"id":"skate","c":"acc","e":"🛹","de":"das Skateboard","fr":"le skate","p":80,"s":""},{"id":"trophy","c":"acc","e":"🏆","de":"der Pokal","fr":"la coupe","p":150,"s":""},{"id":"gold","c":"bg","e":"","de":"das Gold","fr":"l'or","p":0,"s":""},{"id":"sky","c":"bg","e":"","de":"der Himmel","fr":"le ciel","p":60,"s":""},{"id":"mint","c":"bg","e":"","de":"die Minze","fr":"la menthe","p":60,"s":""},{"id":"candy","c":"bg","e":"","de":"die Zuckerwatte","fr":"la barbe à papa","p":80,"s":""},{"id":"night","c":"bg","e":"","de":"die Sternennacht","fr":"la nuit étoilée","p":150,"s":""},{"id":"kuerbis","c":"char","e":"🎃","de":"der Kürbis","fr":"la citrouille","p":120,"s":"halloween"},{"id":"gespenst","c":"char","e":"👻","de":"das Gespenst","fr":"le fantôme","p":120,"s":"halloween"},{"id":"fledermaus","c":"char","e":"🦇","de":"die Fledermaus","fr":"la chauve-souris","p":150,"s":"halloween"},{"id":"vampir","c":"char","e":"🧛","de":"der Vampir","fr":"le vampire","p":200,"s":"halloween"},{"id":"hexe","c":"char","e":"🧙‍♀️","de":"die Hexe","fr":"la sorcière","p":220,"s":"halloween"},{"id":"spinne","c":"hat","e":"🕷️","de":"die Spinne","fr":"l'araignée","p":60,"s":"halloween"},{"id":"netz","c":"hat","e":"🕸️","de":"das Spinnennetz","fr":"la toile d'araignée","p":80,"s":"halloween"},{"id":"suess","c":"acc","e":"🍬","de":"die Süßigkeit","fr":"la friandise","p":30,"s":"halloween"},{"id":"kerze","c":"acc","e":"🕯️","de":"die Kerze","fr":"la bougie","p":50,"s":"halloween"},{"id":"besen","c":"acc","e":"🧹","de":"der Besen","fr":"le balai de sorcière","p":80,"s":"halloween"},{"id":"kugel","c":"acc","e":"🔮","de":"die Kristallkugel","fr":"la boule de cristal","p":120,"s":"halloween"},{"id":"geisternacht","c":"bg","e":"","de":"die Geisternacht","fr":"la nuit des fantômes","p":150,"s":"halloween"}],"bosses":{"t1":{"n":"Graf Grammatik","e":"🧛","th":0},"t2":{"n":"Die Familien-Hydra","e":"🐲","th":1}},"map":[{"id":"moi","c":"Berlin","w":"moi","b":null},{"id":"land","c":"Hamburg","w":"land","b":null},{"id":"hobby","c":"Köln","w":"hobby","b":null},{"id":"konj","c":"Frankfurt","w":"konj","b":null},{"id":"wg","c":"München","w":"wg","b":null},{"id":"t1","c":"Neuschwanstein","w":null,"b":"t1"},{"id":"cast","c":"Wien","w":"cast","b":null},{"id":"fam","c":"Salzburg","w":"fam","b":null},{"id":"meine","c":"Zürich","w":"meine","b":null},{"id":"num","c":"Vaduz","w":"num","b":null},{"id":"plur","c":"Dortmund","w":"plur","b":null},{"id":"patch","c":"Bremen","w":"patch","b":null},{"id":"tier","c":"Stuttgart","w":"tier","b":null},{"id":"t2","c":"Drachenfels","w":null,"b":"t2"}],"bonus":10,"news":"2026-10-carte-boutique","fresh":{"v":1,"xp":0,"stars":{},"ghosts":{},"best":{"blitz":0,"memory":0,"combo":0},"stats":{"answered":0,"correct":0,"rounds":0,"slain":0,"dict":0,"daily":0,"boss":0},"settings":{"sound":true,"voice":true},"seenIntro":false,"streak":{"days":0,"best":0,"last":""},"badges":{},"boss":{},"news":"","shop":{"owned":{},"spent":0,"bonus":0,"eq":{"char":"bear","hat":"","acc":"","bg":"gold"}},"mapDone":{},"mapInit":false,"adminAt":0,"nick":"","pwTemp":false,"updatedAt":0,"rev":0,"syncedRev":0,"syncBase":0}};
+const DATA={"worlds":{"cast":{"n":"Qui est qui ?","e":"🎬"},"fam":{"n":"Die Familie","e":"🌳"},"num":{"n":"Die Zahlen","e":"🔢"},"wg":{"n":"Wie geht's ?","e":"🗣️"},"pr":{"n":"Prononciation","e":"🎧"},"moi":{"n":"Ich stelle mich vor","e":"🙋"},"land":{"n":"Länder und Farben","e":"🌍"},"hobby":{"n":"Das ist mein Hobby!","e":"⚽"},"konj":{"n":"Konjugation","e":"🔧"},"meine":{"n":"Meine Familie","e":"🏠"},"plur":{"n":"Wir mögen Sport!","e":"👯"},"patch":{"n":"Die Patchworkfamilie","e":"🧩"},"exam":{"n":"Spécial contrôle","e":"📝"},"tier":{"n":"Mein Haustier","e":"🐱"},"dict":{"n":"Dictée","e":"✍️"}},"themes":[{"t":"Thema 1 : Ich stelle mich vor","w":["moi","land","hobby","konj","wg"]},{"t":"Thema 2 : Die Familie","w":["cast","fam","meine","num","plur","patch","tier"]}],"ranks":[{"xp":0,"de":"Kartoffel","e":"🥔"},{"xp":120,"de":"Brezel","e":"🥨"},{"xp":300,"de":"Würstchen","e":"🌭"},{"xp":550,"de":"Schnitzel","e":"🍖"},{"xp":850,"de":"Kirschtorte","e":"🍰"},{"xp":1250,"de":"Deutsch-Profi","e":"😎"},{"xp":1800,"de":"Legende","e":"🏆"},{"xp":2500,"de":"Superstar","e":"🌟"},{"xp":3300,"de":"Ritter","e":"🛡️"},{"xp":4200,"de":"Zauberer","e":"🧙"},{"xp":5200,"de":"Drachenreiter","e":"🐉"},{"xp":6400,"de":"Weltmeister","e":"🏅"},{"xp":7800,"de":"Astronaut","e":"🚀"},{"xp":9500,"de":"Superheld","e":"🦸"},{"xp":11500,"de":"Genie","e":"🧠"},{"xp":14000,"de":"Großmeister","e":"♟️"},{"xp":17000,"de":"Bretzel-Kaiser","e":"👑"}],"badges":[{"id":"start","e":"🎒","n":"Los geht's!","d":"Finir ta première mission"},{"id":"ghost1","e":"👻","n":"Geisterjäger","d":"Vaincre ton premier fantôme"},{"id":"ghost10","e":"🔦","n":"Ghostbuster","d":"Vaincre 10 fantômes"},{"id":"ghost50","e":"🏰","n":"Geisterschloss","d":"Vaincre 50 fantômes"},{"id":"combo5","e":"🔥","n":"Feuer!","d":"Faire un combo x5"},{"id":"combo10","e":"☄️","n":"Komet","d":"Faire un combo x10"},{"id":"combo20","e":"🌋","n":"Vulkan","d":"Faire un combo x20"},{"id":"perfekt","e":"⭐","n":"Perfekt!","d":"Avoir 3 étoiles à une mission"},{"id":"thema1","e":"🙋","n":"Thema 1 : top !","d":"3 étoiles à toutes les missions du Thema 1"},{"id":"thema2","e":"👨‍👩‍👧‍👦","n":"Thema 2 : top !","d":"3 étoiles à toutes les missions du Thema 2"},{"id":"explorer","e":"🗺️","n":"Entdecker","d":"Jouer toutes les missions des Themas"},{"id":"daily1","e":"📅","n":"Tag eins","d":"Réussir ton premier défi du jour"},{"id":"streak3","e":"🕯️","n":"Drei Tage","d":"Une série de 3 jours"},{"id":"streak7","e":"🗓️","n":"Eine Woche!","d":"Une série de 7 jours"},{"id":"streak30","e":"🌞","n":"Ein Monat!","d":"Une série de 30 jours"},{"id":"blitz10","e":"⚡","n":"Blitz","d":"10 bonnes réponses au Blitz"},{"id":"blitz20","e":"🌩️","n":"Donnerwetter!","d":"20 bonnes réponses au Blitz"},{"id":"memory","e":"🐘","n":"Elefant","d":"Finir le Memory en 10 coups ou moins"},{"id":"dict10","e":"✍️","n":"Diktat-Profi","d":"Réussir 10 dictées"},{"id":"dict50","e":"🖋️","n":"Schreibmeister","d":"Réussir 50 dictées"},{"id":"boss1","e":"🧛","n":"Graf besiegt","d":"Battre le boss du Thema 1"},{"id":"boss2","e":"🐲","n":"Hydra besiegt","d":"Battre le boss du Thema 2"},{"id":"c100","e":"💯","n":"Hundert!","d":"100 bonnes réponses"},{"id":"c1000","e":"🧠","n":"Tausend!","d":"1 000 bonnes réponses"},{"id":"legende","e":"🏆","n":"Legende","d":"Atteindre le rang Legende (1 800 XP)"}],"shop":[{"id":"bear","c":"char","e":"🐻","de":"der Berliner Bär","fr":"l'ours de Berlin","p":0,"s":"","g":""},{"id":"fox","c":"char","e":"🦊","de":"der Fuchs","fr":"le renard","p":40,"s":"","g":""},{"id":"cat","c":"char","e":"🐱","de":"die Katze","fr":"le chat","p":40,"s":"","g":""},{"id":"dog","c":"char","e":"🐶","de":"der Hund","fr":"le chien","p":40,"s":"","g":""},{"id":"frog","c":"char","e":"🐸","de":"der Frosch","fr":"la grenouille","p":60,"s":"","g":""},{"id":"panda","c":"char","e":"🐼","de":"der Panda","fr":"le panda","p":60,"s":"","g":""},{"id":"owl","c":"char","e":"🦉","de":"die Eule","fr":"la chouette","p":80,"s":"","g":""},{"id":"penguin","c":"char","e":"🐧","de":"der Pinguin","fr":"le pingouin","p":80,"s":"","g":""},{"id":"robot","c":"char","e":"🤖","de":"der Roboter","fr":"le robot","p":120,"s":"","g":""},{"id":"alien","c":"char","e":"👽","de":"der Außerirdische","fr":"l'extraterrestre","p":150,"s":"","g":""},{"id":"unicorn","c":"char","e":"🦄","de":"das Einhorn","fr":"la licorne","p":200,"s":"","g":""},{"id":"dragon","c":"char","e":"🐲","de":"der Drache","fr":"le dragon","p":300,"s":"","g":""},{"id":"cap","c":"hat","e":"🧢","de":"die Kappe","fr":"la casquette","p":30,"s":"","g":""},{"id":"bow","c":"hat","e":"🎀","de":"die Schleife","fr":"le nœud","p":30,"s":"","g":""},{"id":"straw","c":"hat","e":"👒","de":"der Strohhut","fr":"le chapeau de paille","p":50,"s":"","g":""},{"id":"tophat","c":"hat","e":"🎩","de":"der Zylinder","fr":"le haut-de-forme","p":80,"s":"","g":""},{"id":"grad","c":"hat","e":"🎓","de":"der Doktorhut","fr":"le chapeau de diplômé","p":120,"s":"","g":""},{"id":"crown","c":"hat","e":"👑","de":"die Krone","fr":"la couronne","p":250,"s":"","g":""},{"id":"pretzel","c":"acc","e":"🥨","de":"die Brezel","fr":"le bretzel","p":20,"s":"","g":""},{"id":"balloon","c":"acc","e":"🎈","de":"der Luftballon","fr":"le ballon","p":30,"s":"","g":""},{"id":"ball","c":"acc","e":"⚽","de":"der Fußball","fr":"le ballon de foot","p":40,"s":"","g":""},{"id":"icecream","c":"acc","e":"🍦","de":"das Eis","fr":"la glace","p":40,"s":"","g":""},{"id":"violin","c":"acc","e":"🎻","de":"die Geige","fr":"le violon","p":60,"s":"","g":""},{"id":"skate","c":"acc","e":"🛹","de":"das Skateboard","fr":"le skate","p":80,"s":"","g":""},{"id":"trophy","c":"acc","e":"🏆","de":"der Pokal","fr":"la coupe","p":150,"s":"","g":""},{"id":"gold","c":"bg","e":"","de":"das Gold","fr":"l'or","p":0,"s":"","g":""},{"id":"sky","c":"bg","e":"","de":"der Himmel","fr":"le ciel","p":60,"s":"","g":""},{"id":"mint","c":"bg","e":"","de":"die Minze","fr":"la menthe","p":60,"s":"","g":""},{"id":"candy","c":"bg","e":"","de":"die Zuckerwatte","fr":"la barbe à papa","p":80,"s":"","g":""},{"id":"night","c":"bg","e":"","de":"die Sternennacht","fr":"la nuit étoilée","p":150,"s":"","g":""},{"id":"kuerbis","c":"char","e":"🎃","de":"der Kürbis","fr":"la citrouille","p":120,"s":"halloween","g":""},{"id":"gespenst","c":"char","e":"👻","de":"das Gespenst","fr":"le fantôme","p":120,"s":"halloween","g":""},{"id":"fledermaus","c":"char","e":"🦇","de":"die Fledermaus","fr":"la chauve-souris","p":150,"s":"halloween","g":""},{"id":"vampir","c":"char","e":"🧛","de":"der Vampir","fr":"le vampire","p":200,"s":"halloween","g":""},{"id":"hexe","c":"char","e":"🧙‍♀️","de":"die Hexe","fr":"la sorcière","p":220,"s":"halloween","g":""},{"id":"spinne","c":"hat","e":"🕷️","de":"die Spinne","fr":"l'araignée","p":60,"s":"halloween","g":""},{"id":"netz","c":"hat","e":"🕸️","de":"das Spinnennetz","fr":"la toile d'araignée","p":80,"s":"halloween","g":""},{"id":"suess","c":"acc","e":"🍬","de":"die Süßigkeit","fr":"la friandise","p":30,"s":"halloween","g":""},{"id":"kerze","c":"acc","e":"🕯️","de":"die Kerze","fr":"la bougie","p":50,"s":"halloween","g":""},{"id":"besen","c":"acc","e":"🧹","de":"der Besen","fr":"le balai de sorcière","p":80,"s":"halloween","g":""},{"id":"kugel","c":"acc","e":"🔮","de":"die Kristallkugel","fr":"la boule de cristal","p":120,"s":"halloween","g":""},{"id":"geisternacht","c":"bg","e":"","de":"die Geisternacht","fr":"la nuit des fantômes","p":150,"s":"halloween","g":""},{"id":"schneemann","c":"char","e":"⛄","de":"der Schneemann","fr":"le bonhomme de neige","p":150,"s":"","g":"avent"},{"id":"rentier","c":"char","e":"🦌","de":"das Rentier","fr":"le renne","p":150,"s":"","g":"avent"},{"id":"wichtel","c":"char","e":"🧝","de":"der Wichtel","fr":"le lutin","p":150,"s":"","g":"avent"},{"id":"engel","c":"char","e":"👼","de":"der Engel","fr":"l'ange","p":150,"s":"","g":"avent"},{"id":"weihnachtsmann","c":"char","e":"🎅","de":"der Weihnachtsmann","fr":"le père Noël","p":250,"s":"","g":"avent"},{"id":"stern","c":"hat","e":"⭐","de":"der Stern","fr":"l'étoile","p":80,"s":"","g":"avent"},{"id":"flocke","c":"hat","e":"❄️","de":"die Schneeflocke","fr":"le flocon de neige","p":80,"s":"","g":"avent"},{"id":"geschenk","c":"acc","e":"🎁","de":"das Geschenk","fr":"le cadeau","p":60,"s":"","g":"avent"},{"id":"glocke","c":"acc","e":"🔔","de":"die Glocke","fr":"la cloche","p":60,"s":"","g":"avent"},{"id":"tannenbaum","c":"acc","e":"🎄","de":"der Tannenbaum","fr":"le sapin de Noël","p":80,"s":"","g":"avent"},{"id":"plaetzchen","c":"acc","e":"🍪","de":"das Plätzchen","fr":"le biscuit de Noël","p":40,"s":"","g":"avent"},{"id":"schal","c":"acc","e":"🧣","de":"der Schal","fr":"l'écharpe","p":60,"s":"","g":"avent"},{"id":"stiefel","c":"acc","e":"🥾","de":"der Stiefel","fr":"la botte","p":60,"s":"","g":"avent"},{"id":"schlitten","c":"acc","e":"🛷","de":"der Schlitten","fr":"la luge","p":80,"s":"","g":"avent"}],"av":[{"t":"b","n":10},{"t":"o","id":"stern"},{"t":"b","n":15},{"t":"o","id":"plaetzchen"},{"t":"b","n":10},{"t":"o","id":"stiefel"},{"t":"b","n":20},{"t":"o","id":"flocke"},{"t":"b","n":15},{"t":"o","id":"glocke"},{"t":"b","n":20},{"t":"o","id":"schneemann"},{"t":"b","n":15},{"t":"o","id":"schal"},{"t":"b","n":25},{"t":"o","id":"schlitten"},{"t":"b","n":20},{"t":"o","id":"wichtel"},{"t":"o","id":"engel"},{"t":"o","id":"geschenk"},{"t":"o","id":"rentier"},{"t":"b","n":30},{"t":"o","id":"tannenbaum"},{"t":"o","id":"weihnachtsmann"}],"seasons":{"halloween":{"from":[9,17],"to":[10,2],"soon":7,"mode":"tout","max":62,"emo":"🎃","title":"Spécial Halloween","kind":"shop"},"avent":{"from":[11,1],"to":[11,24],"soon":60,"mode":"apercu","max":30,"emo":"🎄","title":"Calendrier de l'Avent","kind":"cal"}},"bosses":{"t1":{"n":"Graf Grammatik","e":"🧛","th":0},"t2":{"n":"Die Familien-Hydra","e":"🐲","th":1}},"map":[{"id":"moi","c":"Berlin","w":"moi","b":null},{"id":"land","c":"Hamburg","w":"land","b":null},{"id":"hobby","c":"Köln","w":"hobby","b":null},{"id":"konj","c":"Frankfurt","w":"konj","b":null},{"id":"wg","c":"München","w":"wg","b":null},{"id":"t1","c":"Neuschwanstein","w":null,"b":"t1"},{"id":"cast","c":"Wien","w":"cast","b":null},{"id":"fam","c":"Salzburg","w":"fam","b":null},{"id":"meine","c":"Zürich","w":"meine","b":null},{"id":"num","c":"Vaduz","w":"num","b":null},{"id":"plur","c":"Dortmund","w":"plur","b":null},{"id":"patch","c":"Bremen","w":"patch","b":null},{"id":"tier","c":"Stuttgart","w":"tier","b":null},{"id":"t2","c":"Drachenfels","w":null,"b":"t2"}],"bonus":10,"news":"2026-10-carte-boutique","fresh":{"v":1,"xp":0,"stars":{},"ghosts":{},"best":{"blitz":0,"memory":0,"combo":0},"stats":{"answered":0,"correct":0,"rounds":0,"slain":0,"dict":0,"daily":0,"boss":0},"settings":{"sound":true,"voice":true},"seenIntro":false,"streak":{"days":0,"best":0,"last":""},"badges":{},"boss":{},"news":"","shop":{"owned":{},"spent":0,"bonus":0,"eq":{"char":"bear","hat":"","acc":"","bg":"gold"}},"mapDone":{},"mapInit":false,"adminAt":0,"nick":"","pwTemp":false,"avent":{},"codes":{},"updatedAt":0,"rev":0,"syncedRev":0,"syncBase":0}};
 const FB_VERSION='12.19.0';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -367,22 +385,25 @@ function fsMsg(e){
 
 /* ---------- état ---------- */
 const S={A:null,F:null,auth:null,db:null,user:null,players:[],sel:null,orig:null,edit:null,tab:'ens',
-  sort:{k:'xp',d:-1},q:'',log:[],busy:false,loaded:false,lastLoad:0,ghostSel:new Set(),showArch:false,appM:null,auth2:null,db2:null,ev:null,role:null,droits:{},admins:[],susp:[],rulesV:0,lastBackup:null};
+  sort:{k:'xp',d:-1},q:'',log:[],busy:false,loaded:false,lastLoad:0,ghostSel:new Set(),showArch:false,appM:null,auth2:null,db2:null,ev:null,role:null,droits:{},admins:[],susp:[],rulesV:0,lastBackup:null,seas:null,codes:[]};
 const cur=()=>S.players.find(p=>p.uid===S.sel)||null;
 const dirty=()=>!!S.sel&&!!S.edit&&JSON.stringify(S.edit)!==JSON.stringify(S.orig);
 const me=()=>S.user?pseudoKey(String(S.user.email||'').split('@')[0]):'';
 const active=()=>S.players.filter(p=>!isArch(p));
 /* rôles : 'super' (un seul, écrit dans les règles), 'admin' (droits choisis par le super-administrateur),
    'legacy' (anciennes règles : le seul administrateur, qui deviendra super-administrateur) */
-const RULES_V='regles_v18';
+const RULES_V='regles_v19';
 const DROITS=[
   ['voir','👁️','Voir','voir les joueurs et leur progression (toujours donné)'],
   ['modifier','✏️','Modifier','modifier les fiches : XP, étoiles, fantômes, badges, boutique, nom affiché, remise à zéro'],
   ['motdepasse','🔑','Mots de passe','donner un mot de passe temporaire ou un nouvel identifiant (il faut aussi « Modifier »)'],
   ['supprimer','🗑️','Supprimer','supprimer des comptes'],
   ['suspendre','⏸️','Suspendre','suspendre un compte quelques jours, ou lever la suspension'],
-  ['evenements','🎉','Événements','lancer, arrêter ou annuler des événements XP / bretzels']];
+  ['evenements','🎉','Événements','lancer, arrêter ou annuler des événements XP / bretzels, régler les saisons (Halloween, calendrier de l\'Avent)'],
+  ['codes','🎟️','Codes cadeaux','créer, modifier et supprimer des codes cadeaux']];
 const ALL_DROITS=Object.fromEntries(DROITS.map(d=>[d[0],true]));
+/* les droits que les règles en place connaissent (« codes » : règles v19) */
+const droitsOk=()=>DROITS.filter(d=>d[0]!=='codes'||S.rulesV>=19);
 const isSuper=()=>S.role==='super'||S.role==='legacy';
 const can=d=>isSuper()||!!(S.droits&&S.droits[d]);
 const adminOf=uid=>S.admins.find(a=>a.uid===uid)||null;
@@ -528,7 +549,7 @@ service cloud.firestore {
     function estSuper() {
       return request.auth != null && request.auth.uid == '${uid}';
     }
-    // Un droit d'administrateur : 'voir', 'modifier', 'motdepasse', 'supprimer', 'suspendre' ou 'evenements'
+    // Un droit d'administrateur : 'voir', 'modifier', 'motdepasse', 'supprimer', 'suspendre', 'evenements' ou 'codes'
     function droit(d) {
       return estSuper()
           || (request.auth != null
@@ -591,7 +612,7 @@ service cloud.firestore {
                             && request.resource.data.keys().hasOnly(['pseudo', 'droits', 'super', 'by', 'at'])
                             && request.resource.data.pseudo is string
                             && request.resource.data.droits is map
-                            && request.resource.data.droits.keys().hasOnly(['voir', 'modifier', 'motdepasse', 'supprimer', 'suspendre', 'evenements'])
+                            && request.resource.data.droits.keys().hasOnly(['voir', 'modifier', 'motdepasse', 'supprimer', 'suspendre', 'evenements', 'codes'])
                             && request.resource.data.get('super', false) == (uid == request.auth.uid);
       allow delete: if estSuper() && uid != request.auth.uid;
     }
@@ -618,6 +639,66 @@ service cloud.firestore {
                     && request.resource.data.at is int
                     && request.resource.data.byName is string && request.resource.data.byName.size() <= 40
                     && request.resource.data.m is string && request.resource.data.m.size() <= 500;
+    }
+
+    // Saisons (Halloween, calendrier de l'Avent), réglées dans la console : tout le monde peut les lire.
+    match /config/saisons {
+      allow read: if true;
+      allow write: if droit('evenements')
+                   && request.resource.data.keys().hasOnly(['halloween', 'avent', 'by', 'updatedAt'])
+                   && request.resource.data.halloween is map
+                   && request.resource.data.avent is map
+                   && request.resource.data.by == request.auth.uid
+                   && request.resource.data.updatedAt is int;
+    }
+
+    // Codes cadeaux. Un joueur qui connaît un code peut le lire, puis l'utiliser UNE fois :
+    // le compteur « utilise » augmente de 1 et sa fiche uses/{uid} est créée en même temps.
+    // Les administrateurs qui ont le droit « codes » les créent, les modifient et voient la liste.
+    match /codes/{code} {
+      allow get: if request.auth != null;
+      allow list, delete: if droit('codes');
+      allow create, update: if droit('codes')
+                            && code.matches('^[A-Z0-9-]{3,24}$')
+                            && request.resource.data.keys().hasOnly(['bretzels', 'xp', 'objets', 'deja', 'limite', 'utilise', 'debut', 'fin', 'pour', 'actif', 'msg', 'note', 'lot', 'by', 'at'])
+                            && request.resource.data.bretzels is int && request.resource.data.bretzels >= 0 && request.resource.data.bretzels <= 1000
+                            && request.resource.data.xp is int && request.resource.data.xp >= 0 && request.resource.data.xp <= 1000
+                            && request.resource.data.objets is list && request.resource.data.objets.size() <= 10
+                            && request.resource.data.deja is int && request.resource.data.deja >= 0 && request.resource.data.deja <= 500
+                            && request.resource.data.limite is int && request.resource.data.limite >= 0
+                            && request.resource.data.utilise is int && request.resource.data.utilise >= 0
+                            && request.resource.data.debut is int && request.resource.data.fin is int
+                            && request.resource.data.pour is list && request.resource.data.pour.size() <= 300
+                            && request.resource.data.actif is bool
+                            && request.resource.data.msg is string && request.resource.data.msg.size() <= 120
+                            && request.resource.data.note is string && request.resource.data.note.size() <= 120
+                            && request.resource.data.lot is string && request.resource.data.lot.size() <= 40
+                            && request.resource.data.by == request.auth.uid
+                            && request.resource.data.at is int;
+      allow update: if request.auth != null
+                    && !suspendu(request.auth.uid)
+                    && !exists(/databases/$(database)/documents/supprimes/$(request.auth.uid))
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['utilise'])
+                    && request.resource.data.utilise == resource.data.utilise + 1
+                    && resource.data.actif == true
+                    && (resource.data.limite == 0 || resource.data.utilise < resource.data.limite)
+                    && request.time.toMillis() >= resource.data.debut
+                    && (resource.data.fin == 0 || request.time.toMillis() <= resource.data.fin)
+                    && (resource.data.pour.size() == 0 || request.auth.uid in resource.data.pour)
+                    && !exists(/databases/$(database)/documents/codes/$(code)/uses/$(request.auth.uid))
+                    && existsAfter(/databases/$(database)/documents/codes/$(code)/uses/$(request.auth.uid));
+
+      // Qui a utilisé le code : une fiche par joueur.
+      match /uses/{uid} {
+        allow read: if (request.auth != null && request.auth.uid == uid) || droit('codes');
+        allow create: if request.auth != null && request.auth.uid == uid
+                      && request.resource.data.keys().hasOnly(['at', 'pseudo'])
+                      && request.resource.data.at is int
+                      && request.resource.data.pseudo is string && request.resource.data.pseudo.size() <= 40
+                      && getAfter(/databases/$(database)/documents/codes/$(code)).data.utilise
+                         == get(/databases/$(database)/documents/codes/$(code)).data.utilise + 1;
+        allow delete: if droit('codes');
+      }
     }
 
     // Date de la dernière sauvegarde (console)
@@ -681,13 +762,13 @@ function showWin(){hideLogin();$('#win').hidden=false;$('#task').classList.add('
 async function detectRole(){
   /* chaque version des règles a un document config/regles_vNN lisible par tous */
   const ok=async v=>{try{await S.F.getDoc(S.F.doc(S.db,'config',v));return true;}catch(x){if(String(x&&x.code)==='permission-denied')return false;throw x;}};
-  S.rulesV=await ok(RULES_V)?18:await ok('regles_v17')?17:await ok('regles_v16')?16:0;
+  S.rulesV=await ok(RULES_V)?19:await ok('regles_v18')?18:await ok('regles_v17')?17:await ok('regles_v16')?16:0;
   if(!S.rulesV)return {role:'legacy'};
   const ref=S.F.doc(S.db,'admins',S.user.uid);
   const snap=await S.F.getDoc(ref);
   if(snap.exists()){const a=snap.data()||{};return a.super===true?{role:'super'}:{role:'admin',droits:Object.assign({},obj(a.droits),{voir:true})};}
   /* pas encore de fiche : seul le super-administrateur peut l'écrire, on essaie */
-  try{await S.F.setDoc(ref,{pseudo:me(),droits:S.rulesV>=17?ALL_DROITS:Object.fromEntries(['voir','modifier','motdepasse','supprimer','evenements'].map(k=>[k,true])),super:true,by:S.user.uid,at:Date.now()});return {role:'super',created:true};}
+  try{await S.F.setDoc(ref,{pseudo:me(),droits:S.rulesV>=17?Object.fromEntries(droitsOk().map(d=>[d[0],true])):Object.fromEntries(['voir','modifier','motdepasse','supprimer','evenements'].map(k=>[k,true])),super:true,by:S.user.uid,at:Date.now()});return {role:'super',created:true};}
   catch(x){if(String(x&&x.code)==='permission-denied')return {role:'none'};throw x;}
 }
 async function loadPlayers(first){
@@ -713,18 +794,22 @@ async function loadPlayers(first){
     const list=[];
     snap.forEach(d=>{const x=d.data()||{};list.push({uid:d.id,pseudo:x.pseudo,progress:obj(x.progress),updatedAt:num(x.updatedAt)});});
     S.players=list;S.loaded=true;S.lastLoad=Date.now();
-    const v17=S.rulesV>=17,no=Promise.reject({code:'anciennes-regles'});no.catch(()=>{});
-    const [er,ar,sr,br]=await Promise.allSettled([S.F.getDoc(S.F.doc(S.db,'config','evenement')),
+    const v17=S.rulesV>=17,v19=S.rulesV>=19,no=Promise.reject({code:'anciennes-regles'});no.catch(()=>{});
+    const [er,ar,sr,br,zr,cr]=await Promise.allSettled([S.F.getDoc(S.F.doc(S.db,'config','evenement')),
       S.role==='legacy'?no:S.F.getDocs(S.F.collection(S.db,'admins')),
       v17?S.F.getDocs(S.F.collection(S.db,'suspendus')):no,
-      v17?S.F.getDoc(S.F.doc(S.db,'config','sauvegarde')):no]);
+      v17?S.F.getDoc(S.F.doc(S.db,'config','sauvegarde')):no,
+      v19?S.F.getDoc(S.F.doc(S.db,'config','saisons')):no,
+      v19&&can('codes')?S.F.getDocs(S.F.collection(S.db,'codes')):no]);
+    S.seas=zr.status==='fulfilled'&&zr.value.exists()?zr.value.data():null;
+    S.codes=[];if(cr.status==='fulfilled'){cr.value.forEach(d=>S.codes.push(codeOf(d.id,d.data())));S.codes.sort((a,b)=>b.at-a.at||a.id.localeCompare(b.id));}
     S.susp=[];
     if(sr.status==='fulfilled')sr.value.forEach(d=>{const x=d.data()||{};S.susp.push({uid:d.id,pseudo:String(x.pseudo||''),until:num(x.until),motif:String(x.motif||'').slice(0,100)});});
     S.lastBackup=br.status==='fulfilled'&&br.value.exists()?br.value.data():null;
     S.ev=er.status==='fulfilled'&&er.value.exists()?er.value.data():null;
     S.admins=[];
     if(ar.status==='fulfilled')ar.value.forEach(d=>{const a=d.data()||{};S.admins.push({uid:d.id,pseudo:String(a.pseudo||''),droits:Object.assign({},obj(a.droits),{voir:true}),super:a.super===true});});
-    S.rulesOld=S.role==='legacy'||S.rulesV<18;
+    S.rulesOld=S.role==='legacy'||S.rulesV<19;
     if(S.sel){const p=cur();if(p){if(!dirty()){S.orig=clone(p.progress);S.edit=clone(p.progress);}}else{S.sel=null;S.orig=S.edit=null;S.tab='ens';}}
     setStatus(`${list.length} joueur${list.length>1?'s':''} chargé${list.length>1?'s':''} à ${fmtTime(Date.now())}`);
     return true;
@@ -778,7 +863,7 @@ function renderTabs(){
 function renderTools(){
   const p=cur(),d=dirty();
   $('#t-save').disabled=!d||!canEdit();$('#t-cancel').disabled=!d;$('#t-reset').disabled=!canEdit();$('#t-pw').disabled=!canPw();$('#t-del').disabled=!canDel();
-  $('#t-ev').disabled=!can('evenements');$('#t-adm').hidden=!isSuper();$('#t-sus').disabled=!canSus();$('#t-bak').hidden=!isSuper();
+  $('#t-ev').disabled=!can('evenements');$('#t-sai').disabled=!can('evenements');$('#t-codes').disabled=!can('codes');$('#t-adm').hidden=!isSuper();$('#t-sus').disabled=!canSus();$('#t-bak').hidden=!isSuper();
   $('#fbtns').innerHTML=p&&S.tab!=='ens'?`<button class="btn" data-act="close">Fermer la fiche</button><button class="btn" data-act="cancel" ${d?'':'disabled'}>Annuler</button><button class="btn def" data-act="save" ${d&&canEdit()?'':'disabled'}>Enregistrer</button>`:'';
 }
 function renderStatus(){
@@ -797,13 +882,15 @@ function renderEns(){
   const xp=P.reduce((t,p)=>t+num(p.xp),0),gh=P.reduce((t,p)=>t+ghostsOf(p),0);
   const best=A.slice().sort((a,b)=>num(b.progress.xp)-num(a.progress.xp))[0];
   const rows=sorted();
-  return `${S.rulesOld&&isSuper()?`<div class="info rulesbox" role="alert">⚠️ <b>Les règles de Firebase ne sont pas à jour.</b> Colle les nouvelles règles (une seule fois) pour que tout marche : ${S.role==='legacy'?'elles font de toi le <b>super-administrateur</b>, ':''}administrateurs, événements, suppression et suspension de comptes, sauvegardes, journal. <button class="btn mini" data-act="rules">🛡️ Mettre à jour les règles…</button></div>`:''}${isSuper()&&S.rulesV>=17&&(!S.lastBackup||Date.now()-num(S.lastBackup.at)>7*86400e3)?`<div class="info bkbox">💾 ${S.lastBackup?`Dernière sauvegarde ${esc(ago(num(S.lastBackup.at)))}`:'Aucune sauvegarde pour l\'instant'} : pense à en faire une (un fichier avec toute la progression des joueurs). <button class="btn mini" data-act="backup">💾 Sauvegarde…</button></div>`:''}<div class="kv">
+  return `${S.rulesOld&&isSuper()?`<div class="info rulesbox" role="alert">⚠️ <b>Les règles de Firebase ne sont pas à jour.</b> Colle les nouvelles règles (une seule fois) pour que tout marche : ${S.role==='legacy'?'elles font de toi le <b>super-administrateur</b>, ':''}administrateurs, événements, suppression et suspension de comptes, sauvegardes, journal, saisons et codes cadeaux. <button class="btn mini" data-act="rules">🛡️ Mettre à jour les règles…</button></div>`:''}${isSuper()&&S.rulesV>=17&&(!S.lastBackup||Date.now()-num(S.lastBackup.at)>7*86400e3)?`<div class="info bkbox">💾 ${S.lastBackup?`Dernière sauvegarde ${esc(ago(num(S.lastBackup.at)))}`:'Aucune sauvegarde pour l\'instant'} : pense à en faire une (un fichier avec toute la progression des joueurs). <button class="btn mini" data-act="backup">💾 Sauvegarde…</button></div>`:''}<div class="kv">
     <div class="sunken">Joueurs<b>${A.length}</b></div>
     <div class="sunken">Actifs aujourd'hui<b>${today}</b></div>
     <div class="sunken">Actifs cette semaine<b>${week}</b></div>
     <div class="sunken">XP gagnés en tout<b>${fmtN(xp)}</b></div>
     <div class="sunken">Fantômes à vaincre<b>${fmtN(gh)}</b></div>
     <div class="sunken click${evState()!=='none'?' evon':''}" data-act="event" title="Lancer, arrêter ou annuler un événement XP / bretzels">🎉 Événement<b style="font-size:13px" id="ens-ev">${esc(evText())}</b></div>
+    <div class="sunken click" data-act="seasons" title="Halloween et calendrier de l'Avent">🎄 Saisons<b style="font-size:12px" id="ens-seas">${esc(seasTxt('halloween'))}<br>${esc(seasTxt('avent'))}</b></div>
+    ${can('codes')&&S.rulesV>=19?`<div class="sunken click" data-act="codes" title="Créer et suivre les codes cadeaux">🎟️ Codes cadeaux actifs<b id="ens-codes">${S.codes.filter(c=>codeSt(c)==='on').length}</b></div>`:''}
     ${S.susp.filter(x=>x.until>Date.now()).length?`<div class="sunken">Comptes suspendus<b>${S.susp.filter(x=>x.until>Date.now()).length}</b></div>`:''}
     <div class="sunken">En tête<b style="font-size:14px">${best?`${rankOf(best.progress.xp).e} ${esc(nameOf(best)||'?')}`:'—'}</b></div>
   </div>
@@ -920,10 +1007,14 @@ function renderBou(){
     <div class="row"><span class="l">À dépenser :</span><span class="v"><b data-c="coins">${fmtN(coinsOf(g))}</b> 🥨</span></div>
     <p class="muted" style="margin:6px 0 0">Offrir un objet ne coûte rien au joueur (son prix est ajouté aux bretzels offerts). Retirer un objet qu'il avait déjà lui rend son prix.</p>
   </fieldset></div>
+  <fieldset><legend>🎄 Calendrier de l'Avent et 🎟️ codes cadeaux</legend>
+    <div class="row"><span class="l">Cases ouvertes :</span><span class="v">${Object.keys(obj(g.avent)).sort().reverse().map(y=>`${esc(y)} : <b>${Object.keys(obj(obj(g.avent)[y])).length}</b>`).join(' · ')||'aucune'}</span></div>
+    <div class="row"><span class="l">Codes utilisés :</span><span class="v">${Object.entries(obj(g.codes)).sort((a,b)=>num(b[1])-num(a[1])).map(([k,t])=>`<code class="cd">${esc(k)}</code> <span class="muted">(${esc(fmtDate(t))})</span>`).join(', ')||'aucun'}</span></div>
+  </fieldset>
   <fieldset><legend>Objets (coche pour offrir, décoche pour retirer)</legend>
     <div class="list sunken" style="max-height:none"><table class="grid shopgrid"><thead><tr><th scope="col" class="c">A</th><th scope="col">Objet</th><th scope="col">Catégorie</th><th scope="col" class="n">Prix</th><th scope="col">État</th></tr></thead><tbody>
     ${DATA.shop.map(x=>{const has=own(x),was=x.p===0||!!o[x.id];const st=x.p===0?'<span class="tag">gratuit</span>':has&&!was?'<span class="tag gift">offert (pas encore enregistré)</span>':!has&&was?'<span class="warn">retiré</span>':has?(num(owned[x.id])>1?esc(fmtDate(owned[x.id])):'acheté'):'';
-      return `<tr><td class="c"><input type="checkbox" data-own="${esc(x.id)}" ${has?'checked':''} ${x.p===0?'disabled':''} aria-label="${esc(x.de)}"></td><td>${x.e?`<span class="emo">${x.e}</span> `:'🎨 '}${esc(x.de)} <span class="muted">(${esc(x.fr)})</span>${x.s==='halloween'?' <span class="tag" title="En vente dans le jeu seulement du 17 octobre au 2 novembre">🎃 Halloween</span>':''}${eq[x.c]===x.id?' <b>✓ porté</b>':''}</td><td>${CATS[x.c]}</td><td class="n">${x.p}</td><td>${st}</td></tr>`;}).join('')}
+      return `<tr><td class="c"><input type="checkbox" data-own="${esc(x.id)}" ${has?'checked':''} ${x.p===0?'disabled':''} aria-label="${esc(x.de)}"></td><td>${x.e?`<span class="emo">${x.e}</span> `:'🎨 '}${esc(x.de)} <span class="muted">(${esc(x.fr)})</span>${x.s==='halloween'?' <span class="tag" title="En vente dans le jeu seulement pendant la période d\'Halloween (bouton 🎄 Saisons)">🎃 Halloween</span>':''}${x.g==='avent'?' <span class="tag" title="Pas en vente : dans le calendrier de l\'Avent, ou avec un code cadeau">🎄 Calendrier</span>':''}${eq[x.c]===x.id?' <b>✓ porté</b>':''}</td><td>${CATS[x.c]}</td><td class="n">${x.p}</td><td>${st}</td></tr>`;}).join('')}
     </tbody></table></div>
   </fieldset>`;
 }
@@ -1131,9 +1222,11 @@ function help(){
   <p>La prochaine fois que le joueur ouvre le jeu (ou dès sa prochaine sauvegarde), il reçoit ta version et un petit message lui dit que l'administrateur a mis sa progression à jour.</p>
   <p><b>Mot de passe oublié ?</b> Bouton 🔑 <b>Mot de passe</b> : supprime l'ancien compte dans Firebase, puis la console recrée le compte avec un mot de passe temporaire et toute la progression. Le joueur choisit son propre mot de passe à sa prochaine connexion. Tu peux aussi lui donner un nouvel identifiant de connexion.</p>
   <p><b>Événements :</b> bouton 🎉 <b>Événement</b> : XP x2, bretzels x2 (ou x3) pendant 15 minutes, une heure, une soirée ou un week-end. Les joueurs voient un bandeau avec le temps restant.</p>
-  <p><b>Administrateurs :</b> il y a un seul <b>super-administrateur</b> (celui dont l'identifiant est dans les règles de Firebase). Avec le bouton 👥 <b>Admins</b>, il nomme d'autres administrateurs et coche leurs droits dans la grille : 👁️ voir, ✏️ modifier, 🔑 mots de passe, 🗑️ supprimer, 🎉 événements. Un administrateur ne peut pas toucher à la fiche d'un autre administrateur.</p>
+  <p><b>Administrateurs :</b> il y a un seul <b>super-administrateur</b> (celui dont l'identifiant est dans les règles de Firebase). Avec le bouton 👥 <b>Admins</b>, il nomme d'autres administrateurs et coche leurs droits dans la grille : 👁️ voir, ✏️ modifier, 🔑 mots de passe, 🗑️ supprimer, ⏸️ suspendre, 🎉 événements et saisons, 🎟️ codes cadeaux. Un administrateur ne peut pas toucher à la fiche d'un autre administrateur.</p>
   <p><b>Suspendre un compte :</b> bouton ⏸️ <b>Suspendre</b> : le joueur ne peut plus jouer avec son compte pendant 1 jour, 3 jours, une semaine… (sa progression est gardée). Le jeu lui dit jusqu'à quand, avec le motif si tu en écris un. Tu peux lever la suspension avant la fin.</p>
   <p><b>Sauvegarde :</b> bouton 💾 <b>Sauvegarde</b> (super-administrateur) : télécharge un fichier avec la progression de tous les joueurs. Avec ce fichier, tu peux remettre les joueurs de ton choix comme ils étaient (tu vois la liste avant).</p>
+  <p><b>Saisons :</b> bouton 🎄 <b>Saisons</b>. Pour <b>Halloween</b> (objets en vente dans la boutique) et le <b>calendrier de l'Avent</b> (une case surprise par jour : un emoji pour l'avatar ou des bretzels), choisis <b>Désactivé</b>, <b>Aperçu seulement</b> (annoncé, mais rien en vente et aucune case ne s'ouvre) ou <b>Tout</b>, les dates et combien de jours avant on l'annonce. Pour le calendrier, tu choisis aussi ce qu'il y a dans chaque case.</p>
+  <p><b>Codes cadeaux :</b> bouton 🎟️ <b>Codes</b>. Crée un code (ou plusieurs d'un coup, par exemple un par élève) qui donne des bretzels, des XP et/ou des objets. Tu choisis combien de joueurs peuvent l'utiliser, à partir de quand et jusqu'à quand, pour qui, et le message affiché. Dans le jeu, le joueur le tape dans <b>Mon compte</b> › <b>Code cadeau</b> ; chacun ne peut l'utiliser qu'une fois. Tu vois qui l'a utilisé, tu peux le mettre en pause, l'exporter ou imprimer les codes.</p>
   <p><b>Journal :</b> bouton 📒 <b>Journal</b>. Chaque action faite dans la console est enregistrée ; le super-administrateur voit celles de tous les administrateurs (avec la date), peut chercher, exporter ou vider le journal.</p>
   <p><b>Raccourcis :</b> F5 = actualiser, Ctrl+S = enregistrer, Échap = fermer une fenêtre.</p>
   <p><b>Supprimer un compte :</b> bouton 🗑️ <b>Supprimer</b> (il faut écrire l'identifiant du joueur pour confirmer). Sa progression est effacée et le jeu le déconnecte. Pour que l'identifiant puisse resservir, supprime aussi sa connexion dans Firebase (Authentication) : la console t'explique comment.</p>
@@ -1402,9 +1495,9 @@ async function adminsDialog(focus){
     const r=rows.find(x=>x.uid===uid);if(r){r.del=false;return;}rows.push({uid,pseudo:p.pseudo||'',droits:{voir:true},isNew:true,del:false});};
   if(focus)addRow(focus);
   const sup=S.admins.find(a=>a.super)||{uid:S.user.uid,pseudo:me()};
-  const gridHtml=()=>`<table class="grid admgrid"><thead><tr><th scope="col">Administrateur</th>${DROITS.map(d=>`<th scope="col" class="c" title="${esc(d[3])}"><span class="emo">${d[1]}</span><br>${esc(d[2])}</th>`).join('')}<th scope="col"><span class="sr">Retirer</span></th></tr></thead><tbody>
-    <tr class="sup"><td><span class="emo">👑</span> <b>${esc(nameFor(sup.uid,sup.pseudo))}</b> <span class="muted">(super-administrateur${sup.uid===S.user.uid?', toi':''})</span></td>${DROITS.map(d=>`<td class="c"><input type="checkbox" checked disabled aria-label="${esc(d[2])}"></td>`).join('')}<td></td></tr>
-    ${rows.filter(r=>!r.del).map(r=>`<tr data-row="${esc(r.uid)}"${r.uid===focus?' class="hl"':''}><td><span class="emo">🛠️</span> ${esc(nameFor(r.uid,r.pseudo))}${r.isNew?' <span class="tag">nouveau</span>':JSON.stringify(r.droits)!==r.orig?' <span class="tag">modifié</span>':''}</td>${DROITS.map(d=>`<td class="c"><input type="checkbox" data-adm="${esc(r.uid)}" data-dr="${d[0]}" ${r.droits[d[0]]?'checked':''} ${d[0]==='voir'?'disabled':''} aria-label="${esc(d[2])} pour ${esc(nameFor(r.uid,r.pseudo))}"></td>`).join('')}<td><button type="button" class="btn mini" data-rm="${esc(r.uid)}">Retirer</button></td></tr>`).join('')}
+  const gridHtml=()=>`<table class="grid admgrid"><thead><tr><th scope="col">Administrateur</th>${droitsOk().map(d=>`<th scope="col" class="c" title="${esc(d[3])}"><span class="emo">${d[1]}</span><br>${esc(d[2])}</th>`).join('')}<th scope="col"><span class="sr">Retirer</span></th></tr></thead><tbody>
+    <tr class="sup"><td><span class="emo">👑</span> <b>${esc(nameFor(sup.uid,sup.pseudo))}</b> <span class="muted">(super-administrateur${sup.uid===S.user.uid?', toi':''})</span></td>${droitsOk().map(d=>`<td class="c"><input type="checkbox" checked disabled aria-label="${esc(d[2])}"></td>`).join('')}<td></td></tr>
+    ${rows.filter(r=>!r.del).map(r=>`<tr data-row="${esc(r.uid)}"${r.uid===focus?' class="hl"':''}><td><span class="emo">🛠️</span> ${esc(nameFor(r.uid,r.pseudo))}${r.isNew?' <span class="tag">nouveau</span>':JSON.stringify(r.droits)!==r.orig?' <span class="tag">modifié</span>':''}</td>${droitsOk().map(d=>`<td class="c"><input type="checkbox" data-adm="${esc(r.uid)}" data-dr="${d[0]}" ${r.droits[d[0]]?'checked':''} ${d[0]==='voir'?'disabled':''} aria-label="${esc(d[2])} pour ${esc(nameFor(r.uid,r.pseudo))}"></td>`).join('')}<td><button type="button" class="btn mini" data-rm="${esc(r.uid)}">Retirer</button></td></tr>`).join('')}
     </tbody></table>${rows.some(r=>!r.del)?'':'<p class="muted" style="margin:6px">Aucun autre administrateur pour l\'instant.</p>'}`;
   const optsHtml=()=>{const c=S.players.filter(p=>!isArch(p)&&p.uid!==S.user.uid&&!rows.some(r=>r.uid===p.uid&&!r.del)).sort((a,b)=>pseudoKey(nameOf(a)).localeCompare(pseudoKey(nameOf(b))));
     return c.length?c.map(p=>`<option value="${esc(p.uid)}">${esc(nameOf(p)||p.pseudo||'?')}${nameOf(p)!==p.pseudo?` (${esc(p.pseudo||'')})`:''}</option>`).join(''):'<option value="">(personne d\'autre)</option>';};
@@ -1413,7 +1506,7 @@ async function adminsDialog(focus){
     html:`<p>Le <b>super-administrateur</b> a tous les droits ; il n'y en a qu'un. Ici, tu nommes d'autres administrateurs et tu choisis ce qu'ils ont le droit de faire.</p>
       <div class="list sunken" id="adm-grid" style="max-height:38vh">${gridHtml()}</div>
       <div class="row" style="margin-top:8px"><label for="adm-add">Ajouter un administrateur :</label><span class="v"><select id="adm-add">${optsHtml()}</select><button type="button" class="btn mini" id="adm-addb">➕ Ajouter</button></span></div>
-      <fieldset><legend>Les droits</legend><ul class="admhelp">${DROITS.map(d=>`<li><span class="emo">${d[1]}</span> <b>${esc(d[2])}</b> : ${esc(d[3])}</li>`).join('')}</ul>
+      <fieldset><legend>Les droits</legend><ul class="admhelp">${droitsOk().map(d=>`<li><span class="emo">${d[1]}</span> <b>${esc(d[2])}</b> : ${esc(d[3])}</li>`).join('')}</ul>
         <p class="muted" style="margin:4px 0 0">Un administrateur ne peut pas modifier, supprimer ni changer le mot de passe d'un autre administrateur, ni le tien. Dans le jeu, il trouve le lien de la console dans « Mon compte ».</p></fieldset>
       <p class="err" id="adm-err" role="alert"></p>`,
     onOpen:(back,done)=>{
@@ -1434,7 +1527,7 @@ async function adminsDialog(focus){
       go.addEventListener('click',async e=>{
         e.stopPropagation();
         const err=q('#adm-err');err.textContent='';
-        const full=d=>Object.fromEntries(DROITS.filter(x=>x[0]==='voir'||d[x[0]]).map(x=>[x[0],true]));
+        const full=d=>Object.fromEntries(droitsOk().filter(x=>x[0]==='voir'||d[x[0]]).map(x=>[x[0],true]));
         const sets=rows.filter(r=>!r.del&&(r.isNew||JSON.stringify(full(r.droits))!==JSON.stringify(full(JSON.parse(r.orig)))));
         const dels=rows.filter(r=>r.del&&!r.isNew);
         if(!sets.length&&!dels.length){done(1);return;}
@@ -1619,13 +1712,446 @@ async function restoreDialog(data,fname){
   if(done1){await loadPlayers(false);render();setStatus(`Sauvegarde restaurée pour ${done1} joueur${done1>1?'s':''}`);}
 }
 
+/* =========================================================
+   Saisons : Halloween et calendrier de l'Avent (document config/saisons, lu par le jeu, même par les invités)
+   État : « off » (rien), « apercu » (annoncé, mais rien en vente / aucune case ne s'ouvre),
+   « tout » (annoncé « teaser » jours avant, puis actif pendant les dates).
+   ========================================================= */
+const SEAS_DEF=DATA.seasons;
+const AV_DEF=DATA.av;
+const MODES={off:'désactivé',apercu:'aperçu seulement',tout:'tout'};
+const ymdOf=t=>{const d=new Date(t);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;};
+const ymdT=v=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v||''));if(!m)return NaN;const d=new Date(+m[1],+m[2]-1,+m[3]);return d.getMonth()===+m[2]-1&&d.getDate()===+m[3]?d.getTime():NaN;};
+const dm=t=>{const d=new Date(t);return `${pad(d.getDate())}/${pad(d.getMonth()+1)}`;};
+const dmy=t=>`${['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'][new Date(t).getDay()]} ${dm(t)}`;
+/* nombre de jours (et donc de cases) entre deux dates, les deux comprises */
+const avDays=(a,b)=>{const e=new Date(b);e.setHours(0,0,0,0);return Math.round((e.getTime()-a)/86400e3)+1;};
+/* mêmes calculs que le jeu (seasonCfg / seasonWin) */
+function seasCfg(id,now=Date.now(),all=S.seas){
+  const z=SEAS_DEF[id];
+  const c=all&&typeof all==='object'&&all[id]&&typeof all[id]==='object'&&!Array.isArray(all[id])?all[id]:null;
+  const mode=c&&['off','apercu','tout'].includes(c.mode)?c.mode:z.mode;
+  const soon=c&&c.teaser!==undefined&&c.teaser!==null&&Number.isFinite(+c.teaser)?int(c.teaser,0,120):z.soon;
+  let a=c?ymdT(c.start):NaN,b=c?ymdT(c.end):NaN;
+  if(a<=b&&b-a<=z.max*86400e3){const e=new Date(b);e.setHours(23,59,59,999);b=e.getTime();}
+  else{const win=y=>[new Date(y,z.from[0],z.from[1]).getTime(),new Date(y,z.to[0],z.to[1],23,59,59,999).getTime()];
+    [a,b]=win(new Date(now).getFullYear());if(now>b)[a,b]=win(new Date(now).getFullYear()+1);}
+  return {id,mode,a,b,soon,c:c||{},set:!!c};
+}
+function seasSt(id,now=Date.now(),all=S.seas){
+  const k=seasCfg(id,now,all),early=now>=k.a-k.soon*86400e3;
+  return k.mode==='off'||now>k.b?'off':k.mode==='apercu'?(k.set||early?'soon':'off'):now>=k.a?'on':early?'soon':'off';
+}
+/* ce que les joueurs voient en ce moment */
+function seasTxt(id,all=S.seas){
+  const k=seasCfg(id,Date.now(),all),st=seasSt(id,Date.now(),all),z=SEAS_DEF[id],cal=id==='avent',now=Date.now();
+  if(k.mode==='off')return `${z.emo} ${cal?'Calendrier':'Halloween'} : désactivé`;
+  if(st==='on')return `${z.emo} ${cal?'Calendrier : ouvert':'Halloween : en vente'} jusqu'au ${dm(k.b)}`;
+  if(st==='soon')return k.mode==='apercu'?`${z.emo} ${cal?'Calendrier':'Halloween'} : aperçu seulement`:`${z.emo} ${cal?'Calendrier : annoncé, ouvre':'Halloween : annoncé, en vente'} le ${dm(k.a)}`;
+  if(now>k.b)return `${z.emo} ${cal?'Calendrier':'Halloween'} : terminé (${dm(k.a)} → ${dm(k.b)})`;
+  return `${z.emo} ${cal?'Calendrier':'Halloween'} : prévu du ${dm(k.a)} au ${dm(k.b)}${k.mode==='tout'&&k.soon?` (annonce le ${dm(k.a-k.soon*86400e3)})`:''}`;
+}
+const avItemOk=id=>{const x=SHOPK[id];return !!x&&x.c!=='bg'&&x.p>0;};
+function avBoxOf(c,i){
+  if(c&&typeof c==='object'){if(c.t==='o'&&avItemOk(c.id))return {t:'o',id:c.id};const n=Math.round(+c.n);if(c.t==='b'&&n>=1&&n<=500)return {t:'b',n};}
+  const d=AV_DEF[i];return d&&d.t==='o'&&avItemOk(d.id)?{t:'o',id:d.id}:{t:'b',n:(d&&d.n)||10};
+}
+const boxTxt=b=>b.t==='o'?(SHOPK[b.id]?`${SHOPK[b.id].e} ${SHOPK[b.id].de}`:b.id):`${b.n} 🥨`;
+async function seasDialog(){
+  closeMenus();
+  if(!can('evenements')){await noRight('de régler les saisons');return;}
+  if(S.rulesV<19){
+    if(isSuper())await rulesUpdate('Pour régler Halloween et le calendrier de l\'Avent depuis la console, colle d\'abord les nouvelles règles de Firebase.');
+    else await box({title:'Saisons',icon:'ℹ️',html:'<p>Les règles de Firebase ne sont pas encore à jour : le super-administrateur doit d\'abord les mettre à jour (encadré jaune de sa vue d\'ensemble).</p>'});
+    return;
+  }
+  const H=seasCfg('halloween'),V=seasCfg('avent');
+  const W={h:{mode:H.mode,start:ymdOf(H.a),end:ymdOf(H.b),teaser:H.soon},
+    v:{mode:V.mode,start:ymdOf(V.a),end:ymdOf(V.b),teaser:V.soon,rattrapage:V.c.rattrapage!==false,
+      deja:V.c.deja!==undefined&&V.c.deja!==null&&Number.isFinite(+V.c.deja)?int(V.c.deja,0,500):20,cases:[]}};
+  {const src=Array.isArray(V.c.cases)?V.c.cases:[];for(let i=0;i<31;i++)W.v.cases.push(avBoxOf(src[i],i));}
+  const orig=JSON.stringify(W);
+  const year=()=>String(new Date(ymdT(W.v.start)||V.a).getFullYear());
+  const opened=k=>S.players.filter(p=>!isArch(p)&&obj(obj(obj(p.progress).avent)[year()])[k]).length;
+  const nDays=()=>{const a=ymdT(W.v.start),b=ymdT(W.v.end);return a<=b?avDays(a,b):0;};
+  const groups=[['avent','🎄 Noël (seulement dans le calendrier)'],['char','Personnages'],['hat','Chapeaux'],['acc','Accessoires']];
+  const optHtml=b=>`<option value="b"${b.t==='b'?' selected':''}>🥨 Des bretzels</option>${groups.map(([k,l])=>{
+    const xs=DATA.shop.filter(x=>avItemOk(x.id)&&(k==='avent'?x.g==='avent':!x.g&&x.c===k));
+    return `<optgroup label="${esc(l)}">${xs.map(x=>`<option value="o:${esc(x.id)}"${b.t==='o'&&b.id===x.id?' selected':''}>${x.e} ${esc(x.de)} (${esc(x.fr)})${x.s==='halloween'?' 🎃':''}</option>`).join('')}</optgroup>`;}).join('')}`;
+  const casesHtml=()=>{
+    const a=ymdT(W.v.start),b=ymdT(W.v.end);
+    if(!(a<=b))return '<p class="warn" style="margin:6px">Choisis d\'abord des dates correctes (la fin après le début).</p>';
+    const n=avDays(a,b);if(n>31)return '<p class="warn" style="margin:6px">Le calendrier dure 31 jours au maximum.</p>';
+    return `<table class="grid avtab"><thead><tr><th scope="col" class="n">Case</th><th scope="col">Jour</th><th scope="col">Dans la case</th><th scope="col">Bretzels</th><th scope="col" class="n" title="Nombre de joueurs qui l'ont déjà ouverte">Ouverte par</th></tr></thead><tbody>${W.v.cases.slice(0,n).map((bx,i)=>{const d=new Date(a);d.setDate(d.getDate()+i);
+      return `<tr><td class="n"><b>${i+1}</b></td><td>${esc(dmy(d.getTime()))}</td><td><select data-avc="${i}" aria-label="Contenu de la case ${i+1}">${optHtml(bx)}</select></td><td><input type="number" data-avn="${i}" min="1" max="500" value="${bx.t==='b'?bx.n:''}" ${bx.t==='b'?'':'disabled'} aria-label="Bretzels de la case ${i+1}" style="width:64px"> 🥨</td><td class="n">${opened(i+1)}</td></tr>`;}).join('')}</tbody></table>`;
+  };
+  const sumTxt=()=>{const n=nDays();if(!n||n>31)return '';const bs=W.v.cases.slice(0,n);const nb=bs.filter(b=>b.t==='b').length;
+    return `${n} case${n>1?'s':''} : ${n-nb} objet${n-nb>1?'s':''} pour l'avatar et ${nb} case${nb>1?'s':''} de bretzels (${bs.reduce((t,b)=>t+(b.t==='b'?b.n:0),0)} 🥨 en tout).`;};
+  const live=()=>{const all={halloween:W.h,avent:W.v};return [seasTxt('halloween',all),seasTxt('avent',all)];};
+  let saved=null;
+  await box({title:'Saisons : Halloween et calendrier de l\'Avent',icon:'🎄',wide:true,buttons:['Enregistrer','Annuler'],def:0,cancel:1,
+    html:`<p style="margin-top:0">Ces réglages changent le jeu pour tous les joueurs (même ceux qui jouent sans compte). Ce que les joueurs ont gagné, ils le gardent.</p>
+    <div id="szform">
+    <fieldset><legend>🎃 Halloween : des objets en vente dans la boutique</legend>
+      <div class="row"><span class="l">État :</span><span class="v">
+        <label><input type="radio" name="sz-h" value="off"${W.h.mode==='off'?' checked':''}> Désactivé</label>
+        <label><input type="radio" name="sz-h" value="apercu"${W.h.mode==='apercu'?' checked':''}> Aperçu seulement</label>
+        <label><input type="radio" name="sz-h" value="tout"${W.h.mode==='tout'?' checked':''}> Tout</label></span></div>
+      <div class="row"><span class="l">Dates :</span><span class="v">du <input type="date" id="sz-h-a" value="${W.h.start}"> au <input type="date" id="sz-h-b" value="${W.h.end}"></span></div>
+      <div class="row"><label for="sz-h-t">Annonce :</label><span class="v"><input type="number" id="sz-h-t" min="0" max="120" value="${W.h.teaser}" style="width:64px"> jours avant le début</span></div>
+      <p class="muted" style="margin:2px 0 0"><b>Aperçu seulement</b> : les objets sont visibles dans la boutique mais 🔒, personne ne peut les acheter. <b>Tout</b> : annoncés quelques jours avant, puis en vente pendant les dates.</p>
+      <p class="szlive" id="sz-h-live"></p>
+    </fieldset>
+    <fieldset><legend>🎄 Calendrier de l'Avent : une case surprise par jour</legend>
+      <div class="row"><span class="l">État :</span><span class="v">
+        <label><input type="radio" name="sz-v" value="off"${W.v.mode==='off'?' checked':''}> Désactivé</label>
+        <label><input type="radio" name="sz-v" value="apercu"${W.v.mode==='apercu'?' checked':''}> Aperçu seulement</label>
+        <label><input type="radio" name="sz-v" value="tout"${W.v.mode==='tout'?' checked':''}> Tout</label></span></div>
+      <div class="row"><span class="l">Dates :</span><span class="v">du <input type="date" id="sz-v-a" value="${W.v.start}"> au <input type="date" id="sz-v-b" value="${W.v.end}"></span></div>
+      <div class="row"><label for="sz-v-t">Annonce :</label><span class="v"><input type="number" id="sz-v-t" min="0" max="120" value="${W.v.teaser}" style="width:64px"> jours avant le début</span></div>
+      <div class="row"><span class="l">Cases ratées :</span><span class="v"><label><input type="checkbox" id="sz-v-r"${W.v.rattrapage?' checked':''}> on peut encore ouvrir les cases des jours passés</label></span></div>
+      <div class="row"><label for="sz-v-d">Objet déjà gagné :</label><span class="v"><input type="number" id="sz-v-d" min="0" max="500" value="${W.v.deja}" style="width:64px"> 🥨 à la place</span></div>
+      <p class="muted" style="margin:2px 0 6px"><b>Aperçu seulement</b> : le calendrier est annoncé sur le QG et on peut le regarder, mais les cases restent fermées. <b>Tout</b> : annoncé quelques jours avant, puis une case s'ouvre chaque jour.</p>
+      <div class="list sunken" id="sz-cases" style="max-height:32vh">${casesHtml()}</div>
+      <div class="szbar"><span class="muted" id="sz-sum"></span><span><button type="button" class="btn mini" id="sz-mix">🎲 Mélanger</button><button type="button" class="btn mini" id="sz-def">Contenu par défaut</button></span></div>
+      <p class="szlive" id="sz-v-live"></p>
+    </fieldset>
+    </div>
+    <p class="err" id="sz-err" role="alert"></p>`,
+    onOpen:(back,done)=>{
+      const q=x=>back.querySelector(x);
+      const upd=()=>{const [h,v]=live();q('#sz-h-live').textContent=`Dans le jeu avec ces réglages : ${h}`;q('#sz-v-live').textContent=`Dans le jeu avec ces réglages : ${v}`;q('#sz-sum').textContent=sumTxt();};
+      const redraw=()=>{q('#sz-cases').innerHTML=casesHtml();upd();};
+      upd();
+      back.addEventListener('change',e=>{const t=e.target;if(!t.closest('#szform'))return;e.stopPropagation();
+        if(t.name==='sz-h')W.h.mode=t.value;
+        else if(t.name==='sz-v')W.v.mode=t.value;
+        else if(t.id==='sz-h-a')W.h.start=t.value;else if(t.id==='sz-h-b')W.h.end=t.value;
+        else if(t.id==='sz-v-a'){W.v.start=t.value;return redraw();}else if(t.id==='sz-v-b'){W.v.end=t.value;return redraw();}
+        else if(t.id==='sz-h-t')W.h.teaser=int(t.value,0,120);else if(t.id==='sz-v-t')W.v.teaser=int(t.value,0,120);
+        else if(t.id==='sz-v-r')W.v.rattrapage=t.checked;else if(t.id==='sz-v-d')W.v.deja=int(t.value,0,500);
+        else if(t.dataset.avc!==undefined){const i=+t.dataset.avc,old=W.v.cases[i];
+          W.v.cases[i]=t.value==='b'?{t:'b',n:old.t==='b'?old.n:((AV_DEF[i]&&AV_DEF[i].t==='b'&&AV_DEF[i].n)||10)}:{t:'o',id:t.value.slice(2)};
+          const inp=q(`[data-avn="${i}"]`);if(inp){inp.disabled=W.v.cases[i].t!=='b';inp.value=W.v.cases[i].t==='b'?W.v.cases[i].n:'';}}
+        else if(t.dataset.avn!==undefined){const i=+t.dataset.avn;if(W.v.cases[i].t==='b'){W.v.cases[i].n=int(t.value,1,500);t.value=W.v.cases[i].n;}}
+        upd();});
+      back.addEventListener('input',e=>{const t=e.target;if(t.type==='number'&&t.closest('#szform'))e.stopPropagation();});
+      q('#sz-def').addEventListener('click',e=>{e.stopPropagation();W.v.cases=W.v.cases.map((_,i)=>avBoxOf(null,i));redraw();});
+      q('#sz-mix').addEventListener('click',e=>{e.stopPropagation();const n=Math.min(nDays()||24,31),a=W.v.cases.slice(0,n);
+        for(let i=a.length-1;i>0;i--){const r=new Uint32Array(1);crypto.getRandomValues(r);const j=r[0]%(i+1);[a[i],a[j]]=[a[j],a[i]];}
+        W.v.cases=a.concat(W.v.cases.slice(n));redraw();});
+      const go=q('[data-i="0"]');
+      go.addEventListener('click',async e=>{
+        e.stopPropagation();const err=q('#sz-err');err.textContent='';
+        const ha=ymdT(W.h.start),hb=ymdT(W.h.end),va=ymdT(W.v.start),vb=ymdT(W.v.end);
+        if(!(ha<=hb))return void(err.textContent='Halloween : choisis des dates correctes (la fin le même jour ou après le début).');
+        if(hb-ha>62*86400e3)return void(err.textContent='Halloween : la période dure 2 mois au maximum.');
+        if(!(va<=vb))return void(err.textContent='Calendrier de l\'Avent : choisis des dates correctes (la fin le même jour ou après le début).');
+        const n=avDays(va,vb);if(n>31)return void(err.textContent='Calendrier de l\'Avent : 31 jours (31 cases) au maximum.');
+        if(JSON.stringify(W)===orig&&S.seas){done(1);return;}
+        const data={halloween:{mode:W.h.mode,start:W.h.start,end:W.h.end,teaser:int(W.h.teaser,0,120)},
+          avent:{mode:W.v.mode,start:W.v.start,end:W.v.end,teaser:int(W.v.teaser,0,120),rattrapage:!!W.v.rattrapage,deja:int(W.v.deja,0,500),
+            cases:W.v.cases.slice(0,n).map(b=>b.t==='o'?{t:'o',id:b.id}:{t:'b',n:int(b.n,1,500)})},
+          by:S.user.uid,updatedAt:Date.now()};
+        go.disabled=true;
+        try{await S.F.setDoc(S.F.doc(S.db,'config','saisons'),data);}
+        catch(x){go.disabled=false;
+          if(String(x&&x.code)==='permission-denied')err.textContent=isSuper()?'Firestore refuse : les règles de Firebase ne sont pas à jour (bouton « Mettre à jour les règles » dans la vue d\'ensemble).':'Firestore refuse : tu n\'as pas (ou plus) le droit de régler les saisons.';
+          else err.textContent='Ça n\'a pas marché : '+fsMsg(x);
+          return;}
+        const o=JSON.parse(orig),chgCases=JSON.stringify(o.v.cases.slice(0,n))!==JSON.stringify(W.v.cases.slice(0,n));
+        saved={data,chgCases};done(0);
+      });
+    }});
+  if(!saved)return;
+  const d=saved.data;S.seas=d;
+  addLog(`Saisons : Halloween ${MODES[d.halloween.mode]} (${dm(ymdT(d.halloween.start))} → ${dm(ymdT(d.halloween.end))}), calendrier de l'Avent ${MODES[d.avent.mode]} (${dm(ymdT(d.avent.start))} → ${dm(ymdT(d.avent.end))})${saved.chgCases?', contenu des cases modifié':''}`);
+  render();setStatus('Saisons enregistrées');
+  await box({title:'Saisons',icon:'🎄',html:`<p>Réglages enregistrés.</p><ul><li>${esc(seasTxt('halloween'))}</li><li>${esc(seasTxt('avent'))}</li></ul><p>Les joueurs voient le changement en revenant au QG du jeu (ou en moins de 5 minutes).</p>`});
+}
+
+/* =========================================================
+   Codes cadeaux : codes/{CODE} (lisible par un joueur qui connaît le code) ;
+   codes/{CODE}/uses/{uid} = un joueur qui l'a utilisé (une seule fois chacun).
+   ========================================================= */
+const CODE_ABC='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';  /* sans 0, O, 1, I : faciles à recopier */
+const codeKey=v=>String(v||'').toUpperCase().normalize('NFD').replace(/\p{M}/gu,'').replace(/\s+/g,'').replace(/\p{Pd}/gu,'-');
+function randCode(n){const r=new Uint32Array(n);crypto.getRandomValues(r);return [...r].map(x=>CODE_ABC[x%CODE_ABC.length]).join('');}
+const cleanTxt=v=>String(v||'').replace(/[\u0000-\u001f\u007f<>]/g,'').trim().slice(0,120);
+function codeOf(id,d){
+  d=obj(d);const n=(v,max)=>int(v,0,max);
+  return {id,bretzels:n(d.bretzels,1000),xp:n(d.xp,1000),objets:Array.isArray(d.objets)?d.objets.filter(x=>typeof x==='string').slice(0,10):[],
+    deja:d.deja===undefined||d.deja===null?20:n(d.deja,500),limite:n(d.limite,1e6),utilise:n(d.utilise,1e9),debut:n(d.debut,9e15),fin:n(d.fin,9e15),
+    pour:Array.isArray(d.pour)?d.pour.filter(x=>typeof x==='string'):[],actif:d.actif===true,msg:String(d.msg||'').slice(0,120),
+    note:String(d.note||'').slice(0,120),lot:String(d.lot||'').slice(0,40),by:String(d.by||''),at:num(d.at)};
+}
+const codeSt=c=>{const t=Date.now();if(!c.actif)return 'pause';if(c.fin&&t>c.fin)return 'fini';if(c.limite&&c.utilise>=c.limite)return 'epuise';if(c.debut&&t<c.debut)return 'bientot';return 'on';};
+const CODE_ST={on:'✅ actif',pause:'⏸️ en pause',bientot:'⏳ pas encore',fini:'⌛ expiré',epuise:'🏁 épuisé'};
+const itemTxt=id=>{const x=SHOPK[id];return x?`${x.e||'🎨'} ${x.de}`:id;};
+const rewardTxt=c=>[c.bretzels?`${c.bretzels} 🥨`:'',c.xp?`${c.xp} XP`:'',...c.objets.map(itemTxt)].filter(Boolean).join(' + ')||'—';
+const fmtShort=t=>{const d=new Date(t);return `${pad(d.getDate())}/${pad(d.getMonth()+1)} ${pad(d.getHours())}h${pad(d.getMinutes())}`;};
+const whenTxt2=c=>!c.debut&&!c.fin?'toujours':c.debut&&c.fin?`${fmtShort(c.debut)} → ${fmtShort(c.fin)}`:c.debut?`à partir du ${fmtShort(c.debut)}`:`jusqu'au ${fmtShort(c.fin)}`;
+const pName=uid=>{const p=S.players.find(x=>x.uid===uid);return p?(nameOf(p)||p.pseudo||'?'):'(compte supprimé)';};
+async function codesLoad(){
+  const snap=await S.F.getDocs(S.F.collection(S.db,'codes'));
+  const list=[];snap.forEach(d=>list.push(codeOf(d.id,d.data())));
+  S.codes=list.sort((a,b)=>b.at-a.at||a.id.localeCompare(b.id));
+}
+async function codesNeedRules(){
+  if(isSuper())await rulesUpdate('Pour créer des codes cadeaux, colle d\'abord les nouvelles règles de Firebase.');
+  else await box({title:'Codes cadeaux',icon:'ℹ️',html:'<p>Les règles de Firebase ne sont pas encore à jour : le super-administrateur doit d\'abord les mettre à jour (encadré jaune de sa vue d\'ensemble).</p>'});
+}
+async function codesDialog(){
+  closeMenus();
+  if(!can('codes')){await noRight('de gérer les codes cadeaux');return;}
+  if(S.rulesV<19){await codesNeedRules();return;}
+  setStatus('Chargement des codes…');
+  try{await codesLoad();}
+  catch(x){setStatus('Codes indisponibles');await box({title:'Codes cadeaux',icon:'⛔',html:`<p>La liste des codes n'a pas pu être lue.</p><p>${esc(fsMsg(x))}</p>`});return;}
+  setStatus(`${S.codes.length} code${S.codes.length>1?'s':''} cadeau${S.codes.length>1?'x':''}`);
+  let q='',old=false;
+  const vis=()=>{const k=codeKey(q),kn=pseudoKey(q);
+    return S.codes.filter(c=>(old||!['fini','epuise'].includes(codeSt(c)))&&(!q||c.id.includes(k)||pseudoKey(c.note).includes(kn)||pseudoKey(c.msg).includes(kn)||pseudoKey(rewardTxt(c)).includes(kn)));};
+  const table=()=>{const v=vis();
+    return v.length?`<table class="grid codegrid"><thead><tr><th scope="col">Code</th><th scope="col">Récompense</th><th scope="col" class="n">Utilisé</th><th scope="col">Quand</th><th scope="col">État</th><th scope="col"><span class="sr">Actions</span></th></tr></thead><tbody>${v.map(c=>{const st=codeSt(c);
+      return `<tr data-code="${esc(c.id)}"><td><code class="cd">${esc(c.id)}</code>${c.pour.length?` <span class="tag" title="Réservé à ${c.pour.length} joueur${c.pour.length>1?'s':''}">👤 ${c.pour.length}</span>`:''}${c.note?`<br><span class="muted">${esc(c.note)}</span>`:''}</td>
+        <td style="white-space:normal">${esc(rewardTxt(c))}</td><td class="n">${c.utilise} / ${c.limite||'∞'}</td><td>${esc(whenTxt2(c))}</td><td>${CODE_ST[st]}</td>
+        <td class="acts"><button type="button" class="btn mini" data-cd="edit" title="Modifier">✏️</button><button type="button" class="btn mini" data-cd="pause" title="${c.actif?'Mettre en pause':'Réactiver'}">${c.actif?'⏸️':'▶️'}</button><button type="button" class="btn mini" data-cd="uses" title="Qui l'a utilisé ?">👥</button><button type="button" class="btn mini" data-cd="copy" title="Copier le code">📋</button><button type="button" class="btn mini" data-cd="del" title="Supprimer">🗑️</button></td></tr>`;}).join('')}</tbody></table>`
+      :`<p class="muted" style="margin:8px">${S.codes.length?'Aucun code ne correspond.':'Aucun code pour l\'instant. Clique sur « Nouveau code… ».'}</p>`;};
+  await box({title:'Codes cadeaux',icon:'🎟️',wide:true,buttons:['➕ Nouveau code…','📤 Exporter','🖨️ Imprimer','Fermer'],def:0,cancel:3,
+    html:`<p style="margin-top:0">Dans le jeu, le joueur tape le code dans <b>Mon compte</b> › <b>Code cadeau</b> (ou dans la boutique) et gagne des bretzels, des XP ou des objets. Chaque joueur ne peut utiliser un même code qu'<b>une seule fois</b>.</p>
+      <div class="row"><label for="cd-q">Chercher :</label><span class="v"><input type="search" id="cd-q" placeholder="un code, une note…" autocomplete="off"><label style="margin-left:8px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="cd-old"> les codes expirés ou épuisés aussi</label></span></div>
+      <div class="list sunken" id="cd-list" style="max-height:44vh">${table()}</div>
+      <p class="muted" id="cd-n" role="status" style="margin:6px 0 0"></p>`,
+    onOpen:(back,done)=>{
+      const qq=x=>back.querySelector(x);
+      qq('.dlg').style.width='min(940px,100%)';
+      const upd=()=>{qq('#cd-list').innerHTML=table();const n=vis().length;qq('#cd-n').textContent=`${n} code${n>1?'s':''} affiché${n>1?'s':''} sur ${S.codes.length}`;};
+      upd();
+      qq('#cd-q').addEventListener('input',e=>{e.stopPropagation();q=e.target.value;upd();});
+      qq('#cd-old').addEventListener('change',e=>{e.stopPropagation();old=e.target.checked;upd();});
+      qq('[data-i="0"]').addEventListener('click',async e=>{e.stopPropagation();if(await codeEdit(null))upd();});
+      qq('[data-i="1"]').addEventListener('click',e=>{e.stopPropagation();exportCodes(vis());});
+      qq('[data-i="2"]').addEventListener('click',e=>{e.stopPropagation();printCodes(vis().filter(c=>['on','bientot'].includes(codeSt(c))));});
+      qq('#cd-list').addEventListener('click',async e=>{
+        const b=e.target.closest('[data-cd]');if(!b)return;e.stopPropagation();
+        const c=S.codes.find(x=>x.id===b.closest('tr').dataset.code);if(!c)return;
+        const a=b.dataset.cd;
+        if(a==='edit'){if(await codeEdit(c))upd();}
+        else if(a==='pause'){if(await codePause(c))upd();}
+        else if(a==='uses')await codeUses(c);
+        else if(a==='copy'){let ok=false;try{await navigator.clipboard.writeText(c.id);ok=true;}catch(x){}setStatus(ok?`Code ${c.id} copié`:'Copie impossible : sélectionne le code, puis Ctrl+C');}
+        else if(a==='del'){if(await codeDel(c))upd();}
+      });
+    }});
+  render();
+}
+/* créer (c = null) ou modifier un code : le grand panneau de réglages */
+async function codeEdit(c){
+  const isNew=!c,now=Date.now();
+  const W=c?Object.assign({},c,{objets:[...c.objets],pour:[...c.pour]})
+    :{id:'',bretzels:20,xp:0,objets:[],deja:20,limite:0,utilise:0,debut:0,fin:0,pour:[],actif:true,msg:'',note:'',lot:''};
+  let pq='',result=null;
+  const groups=[['avent','🎄 Noël (pas en vente)'],['halloween','🎃 Halloween'],['char','Personnages'],['hat','Chapeaux'],['acc','Accessoires'],['bg','Fonds d\'écran']];
+  const itemOpts=()=>`<option value="">— choisis un objet —</option>${groups.map(([k,l])=>{
+    const xs=DATA.shop.filter(x=>x.p>0&&!W.objets.includes(x.id)&&(k==='avent'?x.g==='avent':k==='halloween'?x.s==='halloween':!x.g&&!x.s&&x.c===k));
+    return xs.length?`<optgroup label="${esc(l)}">${xs.map(x=>`<option value="${esc(x.id)}">${x.e?x.e+' ':'🎨 '}${esc(x.de)} (${esc(x.fr)})</option>`).join('')}</optgroup>`:'';}).join('')}`;
+  const chips=()=>W.objets.length?W.objets.map(id=>`<span class="chip">${esc(itemTxt(id))}<button type="button" class="btn mini" data-rmo="${esc(id)}" aria-label="Retirer ${esc(itemTxt(id))}">✕</button></span>`).join(''):'<span class="muted">aucun objet</span>';
+  const plist=()=>{const f=pseudoKey(pq);
+    const ps=S.players.filter(p=>!isArch(p)&&(!f||pseudoKey(nameOf(p)).includes(f)||pseudoKey(p.pseudo).includes(f))).sort((a,b)=>pseudoKey(nameOf(a)).localeCompare(pseudoKey(nameOf(b))));
+    return ps.length?ps.map(p=>`<label class="pl"><input type="checkbox" data-pour="${esc(p.uid)}"${W.pour.includes(p.uid)?' checked':''}> ${esc(nameOf(p)||p.pseudo||'?')}</label>`).join(''):'<span class="muted">personne</span>';};
+  const lim0=W.limite||30;
+  const v=await box({title:isNew?'Nouveau code cadeau':`Modifier le code ${W.id}`,icon:'🎟️',wide:true,buttons:[isNew?'Créer':'Enregistrer','Annuler'],def:0,cancel:1,
+    html:`<div id="cdform">
+    <fieldset><legend>Le code</legend>
+      ${isNew?`<div class="row"><span class="l"><label><input type="radio" name="cd-k" value="1" checked> Un seul code :</label></span><span class="v"><input type="text" id="cd-code" maxlength="24" placeholder="NOEL2026" autocomplete="off" spellcheck="false" style="text-transform:uppercase;width:170px"><button type="button" class="btn mini" id="cd-rand">🎲 Au hasard</button></span></div>
+      <div class="row"><span class="l"><label><input type="radio" name="cd-k" value="n"> Plusieurs codes :</label></span><span class="v"><input type="number" id="cd-many" min="2" max="200" value="25" style="width:64px"> codes différents qui commencent par <input type="text" id="cd-pre" maxlength="12" placeholder="NOEL-" autocomplete="off" spellcheck="false" style="text-transform:uppercase;width:84px"></span></div>
+      <p class="muted" style="margin:2px 0 0">Lettres, chiffres et tirets. « Plusieurs codes » : par exemple un code différent pour chaque élève (NOEL-K7QX2, NOEL-3MPA8…).</p>`
+      :`<div class="row"><span class="l">Code :</span><span class="v"><code class="cd big">${esc(W.id)}</code> <span class="muted">(déjà utilisé ${W.utilise} fois)</span></span></div>`}
+    </fieldset>
+    <fieldset><legend>Ce que le joueur gagne</legend>
+      <div class="row"><label for="cd-b">🥨 Bretzels :</label><span class="v"><input type="number" id="cd-b" min="0" max="1000" value="${W.bretzels}"></span></div>
+      <div class="row"><label for="cd-x">⭐ XP :</label><span class="v"><input type="number" id="cd-x" min="0" max="1000" value="${W.xp}"> <span class="muted">(les XP font aussi gagner des bretzels et monter de rang)</span></span></div>
+      <div class="row"><label for="cd-o">🎁 Objets :</label><span class="v"><select id="cd-o">${itemOpts()}</select><button type="button" class="btn mini" id="cd-oadd">➕ Ajouter</button></span></div>
+      <div class="row"><span class="l"></span><span class="v" id="cd-chips">${chips()}</span></div>
+      <div class="row"><label for="cd-d">Objet déjà gagné :</label><span class="v"><input type="number" id="cd-d" min="0" max="500" value="${W.deja}"> 🥨 à la place</span></div>
+    </fieldset>
+    <fieldset><legend>Combien de joueurs ?</legend>
+      <div class="row"><span class="l">Utilisations :</span><span class="v"><label><input type="radio" name="cd-l" value="0"${W.limite?'':' checked'}> autant qu'on veut</label><label><input type="radio" name="cd-l" value="1"${W.limite?' checked':''}> au maximum</label><input type="number" id="cd-lim" min="1" max="100000" value="${lim0}" style="width:76px"> joueurs</span></div>
+      <p class="muted" style="margin:2px 0 0">Un même joueur ne peut jamais utiliser le même code deux fois.</p>
+    </fieldset>
+    <fieldset><legend>Quand ?</legend>
+      <div class="row"><span class="l">Début :</span><span class="v"><label><input type="radio" name="cd-s" value="now"${W.debut?'':' checked'}> tout de suite</label><label><input type="radio" name="cd-s" value="at"${W.debut?' checked':''}> le</label><input type="datetime-local" id="cd-sd" value="${toLocalInput(W.debut||now)}"></span></div>
+      <div class="row"><span class="l">Fin :</span><span class="v"><label><input type="radio" name="cd-e" value="never"${W.fin?'':' checked'}> jamais</label><label><input type="radio" name="cd-e" value="at"${W.fin?' checked':''}> le</label><input type="datetime-local" id="cd-ed" value="${toLocalInput(W.fin||now+7*86400e3)}"><button type="button" class="btn mini" data-dur="1">1 jour</button><button type="button" class="btn mini" data-dur="7">1 semaine</button><button type="button" class="btn mini" data-dur="30">1 mois</button></span></div>
+    </fieldset>
+    <fieldset><legend>Pour qui ?</legend>
+      <div class="row"><span class="l">Joueurs :</span><span class="v"><label><input type="radio" name="cd-p" value="all"${W.pour.length?'':' checked'}> tous les joueurs</label><label><input type="radio" name="cd-p" value="some"${W.pour.length?' checked':''}> seulement ceux que je coche</label></span></div>
+      <div id="cd-pbox"${W.pour.length?'':' hidden'}><input type="search" id="cd-pq" placeholder="chercher un joueur…" autocomplete="off" style="width:220px"> <span class="muted" id="cd-pn"></span><div class="list sunken pls" id="cd-pl">${plist()}</div></div>
+    </fieldset>
+    <fieldset><legend>Messages et état</legend>
+      <div class="row"><label for="cd-m">Message dans le jeu :</label><span class="v"><input type="text" id="cd-m" maxlength="120" value="${esc(W.msg)}" placeholder="Joyeux Noël ! 🎄" autocomplete="off" style="flex:1;min-width:0"></span></div>
+      <div class="row"><label for="cd-note">Note (admins) :</label><span class="v"><input type="text" id="cd-note" maxlength="120" value="${esc(W.note)}" placeholder="pour le concours de la 5e B (les joueurs ne la voient pas)" autocomplete="off" style="flex:1;min-width:0"></span></div>
+      <div class="row"><span class="l">État :</span><span class="v"><label><input type="checkbox" id="cd-on"${W.actif?' checked':''}> actif (décoche pour le mettre en pause)</label></span></div>
+    </fieldset>
+    </div>
+    <div class="info" id="cd-sum" style="margin:0"></div>
+    <p class="err" id="cd-ferr" role="alert"></p>`,
+    onOpen:(back,done)=>{
+      const q=x=>back.querySelector(x),radio=n=>(back.querySelector(`input[name="${n}"]:checked`)||{}).value;
+      const read=()=>{
+        W.bretzels=int(q('#cd-b').value,0,1000);W.xp=int(q('#cd-x').value,0,1000);W.deja=int(q('#cd-d').value,0,500);
+        W.limite=radio('cd-l')==='1'?int(q('#cd-lim').value,1,100000):0;
+        W.debut=radio('cd-s')==='at'?num(new Date(q('#cd-sd').value).getTime(),NaN):0;
+        W.fin=radio('cd-e')==='at'?num(new Date(q('#cd-ed').value).getTime(),NaN):0;
+        W.msg=cleanTxt(q('#cd-m').value);W.note=cleanTxt(q('#cd-note').value);W.actif=q('#cd-on').checked;
+        if(radio('cd-p')!=='some')W.pour=[];
+      };
+      const sum=()=>{read();const many=isNew&&radio('cd-k')==='n';
+        const who=radio('cd-p')==='some'?`${W.pour.length} joueur${W.pour.length>1?'s':''} choisi${W.pour.length>1?'s':''}`:'tous les joueurs';
+        q('#cd-sum').innerHTML=`<b>Résumé :</b> ${many?`${int(q('#cd-many').value,2,200)} codes`:'le code'} donne${many?'nt':''} <b>${esc(rewardTxt(W))}</b> · ${W.limite?`${W.limite} joueur${W.limite>1?'s':''} au maximum`:'sans limite de joueurs'}${many?' (par code)':''} · ${esc(who)} · ${esc(whenTxt2({debut:Number.isFinite(W.debut)?W.debut:0,fin:Number.isFinite(W.fin)?W.fin:0}))}${W.actif?'':' · <b>en pause</b>'}`;
+        const pn=q('#cd-pn');if(pn)pn.textContent=`${W.pour.length} coché${W.pour.length>1?'s':''}`;};
+      sum();
+      back.addEventListener('input',e=>{if(e.target.closest('#cdform')){e.stopPropagation();if(e.target.id==='cd-pq'){pq=e.target.value;q('#cd-pl').innerHTML=plist();}sum();}});
+      back.addEventListener('change',e=>{const t=e.target;if(!t.closest('#cdform'))return;e.stopPropagation();
+        if(t.dataset.pour!==undefined){const u=t.dataset.pour;W.pour=W.pour.filter(x=>x!==u);if(t.checked)W.pour.push(u);}
+        if(t.name==='cd-p')q('#cd-pbox').hidden=t.value!=='some';
+        if(t.id==='cd-sd')back.querySelector('input[name=cd-s][value=at]').checked=true;
+        if(t.id==='cd-ed')back.querySelector('input[name=cd-e][value=at]').checked=true;
+        if(t.id==='cd-lim')back.querySelector('input[name=cd-l][value="1"]').checked=true;
+        if(t.id==='cd-many'||t.id==='cd-pre')back.querySelector('input[name=cd-k][value=n]').checked=true;
+        if(t.id==='cd-code')back.querySelector('input[name=cd-k][value="1"]').checked=true;
+        sum();});
+      back.addEventListener('click',e=>{
+        const rm=e.target.closest('[data-rmo]');
+        if(rm){e.stopPropagation();W.objets=W.objets.filter(x=>x!==rm.dataset.rmo);q('#cd-chips').innerHTML=chips();q('#cd-o').innerHTML=itemOpts();sum();return;}
+        const du=e.target.closest('[data-dur]');
+        if(du){e.stopPropagation();const s=radio('cd-s')==='at'?new Date(q('#cd-sd').value).getTime():Date.now();q('#cd-ed').value=toLocalInput((Number.isFinite(s)?s:Date.now())+num(du.dataset.dur)*86400e3);back.querySelector('input[name=cd-e][value=at]').checked=true;sum();return;}
+        if(e.target.closest('#cd-oadd')){e.stopPropagation();const id=q('#cd-o').value;if(!id)return;
+          if(W.objets.length>=10){q('#cd-ferr').textContent='10 objets au maximum par code.';return;}
+          W.objets.push(id);q('#cd-chips').innerHTML=chips();q('#cd-o').innerHTML=itemOpts();sum();return;}
+        if(e.target.closest('#cd-rand')){e.stopPropagation();q('#cd-code').value=randCode(6);back.querySelector('input[name=cd-k][value="1"]').checked=true;sum();}
+      });
+      const go=q('[data-i="0"]');
+      go.addEventListener('click',async e=>{
+        e.stopPropagation();const err=q('#cd-ferr');err.textContent='';read();
+        const many=isNew&&radio('cd-k')==='n';
+        let ids=[];
+        if(isNew&&!many){const k=codeKey(q('#cd-code').value);q('#cd-code').value=k;
+          if(!k)return void(err.textContent='Écris le code (ou clique sur « 🎲 Au hasard »).');
+          if(!/^[A-Z0-9-]{3,24}$/.test(k))return void(err.textContent='Le code : 3 à 24 lettres (sans accent), chiffres ou tirets.');
+          if(S.codes.some(x=>x.id===k))return void(err.textContent=`Le code ${k} existe déjà.`);
+          ids=[k];}
+        let pre='';
+        if(many){pre=codeKey(q('#cd-pre').value);q('#cd-pre').value=pre;
+          if(!/^[A-Z0-9-]{0,12}$/.test(pre))return void(err.textContent='Le début des codes : lettres (sans accent), chiffres ou tirets, 12 au maximum.');
+          const N=int(q('#cd-many').value,2,200),have=new Set(S.codes.map(x=>x.id));
+          for(let t=0;ids.length<N&&t<N*50;t++){const k=pre+randCode(pre?5:6);if(!have.has(k)&&!ids.includes(k))ids.push(k);}
+          if(ids.length<N)return void(err.textContent='Impossible de trouver assez de codes différents : change le début des codes.');}
+        if(!W.bretzels&&!W.xp&&!W.objets.length)return void(err.textContent='Choisis au moins une récompense : des bretzels, des XP ou un objet.');
+        if(!Number.isFinite(W.debut))return void(err.textContent='Choisis la date de début (ou « tout de suite »).');
+        if(!Number.isFinite(W.fin))return void(err.textContent='Choisis la date de fin (ou « jamais »).');
+        if(W.fin&&W.fin<=(W.debut||Date.now()))return void(err.textContent='La fin doit être après le début (et pas déjà passée).');
+        if(radio('cd-p')==='some'&&!W.pour.length)return void(err.textContent='Coche au moins un joueur (ou choisis « tous les joueurs »).');
+        if(!isNew&&W.limite&&W.limite<W.utilise)return void(err.textContent=`Ce code a déjà été utilisé ${W.utilise} fois : le maximum ne peut pas être plus petit.`);
+        const t=Date.now();
+        const fields={bretzels:W.bretzels,xp:W.xp,objets:W.objets.slice(0,10),deja:W.deja,limite:W.limite,debut:Math.round(W.debut),fin:Math.round(W.fin),
+          pour:W.pour.slice(0,300),actif:!!W.actif,msg:W.msg,note:W.note,by:S.user.uid,at:t};
+        go.disabled=true;
+        try{
+          if(isNew){
+            if(!many){const ex=await S.F.getDoc(S.F.doc(S.db,'codes',ids[0]));if(ex.exists()){go.disabled=false;err.textContent=`Le code ${ids[0]} existe déjà.`;return;}}
+            const lot=many?`${pre||'lot'}·${t}`:'';
+            for(let i=0;i<ids.length;i+=400){const b=S.F.writeBatch(S.db);for(const k of ids.slice(i,i+400))b.set(S.F.doc(S.db,'codes',k),Object.assign({},fields,{utilise:0,lot}));await b.commit();}
+          }else await S.F.updateDoc(S.F.doc(S.db,'codes',W.id),fields);
+        }catch(x){go.disabled=false;
+          if(String(x&&x.code)==='permission-denied')err.textContent=isSuper()?'Firestore refuse : les règles de Firebase ne sont pas à jour (bouton « Mettre à jour les règles » dans la vue d\'ensemble).':'Firestore refuse : tu n\'as pas (ou plus) le droit de gérer les codes cadeaux.';
+          else err.textContent='Ça n\'a pas marché : '+fsMsg(x);
+          return;}
+        result={ids,many,pre,fields};done(0);
+      });
+    }});
+  if(v!==0||!result)return false;
+  const r=result,what=rewardTxt(r.fields),lim=r.fields.limite?`${r.fields.limite} joueur${r.fields.limite>1?'s':''} max`:'sans limite';
+  if(isNew&&r.many)addLog(`${r.ids.length} codes cadeaux créés (${r.pre?`${r.pre}…`:'au hasard'}) : ${what}, ${lim} par code`);
+  else if(isNew)addLog(`Code cadeau ${r.ids[0]} créé : ${what}, ${lim}${r.fields.pour.length?`, pour ${r.fields.pour.length} joueur${r.fields.pour.length>1?'s':''}`:''}`);
+  else addLog(`Code cadeau ${W.id} modifié : ${what}, ${lim}${r.fields.actif?'':', en pause'}`);
+  try{await codesLoad();}catch(x){}
+  render();setStatus(isNew?(r.many?`${r.ids.length} codes créés`:`Code ${r.ids[0]} créé`):`Code ${W.id} enregistré`);
+  if(isNew){
+    const list=r.ids.join('\n');
+    await box({title:r.many?'Codes créés':'Code créé',icon:'✅',wide:r.many,buttons:r.many?['📋 Copier la liste','🖨️ Imprimer','OK']:['📋 Copier','OK'],def:r.many?2:1,cancel:r.many?2:1,
+      html:`<p>${r.many?`<b>${r.ids.length} codes</b> créés`:`Le code <code class="cd big">${esc(r.ids[0])}</code> est créé`} : ${esc(what)}.</p>${r.many?`<textarea readonly rows="8" id="cd-out" aria-label="Les codes">${esc(list)}</textarea>`:''}
+        <p>Dans le jeu : <b>Mon compte</b> › <b>Code cadeau</b>.${r.fields.actif?'':' Le code est <b>en pause</b> : pense à le réactiver.'}</p><p class="err" id="cd-cmsg" role="status"></p>`,
+      onOpen:(back)=>{
+        back.querySelector('[data-i="0"]').addEventListener('click',async e=>{e.stopPropagation();let ok=false;try{await navigator.clipboard.writeText(list);ok=true;}catch(x){}
+          const m=back.querySelector('#cd-cmsg');m.className=ok?'okc':'err';m.textContent=ok?'✅ Copié !':'Sélectionne le texte, puis Ctrl+C.';});
+        if(r.many)back.querySelector('[data-i="1"]').addEventListener('click',e=>{e.stopPropagation();printCodes(S.codes.filter(c=>r.ids.includes(c.id)));});
+      }});
+  }
+  return true;
+}
+async function codePause(c){
+  const on=!c.actif;
+  try{await S.F.updateDoc(S.F.doc(S.db,'codes',c.id),{actif:on,by:S.user.uid,at:Date.now()});}
+  catch(x){await box({title:'Erreur',icon:'⛔',html:`<p>Le code n'a pas pu être ${on?'réactivé':'mis en pause'}.</p><p>${esc(fsMsg(x))}</p>`});return false;}
+  c.actif=on;addLog(`Code cadeau ${c.id} ${on?'réactivé':'mis en pause'}`);setStatus(`Code ${c.id} ${on?'réactivé':'en pause'}`);
+  return true;
+}
+async function codeUses(c){
+  let rows=[];
+  try{const snap=await S.F.getDocs(S.F.collection(S.db,'codes',c.id,'uses'));snap.forEach(d=>{const x=d.data()||{};rows.push({uid:d.id,pseudo:String(x.pseudo||''),at:num(x.at)});});}
+  catch(x){await box({title:'Erreur',icon:'⛔',html:`<p>La liste n'a pas pu être lue.</p><p>${esc(fsMsg(x))}</p>`});return;}
+  rows.sort((a,b)=>b.at-a.at);
+  await box({title:`Code ${c.id} : qui l'a utilisé ?`,icon:'👥',wide:true,
+    html:`<p style="margin-top:0">${rows.length?`<b>${rows.length}</b> joueur${rows.length>1?'s':''}`:'Personne pour l\'instant'}${c.limite?` sur ${c.limite} au maximum`:''}. Récompense : ${esc(rewardTxt(c))}.</p>
+      ${rows.length?`<div class="list sunken" style="max-height:46vh"><table class="grid"><thead><tr><th scope="col">Joueur</th><th scope="col">Date</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(S.players.some(p=>p.uid===r.uid)?pName(r.uid):(r.pseudo||'?'))}</td><td>${esc(fmtDate(r.at))}</td></tr>`).join('')}</tbody></table></div>`:''}`});
+}
+async function codeDel(c){
+  const v=await box({title:'Supprimer le code',icon:'🗑️',buttons:['Supprimer','Annuler'],def:1,cancel:1,
+    html:`<p>Supprimer le code <code class="cd">${esc(c.id)}</code> (${esc(rewardTxt(c))}) ?</p><p>Il ne marchera plus dans le jeu. Les joueurs qui l'ont déjà utilisé gardent leur récompense.</p>`});
+  if(v!==0)return false;
+  try{
+    const snap=await S.F.getDocs(S.F.collection(S.db,'codes',c.id,'uses'));const refs=[];snap.forEach(d=>refs.push(d.ref));
+    for(let i=0;i<refs.length;i+=400){const b=S.F.writeBatch(S.db);refs.slice(i,i+400).forEach(r=>b.delete(r));await b.commit();}
+    await S.F.deleteDoc(S.F.doc(S.db,'codes',c.id));
+  }catch(x){await box({title:'Erreur',icon:'⛔',html:`<p>Le code n'a pas pu être supprimé.</p><p>${esc(fsMsg(x))}</p>`});return false;}
+  S.codes=S.codes.filter(x=>x.id!==c.id);
+  addLog(`Code cadeau ${c.id} supprimé`);setStatus(`Code ${c.id} supprimé`);
+  return true;
+}
+function exportCodes(list){
+  const head=['code','recompense','bretzels','xp','objets','utilise','maximum','debut','fin','etat','reserve_a','message','note'];
+  const rows=list.map(c=>[c.id,rewardTxt(c),c.bretzels,c.xp,c.objets.map(itemTxt).join(', '),c.utilise,c.limite||'',c.debut?fmtDate(c.debut):'',c.fin?fmtDate(c.fin):'',CODE_ST[codeSt(c)].replace(/^\S+\s/,''),c.pour.map(pName).join(', '),c.msg,c.note]);
+  const csv=[head,...rows].map(r=>r.map(csvCell).join(';')).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([String.fromCharCode(0xFEFF)+csv],{type:'text/csv;charset=utf-8'}));
+  const d=new Date();a.download=`codes-cadeaux-operation-bretzel-${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}.csv`;
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
+  setStatus('Codes exportés');
+}
+/* une page à imprimer : un ticket par code, à découper */
+function printCodes(list){
+  if(!list.length){box({title:'Imprimer',icon:'ℹ️',html:'<p>Aucun code actif à imprimer dans la liste affichée.</p>'});return;}
+  const url=new URL('./',location.href).href;
+  const w=window.open('','_blank');
+  if(!w){box({title:'Imprimer',icon:'⛔',html:'<p>Le navigateur a bloqué la nouvelle fenêtre. Autorise les fenêtres pour ce site, puis recommence.</p>'});return;}
+  w.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Codes cadeaux – Opération Bretzel</title><style>
+    body{font:13px Arial,Helvetica,sans-serif;margin:10mm;color:#000}.np{margin:0 0 6mm}.np button{font:inherit;padding:4px 12px}
+    .g{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}.t{border:1.5px dashed #000;border-radius:3mm;padding:4mm 3mm;text-align:center;break-inside:avoid}
+    .h{font-weight:bold}.c{font:bold 21px 'Courier New',Courier,monospace;letter-spacing:2px;margin:2mm 0;word-break:break-all}.r{font-size:12px}.u{font-size:10px;color:#333;margin-top:2mm}
+    @media print{.np{display:none}body{margin:6mm}}</style></head><body>
+    <div class="np"><button onclick="print()">🖨️ Imprimer</button> ${list.length} code${list.length>1?'s':''}</div>
+    <div class="g">${list.map(c=>`<div class="t"><div class="h">🎟️ Code cadeau – Opération Bretzel 🥨</div><div class="c">${esc(c.id)}</div><div class="r">${esc(rewardTxt(c))}</div>${c.debut?`<div class="r">À partir du ${esc(fmtDate(c.debut))}</div>`:''}${c.fin?`<div class="r">Valable jusqu'au ${esc(fmtDate(c.fin))}</div>`:''}${c.pour.length?`<div class="r">Pour : ${esc(c.pour.map(pName).join(', '))}</div>`:''}<div class="u">Dans le jeu : Mon compte › Code cadeau<br>${esc(url)}</div></div>`).join('')}</div></body></html>`);
+  w.document.close();
+  setStatus('Page des codes ouverte');
+}
+
 /* ---------- menus ---------- */
 const MENUS={
   fichier:()=>[['🔄 Actualiser','F5','refresh'],['📤 Exporter la liste…','','export'],['💾 Sauvegarde…','','backup',!isSuper()],'-',['🎮 Ouvrir le jeu','','game'],'-',['🚪 Se déconnecter','','logout']],
   edition:()=>[['💾 Enregistrer','Ctrl+S','save',!dirty()||!canEdit()],['↩️ Annuler les modifications','','cancel',!dirty()],'-',['👻 Supprimer tous les fantômes','','gdelall',!canEdit()]],
   affichage:()=>[['📊 Vue d\'ensemble','','tab:ens'],[`${S.showArch?'☑':'☐'} Afficher les fiches archivées`,'','arch'],'-',['Trier par pseudo','','sort:pseudo'],['Trier par XP','','sort:xp'],['Trier par activité','','sort:act'],'-',['📒 Journal des modifications','','journal']],
   joueur:()=>[['Général','','tab:gen',!cur()],['Missions','','tab:mis',!cur()],['Fantômes','','tab:fan',!cur()],['Badges','','tab:bad',!cur()],['Boutique','','tab:bou',!cur()],'-',['🧹 Remettre à zéro…','','reset',!canEdit()],['🔑 Mot de passe / identifiant…','','pw',!canPw()],['🗑️ Supprimer le compte…','','delacc',!canDel()],['⏸️ Suspendre / lever la suspension…','','suspend',!canSus()],['Fermer la fiche','','close',!cur()]],
-  outils:()=>[['🎉 Événement XP / bretzels…','','event',!can('evenements')],[`⏹ Arrêter / annuler l'événement`,'','evstop',evState()==='none'||!can('evenements')],'-',['👥 Administrateurs et droits…','','admins',!isSuper()],'-',['📤 Exporter la liste…','','export'],['📒 Journal des modifications','','journal']],
+  outils:()=>[['🎉 Événement XP / bretzels…','','event',!can('evenements')],[`⏹ Arrêter / annuler l'événement`,'','evstop',evState()==='none'||!can('evenements')],['🎄 Saisons et calendrier de l\'Avent…','','seasons',!can('evenements')],['🎟️ Codes cadeaux…','','codes',!can('codes')],'-',['👥 Administrateurs et droits…','','admins',!isSuper()],'-',['📤 Exporter la liste…','','export'],['📒 Journal des modifications','','journal']],
   aide:()=>[['❓ Aide','F1','help'],['🥨 À propos de Bretzel Admin','','about']]
 };
 function closeMenus(){document.querySelectorAll('.menubar .m.open').forEach(m=>{m.classList.remove('open');const x=m.querySelector('.menu');if(x)x.remove();});const sm=$('.startmenu');if(sm)sm.remove();}
@@ -1639,7 +2165,7 @@ function openMenu(name){
 function startMenu(){
   if($('.startmenu')){closeMenus();return;}closeMenus();
   const d=document.createElement('div');d.className='startmenu raised';
-  d.innerHTML=`<div class="side">Bretzel Admin</div><div class="items"><button data-act="mi" data-do="game"><span class="emo">🎮</span>Ouvrir le jeu</button><button data-act="mi" data-do="tab:ens"><span class="emo">📊</span>Vue d'ensemble</button><button data-act="mi" data-do="event"><span class="emo">🎉</span>Événement…</button>${isSuper()?'<button data-act="mi" data-do="admins"><span class="emo">👥</span>Administrateurs…</button><button data-act="mi" data-do="backup"><span class="emo">💾</span>Sauvegarde…</button>':''}<button data-act="mi" data-do="help"><span class="emo">❓</span>Aide</button><hr style="border:0;border-top:1px solid var(--shadow);border-bottom:1px solid var(--light);margin:2px"><button data-act="mi" data-do="logout"><span class="emo">🚪</span>Se déconnecter…</button></div>`;
+  d.innerHTML=`<div class="side">Bretzel Admin</div><div class="items"><button data-act="mi" data-do="game"><span class="emo">🎮</span>Ouvrir le jeu</button><button data-act="mi" data-do="tab:ens"><span class="emo">📊</span>Vue d'ensemble</button><button data-act="mi" data-do="event"><span class="emo">🎉</span>Événement…</button><button data-act="mi" data-do="seasons"><span class="emo">🎄</span>Saisons…</button><button data-act="mi" data-do="codes"><span class="emo">🎟️</span>Codes cadeaux…</button>${isSuper()?'<button data-act="mi" data-do="admins"><span class="emo">👥</span>Administrateurs…</button><button data-act="mi" data-do="backup"><span class="emo">💾</span>Sauvegarde…</button>':''}<button data-act="mi" data-do="help"><span class="emo">❓</span>Aide</button><hr style="border:0;border-top:1px solid var(--shadow);border-bottom:1px solid var(--light);margin:2px"><button data-act="mi" data-do="logout"><span class="emo">🚪</span>Se déconnecter…</button></div>`;
   document.body.appendChild(d);
 }
 async function doAction(a){
@@ -1647,7 +2173,7 @@ async function doAction(a){
   if(a.startsWith('tab:'))return setTab(a.slice(4));
   if(a.startsWith('sort:')){const k=a.slice(5);S.sort={k,d:k==='pseudo'?1:-1};return render();}
   if(a==='arch'){S.showArch=!S.showArch;return render();}
-  ({refresh,export:exportCsv,pw:pwDialog,event:evDialog,evstop:()=>evStop(true),delacc:delDialog,admins:()=>adminsDialog(),suspend:susDialog,backup:backupDialog,
+  ({refresh,export:exportCsv,pw:pwDialog,event:evDialog,seasons:seasDialog,codes:codesDialog,evstop:()=>evStop(true),delacc:delDialog,admins:()=>adminsDialog(),suspend:susDialog,backup:backupDialog,
     rules:()=>rulesUpdate('Les règles de sécurité de Firebase datent d\'avant les dernières nouveautés : les événements et la suppression de comptes ne peuvent pas marcher.'),game:()=>window.open('./','_blank','noopener'),logout,save,cancel,reset:resetPlayer,journal:showJournal,help,about,
     gdelall:()=>delGhosts(true),close:closeFiche})[a]?.();
 }
