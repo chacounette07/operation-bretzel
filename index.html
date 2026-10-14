@@ -418,6 +418,20 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.05;
 .sitem.nope{animation:shake .4s}
 .swatch{width:46px;height:46px;border-radius:12px;border:3px solid var(--ink);background:var(--sw)}
 .swatch.night{background:radial-gradient(circle,rgba(255,255,255,.85) 1px,transparent 1.7px) 0 0/10px 10px,#1F2A4D}
+.swatch.geisternacht{background:radial-gradient(circle,#FF8A1F 1.3px,transparent 2px) 0 0/10px 10px,#2B1240}
+.sitem.locked{opacity:.8}
+.sitem .st.lock{background:#E9E1F7;color:#3B2A55}
+.season.s-halloween{background:linear-gradient(160deg,#2B1240,#4A1E5C);color:#FFF4E0}
+.season.s-halloween .h2{color:#FFB15C;margin:0}
+.season .sitem{color:var(--ink)}
+.season .sde{margin:4px 0 0;font-size:18px}
+.season .sde span{font-weight:700;opacity:.85}
+.season .swhen{margin:6px 0 12px;font-weight:700}
+.seasonban{display:flex;gap:14px;align-items:center}
+.seasonban.s-halloween{background:linear-gradient(135deg,#2B1240,#5B2A86);color:#FFF4E0}
+.seasonban>.emo{font-size:40px;line-height:1;flex:none}
+.seasonban h3{margin:0;font-size:21px;color:#FFB15C}
+.seasonban p{margin:4px 0 10px;font-weight:700}
 .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translate(-50%,160%);z-index:60;width:max-content;max-width:min(30rem,calc(100vw - 32px));background:var(--ink);color:var(--paper);border-radius:16px;padding:10px 16px;font-weight:800;box-shadow:4px 4px 0 var(--red);transition:transform .25s ease-out;pointer-events:none;text-align:center}
 .toast.on{transform:translate(-50%,0)}
 /* carte */
@@ -474,6 +488,9 @@ html[data-bg="candy"],body[data-bg="candy"]:not(.paper){background-color:#FFB3D9
 html[data-bg="night"]{background-color:#1F2A4D}
 body[data-bg="night"]:not(.paper){background-color:#1F2A4D;background-image:radial-gradient(circle,rgba(255,255,255,.6) 1px,transparent 1.7px),radial-gradient(circle,rgba(255,255,255,.25) 1px,transparent 1.6px);background-size:46px 46px,23px 23px;background-position:0 0,11px 13px}
 body[data-bg="night"]:not(.paper) :is(.h2,.h2sub,.pitch,.savenote,.reset,.reset .link,.res-hero .tr,.res-hero .quip,.coinline,.coinline .link){color:#F3EEDF}
+html[data-bg="geisternacht"]{background-color:#2B1240}
+body[data-bg="geisternacht"]:not(.paper){background-color:#2B1240;background-image:radial-gradient(circle,rgba(255,138,31,.55) 1.2px,transparent 1.8px),radial-gradient(circle,rgba(190,130,255,.3) 1px,transparent 1.6px);background-size:44px 44px,22px 22px;background-position:0 0,11px 13px}
+body[data-bg="geisternacht"]:not(.paper) :is(.h2,.h2sub,.pitch,.savenote,.reset,.reset .link,.res-hero .tr,.res-hero .quip,.coinline,.coinline .link){color:#F3EEDF}
 @media (prefers-reduced-motion: reduce){.mstop.cur .pin,.mstop .me{animation:none}}
 </style>
 </head>
@@ -1350,9 +1367,32 @@ const SHOP=[
   {id:'sky',cat:'bg',sw:'#8FD3FF',de:'der Himmel',name:'le ciel',price:60},
   {id:'mint',cat:'bg',sw:'#9BE8C8',de:'die Minze',name:'la menthe',price:60},
   {id:'candy',cat:'bg',sw:'#FFB3D9',de:'die Zucker\u00ADwatte',name:'la barbe à papa',price:80},
-  {id:'night',cat:'bg',sw:'#1F2A4D',de:'die Sternen\u00ADnacht',name:'la nuit étoilée',price:150}
+  {id:'night',cat:'bg',sw:'#1F2A4D',de:'die Sternen\u00ADnacht',name:'la nuit étoilée',price:150},
+  /* Halloween : en vente seulement pendant la période d'Halloween (voir SEASONS) ; une fois achetés, on les garde */
+  {id:'kuerbis',cat:'char',emo:'🎃',de:'der Kürbis',name:'la citrouille',price:120,season:'halloween'},
+  {id:'gespenst',cat:'char',emo:'👻',de:'das Gespenst',name:'le fantôme',price:120,season:'halloween'},
+  {id:'fledermaus',cat:'char',emo:'🦇',de:'die Fleder\u00ADmaus',name:'la chauve-souris',price:150,season:'halloween'},
+  {id:'vampir',cat:'char',emo:'🧛',de:'der Vampir',name:'le vampire',price:200,season:'halloween'},
+  {id:'hexe',cat:'char',emo:'🧙‍♀️',de:'die Hexe',name:'la sorcière',price:220,season:'halloween'},
+  {id:'spinne',cat:'hat',emo:'🕷️',de:'die Spinne',name:'l\'araignée',price:60,season:'halloween'},
+  {id:'netz',cat:'hat',emo:'🕸️',de:'das Spin\u00ADnen\u00ADnetz',name:'la toile d\'araignée',price:80,season:'halloween'},
+  {id:'suess',cat:'acc',emo:'🍬',de:'die Süßig\u00ADkeit',name:'la friandise',price:30,season:'halloween'},
+  {id:'kerze',cat:'acc',emo:'🕯️',de:'die Kerze',name:'la bougie',price:50,season:'halloween'},
+  {id:'besen',cat:'acc',emo:'🧹',de:'der Besen',name:'le balai de sorcière',price:80,season:'halloween'},
+  {id:'kugel',cat:'acc',emo:'🔮',de:'die Kristall\u00ADkugel',name:'la boule de cristal',price:120,season:'halloween'},
+  {id:'geisternacht',cat:'bg',sw:'#2B1240',de:'die Geister\u00ADnacht',name:'la nuit des fantômes',price:150,season:'halloween'}
 ];
 const SHOPK=Object.fromEntries(SHOP.map(x=>[x.id,x]));
+/* objets de saison : en vente seulement pendant leur période (chaque année), annoncés « soon » jours avant */
+const SEASONS={halloween:{from:[9,17],to:[10,2],soon:7,emo:'🎃',title:'Spécial Halloween',de:'Süßes oder Saures!',fr:'des bonbons ou un sort !',teaser:'citrouille, fantôme, vampire, sorcière…'}};
+function seasonWin(id,now=Date.now()){
+  const z=SEASONS[id];if(!z)return null;
+  const win=y=>({a:new Date(y,z.from[0],z.from[1]).getTime(),b:new Date(y,z.to[0],z.to[1],23,59,59,999).getTime()});
+  let w=win(new Date(now).getFullYear());if(now>w.b)w=win(new Date(now).getFullYear()+1);
+  return Object.assign(w,{st:now>=w.a?'on':now>=w.a-z.soon*86400e3?'soon':'off'});
+}
+const forSale=x=>!x.season||seasonWin(x.season).st==='on';
+const dayMonth=t=>{const d=new Date(t);return `${['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'][d.getDay()]} ${d.getDate()}${d.getDate()===1?'er':''} ${['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'][d.getMonth()]}`;};
 /* le nom allemand sans les petits tirets cachés (pour la voix), et les deux noms ensemble pour les messages */
 const deTxt=x=>String(x.de||'').replace(/\u00AD/g,'');
 const deFr=x=>`<b lang="de">${esc(x.de)}</b> (${esc(x.name)})`;
@@ -1811,6 +1851,7 @@ function renderHome(){
   <div class="stack">
     ${noticePanels()}
     ${evBanner()}
+    ${seasonBanner()}
     ${state.seenIntro?'':`<section class="panel intro"><h2>Comment ça marche ?</h2><ol>
       <li><b class="n">1</b><span>Choisis une mission : 10 questions sur ton cours.</span></li>
       <li><b class="n">2</b><span>Chaque erreur devient un fantôme <span class="emo">👻</span> qui revient quelques questions plus tard, puis le lendemain, 3 jours après et une semaine après.</span></li>
@@ -2679,16 +2720,36 @@ function renderShop(){
   <div class="stack">
     <section class="panel shophead">${avatarHtml('big')}
       <div><h3>Ton avatar</h3><p>Tu gagnes <b>1 🥨 tous les 10 XP</b>, et <b>+${MAP_BONUS} 🥨</b> à chaque nouvelle étape de la carte d'aventure.</p><p class="dds">Les noms sont en allemand : <b>der</b> = masculin, <b>die</b> = féminin, <b>das</b> = neutre.</p></div></section>
-    ${SHOP_CATS.map(([cat,label])=>`<section><h2 class="h2" style="margin-top:6px">${label}</h2><div class="sgrid">${SHOP.filter(x=>x.cat===cat).map(x=>{
-      const own=owns(x.id),on=s.eq[cat]===x.id;
-      const look=cat==='bg'?`<span class="swatch ${x.id}" style="--sw:${x.sw}"></span>`:`<span class="emo">${x.emo}</span>`;
-      const tag=on?'<span class="st on">✓ Équipé</span>':own?`<span class="st">${cat==='hat'||cat==='acc'?'Mettre':'Choisir'}</span>`:`<span class="st price ${c>=x.price?'':'nope'}">🥨 ${x.price}</span>`;
-      return `<button class="sitem ${on?'on':''} ${own?'own':''}" data-act="shopitem" data-id="${x.id}" aria-pressed="${on}">${look}<b lang="de">${esc(x.de)}</b><small>${esc(x.name)}</small>${tag}</button>`;}).join('')}</div></section>`).join('')}
+    ${Object.keys(SEASONS).map(k=>seasonShop(k,s,c)).join('')}
+    ${SHOP_CATS.map(([cat,label])=>`<section><h2 class="h2" style="margin-top:6px">${label}</h2><div class="sgrid">${SHOP.filter(x=>x.cat===cat&&(!x.season||(owns(x.id)&&seasonWin(x.season).st==='off'))).map(x=>shopCard(x,s,c,false)).join('')}</div></section>`).join('')}
   </div>`;
+}
+function shopCard(x,s,c,locked){
+  const cat=x.cat,own=owns(x.id),on=s.eq[cat]===x.id;
+  const look=cat==='bg'?`<span class="swatch ${x.id}" style="--sw:${x.sw}"></span>`:`<span class="emo">${x.emo}</span>`;
+  const tag=on?'<span class="st on">✓ Équipé</span>':own?`<span class="st">${cat==='hat'||cat==='acc'?'Mettre':'Choisir'}</span>`:locked?`<span class="st lock">🔒 ${x.price} 🥨</span>`:`<span class="st price ${c>=x.price?'':'nope'}">🥨 ${x.price}</span>`;
+  return `<button class="sitem ${on?'on':''} ${own?'own':''} ${locked&&!own?'locked':''}" data-act="shopitem" data-id="${x.id}" aria-pressed="${on}">${look}<b lang="de">${esc(x.de)}</b><small>${esc(x.name)}</small>${tag}</button>`;
+}
+/* la section d'une saison dans la boutique : en vente (« on ») ou annoncée (« soon ») */
+function seasonShop(k,s,c){
+  const w=seasonWin(k),z=SEASONS[k];if(w.st==='off')return '';
+  return `<section class="panel season s-${k}"><h2 class="h2"><span class="emo">${z.emo}</span> ${esc(z.title)}</h2>
+    <p class="sde"><b lang="de">${esc(z.de)}</b> <span>(= ${esc(z.fr)})</span></p>
+    <p class="swhen">${w.st==='on'?`En vente seulement jusqu'au <b>${esc(dayMonth(w.b))}</b> ! Après, il faudra attendre l'année prochaine. Ce que tu achètes, tu le gardes.`:`Ces objets seront en vente du <b>${esc(dayMonth(w.a))}</b> au <b>${esc(dayMonth(w.b))}</b>, et seulement pendant ces jours-là. Prépare tes bretzels !`}</p>
+    <div class="sgrid">${SHOP.filter(x=>x.season===k).map(x=>shopCard(x,s,c,w.st!=='on')).join('')}</div></section>`;
+}
+/* bandeau sur le QG pendant la saison (et la semaine d'avant) */
+function seasonBanner(){
+  return Object.keys(SEASONS).map(k=>{const w=seasonWin(k),z=SEASONS[k];if(w.st==='off')return '';
+    return `<section class="panel seasonban s-${k}" id="seasonban-${k}"><span class="emo" aria-hidden="true">${z.emo}</span><div>
+      <h3>${w.st==='on'?`${esc(z.title)} dans la boutique !`:`Bientôt : ${esc(z.title)}`}</h3>
+      <p>${w.st==='on'?`Des objets en plus (${esc(z.teaser)}), en vente seulement jusqu'au ${esc(dayMonth(w.b))}.`:`Des objets d'Halloween arrivent dans la boutique le ${esc(dayMonth(w.a))}, pour quelques jours seulement.`}</p>
+      <button class="btn white" data-act="shop">Voir la boutique</button></div></section>`;}).join('');
 }
 function shopItem(id){
   const x=SHOPK[id];if(!x)return;const s=shopState();
   if(!owns(id)){
+    if(!forSale(x)){const w=seasonWin(x.season);toast(`${SEASONS[x.season].emo} ${deFr(x)} n'est en vente que du ${esc(dayMonth(w.a))} au ${esc(dayMonth(w.b))}.`);Sfx.play('bad');return;}
     const c=coins();
     if(c<x.price){toast(`Il te manque <b>${x.price-c} 🥨</b> pour ${deFr(x)}. Joue encore un peu !`);const m=$(`[data-id="${id}"]`);if(m){m.classList.remove('nope');void m.offsetWidth;m.classList.add('nope');}Sfx.play('bad');return;}
     s.owned[id]=Date.now();s.spent=spentOf(s);s.eq[x.cat]=id;s.eqAt=Date.now();toast(`Bravo ! Tu as acheté ${deFr(x)} <span class="emo">🎉</span>`);Sfx.play('rank');confetti(30);Voice.say(deTxt(x));
