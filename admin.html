@@ -391,7 +391,8 @@ const adminOf=uid=>S.admins.find(a=>a.uid===uid)||null;
 const suspOf=uid=>{const x=S.susp.find(y=>y.uid===uid);return x&&x.until>Date.now()?x:null;};
 const whenTxt=t=>evDay(t)==='aujourd\'hui'?`${evHm(t)} (aujourd'hui)`:`${evDay(t)} ${evHm(t)}`;
 const canSus=()=>{const p=cur();return can('suspendre')&&!!p&&!isArch(p)&&p.uid!==S.user.uid&&!adminOf(p.uid);};
-const shielded=p=>!!p&&!isSuper()&&!!adminOf(p.uid);
+/* sa propre fiche n'est pas protégée : un administrateur avec « Modifier » peut la changer */
+const shielded=p=>!!p&&!isSuper()&&!!adminOf(p.uid)&&p.uid!==S.user.uid;
 const roleTxt=()=>S.role==='super'?'super-administrateur':'administrateur';
 const canEdit=()=>{const p=cur();return can('modifier')&&!!p&&!isArch(p)&&!shielded(p);};
 const canPw=()=>{const p=cur();return can('motdepasse')&&can('modifier')&&!!p&&!isArch(p)&&p.uid!==S.user.uid&&!shielded(p);};
@@ -1631,6 +1632,9 @@ document.addEventListener('input',e=>{
   else if(f.startsWith('boss.')){const k=f.slice(5);g.boss=obj(g.boss);const c=obj(g.boss[k]);const w=int(t.value,0,1000);g.boss[k]=Object.assign({},c,{wins:w,tries:Math.max(num(c.tries),w)});}
   refreshLive();
 });
+let ptrDown=false,renderLater=false;
+document.addEventListener('pointerdown',()=>{ptrDown=true;},true);
+document.addEventListener('pointerup',()=>{ptrDown=false;if(renderLater){renderLater=false;setTimeout(()=>{if(S.edit)renderSheet();},0);}},true);
 document.addEventListener('change',e=>{
   const t=e.target;if(!S.edit)return;const g=S.edit;
   if(t.dataset.star!==undefined){const w=t.dataset.star,v=+t.value;g.stars=obj(g.stars);if(v<0)delete g.stars[w];else g.stars[w]=v;renderSheet();refreshLive();return;}
@@ -1639,7 +1643,7 @@ document.addEventListener('change',e=>{
   if(t.dataset.ghost!==undefined){t.checked?S.ghostSel.add(t.dataset.ghost):S.ghostSel.delete(t.dataset.ghost);renderSheet();return;}
   if(t.dataset.act==='gall'){const ids=Object.keys(obj(g.ghosts));S.ghostSel=t.checked?new Set(ids):new Set();renderSheet();return;}
   if(t.dataset.badge!==undefined){const id=t.dataset.badge;g.badges=obj(g.badges);if(t.checked)g.badges[id]=num(obj(S.orig.badges)[id])||Date.now();else delete g.badges[id];renderSheet();refreshLive();return;}
-  if(t.dataset.f){renderSheet();}
+  if(t.dataset.f){if(ptrDown)renderLater=true;else setTimeout(()=>{const a=document.activeElement;if(a&&a!==document.body&&$('#sheet').contains(a))return;renderSheet();},0);}
 });
 window.addEventListener('beforeunload',e=>{if(dirty()){e.preventDefault();e.returnValue='';}});
 function tick(){const d=new Date();$('#clock').textContent=`${pad(d.getHours())}:${pad(d.getMinutes())}`;
