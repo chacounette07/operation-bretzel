@@ -64,12 +64,16 @@ button{cursor:default}
 .search{display:flex;align-items:center;gap:6px;padding:5px 2px;flex:none}
 .search input{flex:1;min-width:0}
 .list{flex:1;min-height:0;overflow:auto;background:#fff}
-input[type=text],input[type=password],input[type=number],input[type=search],select,textarea{background:#fff;border:1px solid;border-color:var(--shadow) var(--light) var(--light) var(--shadow);box-shadow:inset 1px 1px var(--dark),inset -1px -1px var(--face-hi);padding:2px 4px;height:22px;border-radius:0;outline:none}
+input[type=text],input[type=password],input[type=number],input[type=search],input[type=datetime-local],select,textarea{background:#fff;border:1px solid;border-color:var(--shadow) var(--light) var(--light) var(--shadow);box-shadow:inset 1px 1px var(--dark),inset -1px -1px var(--face-hi);padding:2px 4px;height:22px;border-radius:0;outline:none}
 input:focus,select:focus,textarea:focus{outline:1px dotted #000;outline-offset:1px}
 input[readonly]{background:var(--face-hi)}
 input[type=number]{width:92px;text-align:right}
 textarea{height:auto;font:11px "Courier New",Courier,monospace;width:100%;resize:vertical}
-input[type=checkbox]{width:13px;height:13px;accent-color:var(--sel)}
+input[type=checkbox],input[type=radio]{width:13px;height:13px;accent-color:var(--sel)}
+#evform .v label{display:inline-flex;align-items:center;gap:3px;margin-right:8px;white-space:nowrap}
+#evform input[type=datetime-local]{min-width:0}
+.kv>div.click{cursor:pointer}
+.kv>div.click:hover{outline:1px dotted #000;outline-offset:-3px}
 
 /* grilles (listes) */
 table.grid{border-collapse:separate;border-spacing:0;width:100%;background:#fff}
@@ -212,6 +216,7 @@ legend{padding:0 4px;color:#00248F}
     <div class="m" data-menu="edition"><button data-act="menu" data-m="edition"><span class="u">É</span>dition</button></div>
     <div class="m" data-menu="affichage"><button data-act="menu" data-m="affichage"><span class="u">A</span>ffichage</button></div>
     <div class="m" data-menu="joueur"><button data-act="menu" data-m="joueur"><span class="u">J</span>oueur</button></div>
+    <div class="m" data-menu="outils"><button data-act="menu" data-m="outils"><span class="u">O</span>utils</button></div>
     <div class="m" data-menu="aide"><button data-act="menu" data-m="aide"><span class="u">?</span></button></div>
   </nav>
   <div class="toolbar" role="toolbar" aria-label="Outils">
@@ -223,6 +228,7 @@ legend{padding:0 4px;color:#00248F}
     <button class="tool" data-act="pw" id="t-pw" title="Donner un mot de passe temporaire (ou changer l'identifiant)"><span class="i emo">🔑</span><span class="lbl">Mot de passe</span></button>
     <span class="tsep"></span>
     <button class="tool" data-act="tab" data-tab="ens" title="Vue d'ensemble de tous les joueurs"><span class="i emo">📊</span><span class="lbl">Ensemble</span></button>
+    <button class="tool" data-act="event" id="t-ev" title="Lancer un événement XP ou bretzels"><span class="i emo">🎉</span><span class="lbl">Événement</span></button>
     <button class="tool" data-act="export" title="Exporter la liste (tableur)"><span class="i emo">📤</span><span class="lbl">Exporter</span></button>
     <button class="tool" data-act="journal" title="Journal des modifications"><span class="i emo">📒</span><span class="lbl">Journal</span></button>
     <span class="tsep"></span>
@@ -342,12 +348,20 @@ function fsMsg(e){
 
 /* ---------- état ---------- */
 const S={A:null,F:null,auth:null,db:null,user:null,players:[],sel:null,orig:null,edit:null,tab:'ens',
-  sort:{k:'xp',d:-1},q:'',log:[],busy:false,loaded:false,lastLoad:0,ghostSel:new Set(),showArch:false,appM:null,auth2:null,db2:null};
+  sort:{k:'xp',d:-1},q:'',log:[],busy:false,loaded:false,lastLoad:0,ghostSel:new Set(),showArch:false,appM:null,auth2:null,db2:null,ev:null};
 const cur=()=>S.players.find(p=>p.uid===S.sel)||null;
 const dirty=()=>!!S.sel&&!!S.edit&&JSON.stringify(S.edit)!==JSON.stringify(S.orig);
 const me=()=>S.user?pseudoKey(String(S.user.email||'').split('@')[0]):'';
 const active=()=>S.players.filter(p=>!isArch(p));
 const canPw=()=>{const p=cur();return !!p&&!isArch(p)&&p.uid!==S.user.uid;};
+/* événement en cours */
+const evOk=e=>!!e&&['xp','bretzel','les2'].includes(e.type)&&num(e.mult)>=2&&num(e.end)>num(e.start);
+const evState=()=>{const e=S.ev,t=Date.now();if(!evOk(e))return 'none';return t<e.start?'soon':t<e.end?'on':'none';};
+const evName=e=>e.type==='xp'?`XP x${e.mult}`:e.type==='bretzel'?`Bretzels x${e.mult}`:`XP et bretzels x${e.mult}`;
+const hhmm=t=>{const d=new Date(t),j=new Date();const h=`${pad(d.getHours())}h${pad(d.getMinutes())}`;if(d.toDateString()===j.toDateString())return h;return `${['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'][d.getDay()]} ${pad(d.getDate())}/${pad(d.getMonth()+1)} ${h}`;};
+const leftTxt=ms=>{const m=Math.max(1,Math.round(ms/60000));if(m<60)return `${m} min`;const h=Math.floor(m/60),r=m%60;return r?`${h} h ${pad(r)}`:`${h} h`;};
+function evText(){const e=S.ev,st=evState();if(st==='on')return `⚡ ${evName(e)} jusqu'à ${hhmm(e.end)} (encore ${leftTxt(e.end-Date.now())})`;if(st==='soon')return `⏳ ${evName(e)} prévu de ${hhmm(e.start)} à ${hhmm(e.end)}`;return 'Aucun événement';}
+const toLocalInput=t=>{const d=new Date(t);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;};
 
 /* =========================================================
    Boîtes de dialogue façon Windows
@@ -471,6 +485,18 @@ service cloud.firestore {
                     && request.resource.data.progress is map
                     && request.resource.data.pseudo == resource.data.pseudo;
     }
+
+    // Événement en cours (XP x2, bretzels x2…) : tout le monde peut le lire, seul l'administrateur le change.
+    match /config/evenement {
+      allow read: if true;
+      allow write: if estAdmin()
+                   && request.resource.data.keys().hasOnly(['type', 'mult', 'start', 'end', 'title', 'by', 'updatedAt'])
+                   && request.resource.data.type in ['xp', 'bretzel', 'les2', 'aucun']
+                   && request.resource.data.mult is int
+                   && request.resource.data.mult >= 1 && request.resource.data.mult <= 5
+                   && request.resource.data.start is int && request.resource.data.end is int
+                   && request.resource.data.title is string && request.resource.data.title.size() <= 60;
+    }
   }
 }
 `;
@@ -516,6 +542,7 @@ async function loadPlayers(first){
     const list=[];
     snap.forEach(d=>{const x=d.data()||{};list.push({uid:d.id,pseudo:x.pseudo,progress:obj(x.progress),updatedAt:num(x.updatedAt)});});
     S.players=list;S.loaded=true;S.lastLoad=Date.now();
+    try{const es=await S.F.getDoc(S.F.doc(S.db,'config','evenement'));S.ev=es.exists()?es.data():null;}catch(x){S.ev=null;}
     if(S.sel){const p=cur();if(p){if(!dirty()){S.orig=clone(p.progress);S.edit=clone(p.progress);}}else{S.sel=null;S.orig=S.edit=null;S.tab='ens';}}
     setStatus(`${list.length} joueur${list.length>1?'s':''} chargé${list.length>1?'s':''} à ${fmtTime(Date.now())}`);
     return true;
@@ -577,6 +604,7 @@ function renderStatus(){
   $('#st2').innerHTML=d?'<span class="dirty">● Modifications non enregistrées</span>':'Aucune modification';
   const N=active().length;$('#st3').textContent=`${N} joueur${N>1?'s':''}`;
   $('#st4').innerHTML=`Connecté : <b>${esc(me())}</b> (administrateur)`;
+  const st=evState();$('#st3').innerHTML=`${esc($('#st3').textContent)}${st!=='none'?` · <b>${esc(st==='on'?'⚡ '+evName(S.ev):'⏳ '+evName(S.ev))}</b>`:''}`;
 }
 function setStatus(t){const el=$('#st1');if(el)el.textContent=t;}
 
@@ -593,6 +621,7 @@ function renderEns(){
     <div class="sunken">Actifs cette semaine<b>${week}</b></div>
     <div class="sunken">XP gagnés en tout<b>${fmtN(xp)}</b></div>
     <div class="sunken">Fantômes à vaincre<b>${fmtN(gh)}</b></div>
+    <div class="sunken click" data-act="event" title="Lancer ou arrêter un événement XP / bretzels">🎉 Événement<b style="font-size:13px" id="ens-ev">${esc(evText())}</b></div>
     <div class="sunken">En tête<b style="font-size:14px">${best?`${rankOf(best.progress.xp).e} ${esc(nameOf(best)||'?')}`:'—'}</b></div>
   </div>
   <fieldset><legend>Tous les joueurs</legend>
@@ -852,6 +881,7 @@ function help(){
   <li>Clique sur <b>Enregistrer</b> (ou Ctrl+S). Rien n'est envoyé avant.</li></ol>
   <p>La prochaine fois que le joueur ouvre le jeu (ou dès sa prochaine sauvegarde), il reçoit ta version et un petit message lui dit que l'administrateur a mis sa progression à jour.</p>
   <p><b>Mot de passe oublié ?</b> Bouton 🔑 <b>Mot de passe</b> : supprime l'ancien compte dans Firebase, puis la console recrée le compte avec un mot de passe temporaire et toute la progression. Le joueur choisit son propre mot de passe à sa prochaine connexion. Tu peux aussi lui donner un nouvel identifiant de connexion.</p>
+  <p><b>Événements :</b> bouton 🎉 <b>Événement</b> : XP x2, bretzels x2 (ou x3) pendant 15 minutes, une heure, une soirée ou un week-end. Les joueurs voient un bandeau avec le temps restant.</p>
   <p><b>Raccourcis :</b> F5 = actualiser, Ctrl+S = enregistrer, Échap = fermer une fenêtre.</p>
   <p class="muted">Les mots de passe ne sont jamais visibles, ni ici ni dans la base. Personne ne peut supprimer un compte depuis cette console.</p>`});
 }
@@ -948,12 +978,106 @@ async function recreate(p,newLogin,temp){
   return {name:nameOf(np||p),login:newLogin,temp,renamed:!same,oldLogin:p.pseudo};
 }
 
+/* =========================================================
+   Événements : XP x2, bretzels x2… pendant un moment
+   ========================================================= */
+function evEnd(start,dur,custom){
+  const d=new Date(start);
+  if(dur==='soir'){d.setHours(21,0,0,0);if(d.getTime()<=start)d.setDate(d.getDate()+1);return d.getTime();}
+  if(dur==='weekend'){let k=0;while(d.getDay()!==0&&k<8){d.setDate(d.getDate()+1);k++;}d.setHours(21,0,0,0);if(d.getTime()<=start)d.setDate(d.getDate()+7);return d.getTime();}
+  if(dur==='perso')return custom?new Date(custom).getTime():NaN;
+  return start+num(dur)*60000;
+}
+async function rulesUpdate(why){
+  const rules=rulesText(S.user.uid,me());
+  const url=`https://console.firebase.google.com/project/${encodeURIComponent(FB_CFG.projectId)}/firestore/rules`;
+  await box({title:'Mettre à jour les règles',icon:'🛡️',wide:true,buttons:['Copier les règles','Ouvrir Firebase','Fermer'],def:0,cancel:2,
+    html:`<p>${why}</p><p><b>Une seule fois :</b> copie les nouvelles règles, colle-les dans Firebase (Firestore Database, onglet <b>Règles</b>) à la place des anciennes, puis clique sur <b>Publier</b>. Attends une minute et recommence.</p>
+      <textarea id="rules2" rows="12" readonly spellcheck="false" aria-label="Règles Firestore à coller">${esc(rules)}</textarea><p class="err" id="r2-msg" role="status"></p>`,
+    onOpen:(back)=>{const msg=back.querySelector('#r2-msg');
+      back.querySelector('[data-i="0"]').addEventListener('click',async e=>{e.stopPropagation();let ok=false;try{await navigator.clipboard.writeText(rules);ok=true;}catch(x){}if(!ok){const ta=back.querySelector('#rules2');ta.focus();ta.select();try{ok=document.execCommand('copy');}catch(x){}}msg.className=ok?'okc':'err';msg.textContent=ok?'✅ Règles copiées ! Colle-les dans Firebase, puis Publier.':'Sélectionne le texte, puis Ctrl+C.';});
+      back.querySelector('[data-i="1"]').addEventListener('click',e=>{e.stopPropagation();window.open(url,'_blank','noopener');});}});
+}
+async function evWrite(data){
+  try{await S.F.setDoc(S.F.doc(S.db,'config','evenement'),data);S.ev=data;return true;}
+  catch(x){
+    if(String(x&&x.code)==='permission-denied'){await rulesUpdate('Firestore refuse d\'enregistrer l\'événement : les règles de sécurité ne connaissent pas encore les événements.');return false;}
+    await box({title:'Erreur',icon:'⛔',html:`<p>L'événement n'a pas pu être enregistré.</p><p>${esc(fsMsg(x))}</p>`});return false;
+  }
+}
+async function evStop(ask){
+  if(evState()==='none')return;
+  if(ask){const v=await box({title:'Événement',icon:'❓',html:`<p>Arrêter l'événement <b>${esc(evName(S.ev))}</b> maintenant ?</p>`,buttons:['Oui','Non'],def:1,cancel:1});if(v!==0)return;}
+  const was=evName(S.ev);
+  const ok=await evWrite({type:'aucun',mult:1,start:0,end:0,title:'',by:S.user.uid,updatedAt:Date.now()});
+  if(ok){S.ev=null;addLog(`Événement « ${was} » arrêté`);setStatus('Événement arrêté');render();}
+}
+async function evDialog(){
+  closeMenus();
+  const st=evState(),e=S.ev;
+  let launched=null;
+  const v=await box({title:'Événement XP / bretzels',icon:'🎉',wide:true,buttons:['Lancer l\'événement','Arrêter l\'événement','Fermer'],def:0,cancel:2,
+    html:`<p><b>En ce moment :</b> ${esc(evText())}${st!=='none'&&e.title?` – « ${esc(e.title)} »`:''}</p>
+    <div id="evform">
+    <fieldset><legend>Quoi ?</legend>
+      <div class="row"><span class="l">Ce qui est multiplié :</span><span class="v">
+        <label><input type="radio" name="evt" value="xp" checked> ⭐ les XP</label>
+        <label><input type="radio" name="evt" value="bretzel"> 🥨 les bretzels</label>
+        <label><input type="radio" name="evt" value="les2"> ⭐🥨 les deux</label></span></div>
+      <div class="row"><label for="ev-m">Multiplié par :</label><span class="v"><select id="ev-m"><option value="2">x2 (double)</option><option value="3">x3 (triple)</option></select></span></div>
+    </fieldset>
+    <fieldset><legend>Quand ?</legend>
+      <div class="row"><span class="l">Début :</span><span class="v"><label><input type="radio" name="evs" value="now" checked> maintenant</label>
+        <label><input type="radio" name="evs" value="at"> le</label><input type="datetime-local" id="ev-start" value="${toLocalInput(Date.now()+3600e3)}" style="height:22px"></span></div>
+      <div class="row"><label for="ev-d">Durée :</label><span class="v"><select id="ev-d">
+        <option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60" selected>1 heure</option><option value="120">2 heures</option>
+        <option value="soir">jusqu'à ce soir 21 h</option><option value="weekend">tout le week-end (jusqu'à dimanche 21 h)</option><option value="perso">jusqu'au…</option></select>
+        <input type="datetime-local" id="ev-end" value="${toLocalInput(Date.now()+7200e3)}" style="height:22px" hidden></span></div>
+    </fieldset>
+    <fieldset><legend>Message pour les joueurs (facultatif)</legend>
+      <input type="text" id="ev-title" maxlength="60" placeholder="Spécial contrôle : révisez !" style="width:100%" autocomplete="off">
+    </fieldset>
+    </div>
+    <div class="info">Les joueurs voient un bandeau sur le QG avec le temps restant (même les invités). Un événement dure 3 jours au maximum.</div>
+    <p class="err" id="ev-err" role="alert"></p>`,
+    onOpen:(back,done)=>{
+      const q=x=>back.querySelector(x);
+      const stopB=back.querySelector('[data-i="1"]');stopB.disabled=st==='none';
+      q('#ev-d').addEventListener('change',ev=>{q('#ev-end').hidden=ev.target.value!=='perso';});
+      q('#ev-start').addEventListener('focus',()=>{back.querySelector('input[name=evs][value=at]').checked=true;});
+      back.querySelector('[data-i="0"]').addEventListener('click',async ev=>{
+        ev.stopPropagation();
+        const err=q('#ev-err');err.textContent='';
+        const type=(back.querySelector('input[name=evt]:checked')||{}).value||'xp',mult=int(q('#ev-m').value,2,3);
+        const now=Date.now(),later=(back.querySelector('input[name=evs]:checked')||{}).value==='at';
+        const start=later?new Date(q('#ev-start').value).getTime():now;
+        if(!Number.isFinite(start)){err.textContent='Choisis une date de début.';return;}
+        if(later&&start<now-60000){err.textContent='Le début est déjà passé : choisis « maintenant » ou une heure plus tard.';return;}
+        const end=evEnd(start,q('#ev-d').value,q('#ev-end').value);
+        if(!Number.isFinite(end)||end<=start){err.textContent='La fin doit être après le début.';return;}
+        if(end-start>3*86400e3){err.textContent='Un événement peut durer 3 jours au maximum (« tout le week-end » marche à partir du vendredi).';return;}
+        const title=String(q('#ev-title').value||'').replace(/[\u0000-\u001f\u007f<>]/g,'').trim().slice(0,60);
+        const data={type,mult,start:Math.round(start),end:Math.round(end),title,by:S.user.uid,updatedAt:now};
+        back.querySelector('[data-i="0"]').disabled=true;
+        const ok=await evWrite(data);
+        back.querySelector('[data-i="0"]').disabled=false;
+        if(ok){launched=data;done(0);}
+      });
+    }});
+  if(v===1){await evStop(false);return;}
+  if(!launched)return;
+  addLog(`Événement « ${evName(launched)} » ${launched.start>Date.now()+60000?`prévu de ${hhmm(launched.start)} à ${hhmm(launched.end)}`:`lancé jusqu'à ${hhmm(launched.end)}`}${launched.title?` : « ${launched.title} »`:''}`);
+  setStatus(`Événement ${evName(launched)} enregistré`);render();
+  await box({title:'Événement',icon:'🎉',html:`<p><b>${esc(evName(launched))}</b> ${launched.start>Date.now()+60000?`commencera ${esc(hhmm(launched.start))}`:'a commencé'} et s'arrêtera ${esc(hhmm(launched.end))}.</p><p>Les joueurs le verront en ouvrant le jeu (ou en moins de 5 minutes s'il est déjà ouvert).</p>`});
+}
+
 /* ---------- menus ---------- */
 const MENUS={
   fichier:()=>[['🔄 Actualiser','F5','refresh'],['📤 Exporter la liste…','','export'],'-',['🎮 Ouvrir le jeu','','game'],'-',['🚪 Se déconnecter','','logout']],
   edition:()=>[['💾 Enregistrer','Ctrl+S','save',!dirty()],['↩️ Annuler les modifications','','cancel',!dirty()],'-',['👻 Supprimer tous les fantômes','','gdelall',!cur()]],
   affichage:()=>[['📊 Vue d\'ensemble','','tab:ens'],[`${S.showArch?'☑':'☐'} Afficher les fiches archivées`,'','arch'],'-',['Trier par pseudo','','sort:pseudo'],['Trier par XP','','sort:xp'],['Trier par activité','','sort:act'],'-',['📒 Journal des modifications','','journal']],
   joueur:()=>[['Général','','tab:gen',!cur()],['Missions','','tab:mis',!cur()],['Fantômes','','tab:fan',!cur()],['Badges','','tab:bad',!cur()],['Boutique','','tab:bou',!cur()],'-',['🧹 Remettre à zéro…','','reset',!cur()||isArch(cur())],['🔑 Mot de passe / identifiant…','','pw',!canPw()],['Fermer la fiche','','close',!cur()]],
+  outils:()=>[['🎉 Événement XP / bretzels…','','event'],[`⏹ Arrêter l'événement`,'','evstop',evState()==='none'],'-',['📤 Exporter la liste…','','export'],['📒 Journal des modifications','','journal']],
   aide:()=>[['❓ Aide','F1','help'],['🥨 À propos de Bretzel Admin','','about']]
 };
 function closeMenus(){document.querySelectorAll('.menubar .m.open').forEach(m=>{m.classList.remove('open');const x=m.querySelector('.menu');if(x)x.remove();});const sm=$('.startmenu');if(sm)sm.remove();}
@@ -967,7 +1091,7 @@ function openMenu(name){
 function startMenu(){
   if($('.startmenu')){closeMenus();return;}closeMenus();
   const d=document.createElement('div');d.className='startmenu raised';
-  d.innerHTML=`<div class="side">Bretzel Admin</div><div class="items"><button data-act="mi" data-do="game"><span class="emo">🎮</span>Ouvrir le jeu</button><button data-act="mi" data-do="tab:ens"><span class="emo">📊</span>Vue d'ensemble</button><button data-act="mi" data-do="help"><span class="emo">❓</span>Aide</button><hr style="border:0;border-top:1px solid var(--shadow);border-bottom:1px solid var(--light);margin:2px"><button data-act="mi" data-do="logout"><span class="emo">🚪</span>Se déconnecter…</button></div>`;
+  d.innerHTML=`<div class="side">Bretzel Admin</div><div class="items"><button data-act="mi" data-do="game"><span class="emo">🎮</span>Ouvrir le jeu</button><button data-act="mi" data-do="tab:ens"><span class="emo">📊</span>Vue d'ensemble</button><button data-act="mi" data-do="event"><span class="emo">🎉</span>Événement…</button><button data-act="mi" data-do="help"><span class="emo">❓</span>Aide</button><hr style="border:0;border-top:1px solid var(--shadow);border-bottom:1px solid var(--light);margin:2px"><button data-act="mi" data-do="logout"><span class="emo">🚪</span>Se déconnecter…</button></div>`;
   document.body.appendChild(d);
 }
 async function doAction(a){
@@ -975,7 +1099,7 @@ async function doAction(a){
   if(a.startsWith('tab:'))return setTab(a.slice(4));
   if(a.startsWith('sort:')){const k=a.slice(5);S.sort={k,d:k==='pseudo'?1:-1};return render();}
   if(a==='arch'){S.showArch=!S.showArch;return render();}
-  ({refresh,export:exportCsv,pw:pwDialog,game:()=>window.open('./','_blank','noopener'),logout,save,cancel,reset:resetPlayer,journal:showJournal,help,about,
+  ({refresh,export:exportCsv,pw:pwDialog,event:evDialog,evstop:()=>evStop(true),game:()=>window.open('./','_blank','noopener'),logout,save,cancel,reset:resetPlayer,journal:showJournal,help,about,
     gdelall:()=>delGhosts(true),close:closeFiche})[a]?.();
 }
 function setTab(t){if(t!=='ens'&&!cur())return;S.tab=t;renderTabs();renderSheet();renderTools();$('#sheet').scrollTop=0;}
@@ -1040,7 +1164,8 @@ document.addEventListener('change',e=>{
   if(t.dataset.f){renderSheet();}
 });
 window.addEventListener('beforeunload',e=>{if(dirty()){e.preventDefault();e.returnValue='';}});
-function tick(){const d=new Date();$('#clock').textContent=`${pad(d.getHours())}:${pad(d.getMinutes())}`;}
+function tick(){const d=new Date();$('#clock').textContent=`${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  if(S.user&&S.loaded){const st=evState();if(st!==S.evSt){S.evSt=st;renderStatus();}const b=$('#ens-ev');if(b)b.textContent=evText();}}
 init();
 </script>
 </body>

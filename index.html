@@ -385,6 +385,16 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.05;
 .pbtns{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
 .pbtns .btn{font-size:17px;padding:9px 6px 10px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;line-height:1.1;text-align:center}
 .coinline{margin:0;text-align:center;font-weight:800}
+.coinline .evx{display:block;color:#B4400B;margin-top:2px}
+.evban{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#FFE14D,#FFB13B 55%,#FF7A45);position:relative;overflow:hidden}
+.evban.soon{background:linear-gradient(135deg,#FFF6C8,#FFE9A8)}
+.evban>.emo{font-size:34px;line-height:1;flex:none;width:62px;height:62px;display:grid;place-items:center;background:var(--paper);border:3px solid var(--ink);border-radius:50%;box-shadow:3px 3px 0 var(--ink);animation:evpulse 1.6s ease-in-out infinite}
+.evban h3{font-size:24px;margin:0}
+.evban p{margin:2px 0 0;font-weight:800}
+.evban .evt{font-variant-numeric:tabular-nums}
+@keyframes evpulse{50%{transform:scale(1.15) rotate(-6deg)}}
+.xp-chip .ev{font-size:13px;margin-left:4px}
+@media (prefers-reduced-motion: reduce){.evban>.emo{animation:none}}
 .coinline .link{font-size:15px}
 /* boutique */
 .shophead{display:flex;align-items:center;gap:18px;padding-top:26px;margin-top:14px}
@@ -1507,6 +1517,7 @@ const Acc={
       this.db=F.getFirestore(app);
       const em=window.FIREBASE_EMULATORS;
       if(em){A.connectAuthEmulator(this.auth,em.auth,{disableWarnings:true});F.connectFirestoreEmulator(this.db,em.firestore[0],em.firestore[1]);}
+      evLoad();
       A.onAuthStateChanged(this.auth,u=>{onUser(u);});
     }catch(e){
       this.A=null;this.loadErr='Le système de comptes n\'a pas pu se charger. Vérifie ta connexion internet, puis recharge la page.';
@@ -1740,6 +1751,7 @@ function renderHome(){
   </header>
   <div class="stack">
     ${noticePanels()}
+    ${evBanner()}
     ${state.seenIntro?'':`<section class="panel intro"><h2>Comment ça marche ?</h2><ol>
       <li><b class="n">1</b><span>Choisis une mission : 10 questions sur ton cours.</span></li>
       <li><b class="n">2</b><span>Chaque erreur devient un fantôme <span class="emo">👻</span> qui revient quelques questions plus tard, puis le lendemain, 3 jours après et une semaine après.</span></li>
@@ -2027,6 +2039,77 @@ async function submitPwTemp(){
   }
 }
 
+/* =========================================================
+   Événements de l'administrateur : XP x2, bretzels x2… pendant un moment
+   (document public config/evenement, écrit seulement depuis la console admin.html)
+   ========================================================= */
+const EV={cur:null,acc:{xp:0,coins:0},key:''};
+const EV_KEY='operation-bretzel-evenement';
+function evSane(e){
+  if(!e||typeof e!=='object')return null;
+  const type=['xp','bretzel','les2'].includes(e.type)?e.type:null;
+  const mult=Math.max(1,Math.min(5,Math.round(Number(e.mult)||1)));
+  const start=Number(e.start)||0,end=Number(e.end)||0;
+  if(!type||mult<2||!(end>start)||end-start>3*86400e3)return null;
+  return{type,mult,start,end,title:String(e.title||'').slice(0,60)};
+}
+try{EV.cur=evSane(JSON.parse(localStorage.getItem(EV_KEY)||'null'));}catch(e){}
+const evNow=()=>{const e=EV.cur,t=Date.now();return e&&t>=e.start&&t<e.end?e:null;};
+const evSoon=()=>{const e=EV.cur,t=Date.now();return e&&t<e.start&&e.start-t<24*3600e3?e:null;};
+const evMult=k=>{const e=evNow();return e&&(e.type===k||e.type==='les2')?e.mult:1;};
+const evName=e=>e.type==='xp'?`XP x${e.mult}`:e.type==='bretzel'?`Bretzels x${e.mult}`:`XP et bretzels x${e.mult}`;
+const evClock=t=>{const d=new Date(t),j=new Date();const hm=`${String(d.getHours()).padStart(2,'0')}h${String(d.getMinutes()).padStart(2,'0')}`;
+  if(d.toDateString()===j.toDateString())return hm;const days=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];return `${days[d.getDay()]} ${hm}`;};
+const evLeft=ms=>{const m=Math.max(1,Math.round(ms/60000));if(m<60)return `${m} min`;const h=Math.floor(m/60),r=m%60;return r?`${h} h ${String(r).padStart(2,'0')}`:`${h} h`;};
+async function evLoad(){
+  if(!Acc.F||!Acc.db)return;
+  try{
+    const snap=await Acc.F.getDoc(Acc.F.doc(Acc.db,'config','evenement'));
+    EV.cur=evSane(snap.exists()?snap.data():null);
+    try{localStorage.setItem(EV_KEY,JSON.stringify(EV.cur));}catch(e){}
+  }catch(e){/* hors ligne, ou règles pas encore mises à jour : on garde ce qu'on avait */}
+  evRefresh();
+}
+const evKey=()=>{const e=evNow(),s=evSoon();return e?'on'+JSON.stringify(e):s?'soon'+JSON.stringify(s):'';};
+function evTimeText(){
+  const e=evNow(),s=evSoon();
+  if(e){const fois=e.mult===2?'double':e.mult===3?'triple':`x${e.mult}`;
+    const what=e.type==='xp'?`Tous les XP que tu gagnes comptent ${fois}`:e.type==='bretzel'?`Tous les bretzels que tu gagnes comptent ${fois}`:`Tes XP et tes bretzels comptent ${fois}`;
+    return `Encore ${evLeft(e.end-Date.now())} (jusqu'à ${evClock(e.end)}). ${what}, joue vite !`;}
+  if(s)return `À partir de ${evClock(s.start)}, jusqu'à ${evClock(s.end)}.`;
+  return '';
+}
+function evBanner(){
+  const e=evNow(),s=evSoon();EV.key=evKey();
+  if(e)return `<section class="panel evban" id="evban"><span class="emo" aria-hidden="true">${e.type==='xp'?'⚡':e.type==='bretzel'?'🥨':'🎉'}</span><div><h3>Événement : ${esc(evName(e))} !</h3>
+    ${e.title?`<p>${esc(e.title)}</p>`:''}<p class="evt">${esc(evTimeText())}</p></div></section>`;
+  if(s)return `<section class="panel evban soon" id="evban"><span class="emo" aria-hidden="true">⏳</span><div><h3>Bientôt : ${esc(evName(s))}</h3>${s.title?`<p>${esc(s.title)}</p>`:''}<p class="evt">${esc(evTimeText())}</p></div></section>`;
+  return '';
+}
+/* toutes les 20 s : le compte à rebours avance ; si l'événement commence, change ou se termine, on redessine le QG */
+function evRefresh(){
+  if(screen!=='home')return;
+  const b=$('#evban'),k=evKey();
+  if(!b&&!k)return;
+  if(!b||!k||k!==EV.key){renderHome();return;}
+  const t=b.querySelector('.evt'),n=evTimeText();if(t&&t.textContent!==n)t.textContent=n;
+}
+setInterval(()=>{evRefresh();},20000);
+setInterval(()=>{if(document.visibilityState==='visible')evLoad();},5*60000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')evLoad();});
+/* toutes les XP passent par ici : on applique l'événement en cours */
+function gainXp(g){
+  if(!(g>0))return g;
+  const m=evMult('xp');let x=g;
+  if(m>1){const extra=Math.round(g*(m-1));x+=extra;EV.acc.xp+=extra;}
+  const before=Math.floor((state.xp||0)/10);
+  state.xp+=x;if(run)run.xp+=x;
+  const mb=evMult('bretzel');
+  if(mb>1){const c=Math.floor(state.xp/10)-before;if(c>0){const extra=c*(mb-1);shopState().bonus+=extra;EV.acc.coins+=extra;}}
+  return x;
+}
+const evResLine=()=>EV.acc.xp||EV.acc.coins?`<span class="evx">⚡ Événement : ${EV.acc.xp?`+${EV.acc.xp} XP`:''}${EV.acc.xp&&EV.acc.coins?' et ':''}${EV.acc.coins?`+${EV.acc.coins} 🥨`:''} en plus !</span>`:'';
+
 /* ---------- Construction d'une mission ---------- */
 function poolFor(w){
   const ids=Object.keys(STATIC).filter(id=>STATIC[id].world===w);
@@ -2113,6 +2196,7 @@ function toItems(ids){
 /* ---------- Mission ---------- */
 let run=null;
 function newRun(mode,world,items){
+  EV.acc={xp:0,coins:0};
   return{mode,world,queue:items,i:0,first:{},wrongList:[],combo:0,maxCombo:0,xp:0,newGhosts:0,slain:0,reasked:new Set(),rank0:rankIdx(state.xp),coins0:coins(),answered:false,quit:false};
 }
 function startWorld(w){
@@ -2227,7 +2311,7 @@ function onAnswer(ok,info={}){
     }else ghostLine='👻 Fantôme ! Il reviendra demain pour une revanche.';
     Sfx.play('bad');
   }
-  run.xp+=gain;state.xp+=gain;
+  gain=gainXp(gain);
   if(run.mode==='boss')extra=(extra?extra+'<br>':'')+bossHit(ok);
   const rNow=rankIdx(state.xp);
   if(rNow>run.rank0){extra=(extra?extra+'<br>':'')+`🎉 Nouveau rang : ${esc(RANKS[rNow].de)} ${RANKS[rNow].emo} (= ${esc(RANKS[rNow].fr)})`;run.rank0=rNow;run.rankUp=rNow;Sfx.play('rank');confetti();}
@@ -2250,7 +2334,7 @@ function showSheet(ok,gain,q,info,ghostLine,extra){
   const sayTxt=q.say||'';
   const sheet=$('#sheet');
   sheet.innerHTML=`<div class="sheet-in ${ok?'good':'bad'}">
-    <div class="fb-head"><h3>${h[0]} <span class="emo">${h[2]}</span></h3><span class="fb-tr">(= ${h[1]})</span>${gain?`<span class="xp-chip">+${gain} XP</span>`:''}</div>
+    <div class="fb-head"><h3>${h[0]} <span class="emo">${h[2]}</span></h3><span class="fb-tr">(= ${h[1]})</span>${gain?`<span class="xp-chip">+${gain} XP${evMult('xp')>1?`<span class="ev">⚡x${evMult('xp')}</span>`:''}</span>`:''}</div>
     ${!ok||q.kind==='build'||q.kind==='type'?`<p class="fb-ans">${ok?'Réponse':'La bonne réponse'} : <span>${q.kind==='tf'?ans:(q.optLang==='num'?esc(ans):fmtDe(ans))}</span> ${sayBtn(sayTxt)}</p>`:(sayTxt&&Voice.ok?`<p class="fb-ans">${sayBtn(sayTxt)} <span style="font-weight:700;font-size:15px">${fmtDe(sayTxt)}</span></p>`:'')}
     ${note?`<p class="fb-why">${note}</p>`:''}
     <p class="fb-why">${nb(q.why||'')}</p>
@@ -2284,7 +2368,7 @@ function finish(){
   let bonus=0;
   if(run.mode!=='blitz'&&total>=5){bonus+=20;if(stars===3)bonus+=20;}
   if(run.mode==='daily'){run.daily=dailyDone();bonus+=run.daily.bonus;}
-  run.xp+=bonus;state.xp+=bonus;
+  bonus=gainXp(bonus);
   if(run.mode==='world')state.stars[run.world]=Math.max(state.stars[run.world]||0,stars);
   state.stats.rounds++;
   const rNow=rankIdx(state.xp);if(rNow>run.rank0){run.rankUp=rNow;run.rank0=rNow;}
@@ -2442,7 +2526,7 @@ function bossEnd(){
   const b=run.boss,B=BOSSES[b.k],win=b.hp<=0;
   const s=state.boss[b.k]=Object.assign({wins:0,tries:0},state.boss[b.k]);s.tries++;
   let bonus=0;if(win){bonus=s.wins?40:100;s.wins++;state.stats.boss=(state.stats.boss||0)+1;}
-  run.xp+=bonus;state.xp+=bonus;state.stats.rounds++;
+  bonus=gainXp(bonus);state.stats.rounds++;
   const rNow=rankIdx(state.xp);if(rNow>run.rank0){run.rankUp=rNow;}
   const newB=checkBadges(),newS=checkMap();
   save();Sync.flush();
@@ -2497,7 +2581,7 @@ document.addEventListener('click',e=>{if(e.target&&e.target.id==='news')closeNew
 let toastT=null;
 function toast(html){let t=$('#toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');document.body.appendChild(t);}
   t.innerHTML=html;t.classList.remove('on');void t.offsetWidth;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2600);}
-const coinLine=n=>`<p class="coinline">${n>0?`+${n} 🥨 pour la boutique. `:''}Tu as <b>${coins()} 🥨</b>. <button class="link" data-act="shop">Aller à la boutique</button></p>`;
+const coinLine=n=>`<p class="coinline">${n>0?`+${n} 🥨 pour la boutique. `:''}Tu as <b>${coins()} 🥨</b>. <button class="link" data-act="shop">Aller à la boutique</button>${typeof evResLine==='function'?evResLine():''}</p>`;
 
 /* ---------- Bretzels et avatar ---------- */
 const shopState=()=>{
@@ -2645,7 +2729,7 @@ function blitzAfter(ok,q){
 function blitzEnd(){
   if(!run||run.mode!=='blitz')return;
   const best=state.best.blitz||0;const rec=run.score>best;if(rec)state.best.blitz=run.score;
-  const bonus=run.score*5;run.xp+=bonus;state.xp+=bonus;state.stats.rounds++;
+  let bonus=run.score*5;bonus=gainXp(bonus);state.stats.rounds++;
   const rNow=rankIdx(state.xp);if(rNow>run.rank0){run.rankUp=rNow;}
   run.newBadges=checkBadges();
   save();Sync.flush();
@@ -2700,7 +2784,7 @@ function memFlip(i){
 }
 function memEnd(){
   const best=state.best.memory||0;const rec=!best||mem.moves<best;if(rec)state.best.memory=mem.moves;
-  const c0=coins(),r0=rankIdx(state.xp);state.xp+=30;const r1=rankIdx(state.xp);const newB=checkBadges();save();Sync.flush();
+  const c0=coins(),r0=rankIdx(state.xp);EV.acc={xp:0,coins:0};gainXp(30);const r1=rankIdx(state.xp);const newB=checkBadges();save();Sync.flush();
   Sfx.play(r1>r0?'rank':'ghost');confetti();
   SCR.result.innerHTML=`<div class="res"><div class="res-hero"><h2>Geschafft !</h2><p class="tr">(= réussi)</p><p class="quip">6 paires en ${mem.moves} coups. ${rec?'🏆 Nouveau record !':`Record : ${best} coups.`}</p></div>
     <section class="panel review"><h3>Les paires de cette partie</h3><ul>${mem.pairs.map(p=>`<li><span class="a">${fmtDe(p[0])} = ${nb(esc(p[1]))} ${sayBtn(p[0])}</span></li>`).join('')}</ul></section>
