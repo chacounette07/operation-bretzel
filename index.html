@@ -1540,6 +1540,7 @@ const Sync={
     this.busy=true;
     // Si l'administrateur vient de modifier la progression en ligne, on prend sa version au lieu de l'écraser.
     try{const r=await this.pull();if(!this.can()){this.busy=false;return;}
+      if(!r&&await checkDeleted()){this.busy=false;this.again=false;return;}
       if(r&&r.progress&&(r.progress.adminAt||0)>(state.adminAt||0)){this.busy=false;this.again=false;adoptAdmin(r);renderSave();return;}}catch(e){}
     const uid=profile.uid,r0=state.rev||0,t=Date.now();
     const prog=JSON.parse(JSON.stringify(state));SYNC_FIELDS.forEach(k=>delete prog[k]);
@@ -1562,6 +1563,23 @@ function adoptAdmin(r){
   state=x;writeLocal();refresh();
   try{toast('🛠️ Ta progression a été mise à jour par l\'administrateur.');}catch(e){}
 }
+/* L'administrateur a supprimé ce compte (console admin.html, document supprimes/{uid}) :
+   on déconnecte le joueur et on efface la copie de cet appareil (sa fiche n'est jamais recréée). */
+async function checkDeleted(){
+  if(!Acc.F||!Acc.db||profile.type!=='account'||!profile.uid)return false;
+  try{const s=await Acc.F.getDoc(Acc.F.doc(Acc.db,'supprimes',profile.uid));if(!s.exists())return false;}
+  catch(e){return false;}
+  await accountDeleted();return true;
+}
+async function accountDeleted(){
+  Sync.blocked=true;clearTimeout(Sync.timer);
+  {const m=$('#pwtemp');if(m)m.remove();}
+  Acc.wipe=true;lsDel(accKey(profile.uid));
+  try{if(Acc.A&&Acc.auth)await Acc.A.signOut(Acc.auth);else await onUser(null);}catch(e){await onUser(null);}
+  delOpen=false;authDraft='';
+  Acc.notice='Ce compte a été supprimé par l\'administrateur du jeu. Tu peux jouer sans compte ou créer un nouvel identifiant.';
+  openAuth('login','welcome');
+}
 function syncFromCloud(){
   if(!Sync.can())return Promise.resolve();
   if(Sync.pulling)return Sync.pulling;
@@ -1571,7 +1589,7 @@ function syncFromCloud(){
       const r=await Sync.pull();
       if(profile.uid!==uid)return;
       Sync.pulled=true;Sync.err='';Sync.lastOk=Date.now();
-      if(!r||!r.progress){await Sync.push();return;}
+      if(!r||!r.progress){if(!r&&await checkDeleted())return;await Sync.push();return;}
       const Rt=r.updatedAt||0,local=state;
       const take=(x,dirty)=>{for(const k of KEEP_KEYS)if(r.progress&&r.progress[k]===undefined&&local[k]!==undefined)x[k]=JSON.parse(JSON.stringify(local[k]));x.settings=Object.assign({},fresh().settings,local.settings);x.syncBase=Rt;x.rev=dirty?1:0;x.syncedRev=0;state=x;writeLocal();refresh();};
       if(((r.progress&&r.progress.adminAt)||0)>(local.adminAt||0)){adoptAdmin(r);return;}
@@ -1732,6 +1750,7 @@ function show(name){
 /* ---------- QG ---------- */
 let resetAsk=false;
 function renderHome(){
+  evMaybeLoad();
   {const nb1=checkBadges().length,init=!state.mapInit,nm=checkMap().length;if(nb1||nm||init)save();}
   applyBg();
   const ri=rankIdx(state.xp),r=RANKS[ri],nx=RANKS[ri+1];
@@ -2043,7 +2062,7 @@ async function submitPwTemp(){
    Événements de l'administrateur : XP x2, bretzels x2… pendant un moment
    (document public config/evenement, écrit seulement depuis la console admin.html)
    ========================================================= */
-const EV={cur:null,acc:{xp:0,coins:0},key:''};
+const EV={cur:null,acc:{xp:0,coins:0},key:'',loadedAt:0};
 const EV_KEY='operation-bretzel-evenement';
 function evSane(e){
   if(!e||typeof e!=='object')return null;
@@ -2055,14 +2074,23 @@ function evSane(e){
 }
 try{EV.cur=evSane(JSON.parse(localStorage.getItem(EV_KEY)||'null'));}catch(e){}
 const evNow=()=>{const e=EV.cur,t=Date.now();return e&&t>=e.start&&t<e.end?e:null;};
-const evSoon=()=>{const e=EV.cur,t=Date.now();return e&&t<e.start&&e.start-t<24*3600e3?e:null;};
+const evSoon=()=>{const e=EV.cur,t=Date.now();return e&&t<e.start?e:null;};
+const evNear=s=>s.start-Date.now()<24*3600e3;
 const evMult=k=>{const e=evNow();return e&&(e.type===k||e.type==='les2')?e.mult:1;};
 const evName=e=>e.type==='xp'?`XP x${e.mult}`:e.type==='bretzel'?`Bretzels x${e.mult}`:`XP et bretzels x${e.mult}`;
-const evClock=t=>{const d=new Date(t),j=new Date();const hm=`${String(d.getHours()).padStart(2,'0')}h${String(d.getMinutes()).padStart(2,'0')}`;
-  if(d.toDateString()===j.toDateString())return hm;const days=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];return `${days[d.getDay()]} ${hm}`;};
+const evHm=t=>{const d=new Date(t);return `${String(d.getHours()).padStart(2,'0')}h${String(d.getMinutes()).padStart(2,'0')}`;};
+/* « aujourd'hui », « demain », « samedi » (dans la semaine) ou « samedi 24/10 » (plus tard) */
+const evDay=t=>{const d=new Date(t),j=new Date();
+  const k=Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate())-new Date(j.getFullYear(),j.getMonth(),j.getDate()))/86400e3);
+  if(k===0)return "aujourd'hui";if(k===1)return 'demain';
+  const n=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'][d.getDay()];
+  return k>1&&k<7?n:`${n} ${d.getDate()}/${String(d.getMonth()+1).padStart(2,'0')}`;};
+const evAt=t=>evDay(t)==="aujourd'hui"?evHm(t):`${evDay(t)} ${evHm(t)}`;
+const evWhen=(a,b)=>{const da=evDay(a),db=evDay(b);const w=da===db?`${da} de ${evHm(a)} à ${evHm(b)}`:`${da} à ${evHm(a)}, jusqu'à ${db} ${evHm(b)}`;return w.charAt(0).toUpperCase()+w.slice(1);};
 const evLeft=ms=>{const m=Math.max(1,Math.round(ms/60000));if(m<60)return `${m} min`;const h=Math.floor(m/60),r=m%60;return r?`${h} h ${String(r).padStart(2,'0')}`:`${h} h`;};
 async function evLoad(){
   if(!Acc.F||!Acc.db)return;
+  EV.loadedAt=Date.now();
   try{
     const snap=await Acc.F.getDoc(Acc.F.doc(Acc.db,'config','evenement'));
     EV.cur=evSane(snap.exists()?snap.data():null);
@@ -2070,20 +2098,23 @@ async function evLoad(){
   }catch(e){/* hors ligne, ou règles pas encore mises à jour : on garde ce qu'on avait */}
   evRefresh();
 }
-const evKey=()=>{const e=evNow(),s=evSoon();return e?'on'+JSON.stringify(e):s?'soon'+JSON.stringify(s):'';};
+/* en revenant au QG, on regarde s'il y a du nouveau (au plus une fois par minute) */
+function evMaybeLoad(){if(Acc.db&&Date.now()-(EV.loadedAt||0)>60000)evLoad();}
+const evKey=()=>{const e=evNow(),s=evSoon();return e?'on'+JSON.stringify(e):s?'soon'+(evNear(s)?1:0)+JSON.stringify(s):'';};
 function evTimeText(){
   const e=evNow(),s=evSoon();
   if(e){const fois=e.mult===2?'double':e.mult===3?'triple':`x${e.mult}`;
     const what=e.type==='xp'?`Tous les XP que tu gagnes comptent ${fois}`:e.type==='bretzel'?`Tous les bretzels que tu gagnes comptent ${fois}`:`Tes XP et tes bretzels comptent ${fois}`;
-    return `Encore ${evLeft(e.end-Date.now())} (jusqu'à ${evClock(e.end)}). ${what}, joue vite !`;}
-  if(s)return `À partir de ${evClock(s.start)}, jusqu'à ${evClock(s.end)}.`;
+    return `Encore ${evLeft(e.end-Date.now())} (jusqu'à ${evAt(e.end)}). ${what}, joue vite !`;}
+  if(s)return evNear(s)?`${evWhen(s.start,s.end)}. Ça commence dans ${evLeft(s.start-Date.now())} !`:`${evWhen(s.start,s.end)}.`;
   return '';
 }
 function evBanner(){
   const e=evNow(),s=evSoon();EV.key=evKey();
   if(e)return `<section class="panel evban" id="evban"><span class="emo" aria-hidden="true">${e.type==='xp'?'⚡':e.type==='bretzel'?'🥨':'🎉'}</span><div><h3>Événement : ${esc(evName(e))} !</h3>
     ${e.title?`<p>${esc(e.title)}</p>`:''}<p class="evt">${esc(evTimeText())}</p></div></section>`;
-  if(s)return `<section class="panel evban soon" id="evban"><span class="emo" aria-hidden="true">⏳</span><div><h3>Bientôt : ${esc(evName(s))}</h3>${s.title?`<p>${esc(s.title)}</p>`:''}<p class="evt">${esc(evTimeText())}</p></div></section>`;
+  if(s){const near=evNear(s);
+    return `<section class="panel evban soon" id="evban"><span class="emo" aria-hidden="true">${near?'⏳':'📣'}</span><div><h3>${near?'Bientôt':'Événement prévu'} : ${esc(evName(s))}</h3>${s.title?`<p>${esc(s.title)}</p>`:''}<p class="evt">${esc(evTimeText())}</p></div></section>`;}
   return '';
 }
 /* toutes les 20 s : le compte à rebours avance ; si l'événement commence, change ou se termine, on redessine le QG */

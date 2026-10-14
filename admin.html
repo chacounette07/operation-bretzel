@@ -73,6 +73,9 @@ input[type=checkbox],input[type=radio]{width:13px;height:13px;accent-color:var(-
 #evform .v label{display:inline-flex;align-items:center;gap:3px;margin-right:8px;white-space:nowrap}
 #evform input[type=datetime-local]{min-width:0}
 .kv>div.click{cursor:pointer}
+.kv>div.evon{background:#FFF6C8}
+.rulesbox{background:#FFE9A8}
+.rulesbox .btn{margin-left:6px}
 .kv>div.click:hover{outline:1px dotted #000;outline-offset:-3px}
 
 /* grilles (listes) */
@@ -226,6 +229,7 @@ legend{padding:0 4px;color:#00248F}
     <button class="tool" data-act="cancel" id="t-cancel" title="Annuler les modifications de la fiche"><span class="i emo">↩️</span><span class="lbl">Annuler</span></button>
     <button class="tool" data-act="reset" id="t-reset" title="Remettre à zéro la progression du joueur"><span class="i emo">🧹</span><span class="lbl">Remise à zéro</span></button>
     <button class="tool" data-act="pw" id="t-pw" title="Donner un mot de passe temporaire (ou changer l'identifiant)"><span class="i emo">🔑</span><span class="lbl">Mot de passe</span></button>
+    <button class="tool" data-act="delacc" id="t-del" title="Supprimer le compte du joueur"><span class="i emo">🗑️</span><span class="lbl">Supprimer</span></button>
     <span class="tsep"></span>
     <button class="tool" data-act="tab" data-tab="ens" title="Vue d'ensemble de tous les joueurs"><span class="i emo">📊</span><span class="lbl">Ensemble</span></button>
     <button class="tool" data-act="event" id="t-ev" title="Lancer un événement XP ou bretzels"><span class="i emo">🎉</span><span class="lbl">Événement</span></button>
@@ -354,13 +358,21 @@ const dirty=()=>!!S.sel&&!!S.edit&&JSON.stringify(S.edit)!==JSON.stringify(S.ori
 const me=()=>S.user?pseudoKey(String(S.user.email||'').split('@')[0]):'';
 const active=()=>S.players.filter(p=>!isArch(p));
 const canPw=()=>{const p=cur();return !!p&&!isArch(p)&&p.uid!==S.user.uid;};
+const canDel=()=>{const p=cur();return !!p&&p.uid!==S.user.uid;};
 /* événement en cours */
 const evOk=e=>!!e&&['xp','bretzel','les2'].includes(e.type)&&num(e.mult)>=2&&num(e.end)>num(e.start);
 const evState=()=>{const e=S.ev,t=Date.now();if(!evOk(e))return 'none';return t<e.start?'soon':t<e.end?'on':'none';};
 const evName=e=>e.type==='xp'?`XP x${e.mult}`:e.type==='bretzel'?`Bretzels x${e.mult}`:`XP et bretzels x${e.mult}`;
 const hhmm=t=>{const d=new Date(t),j=new Date();const h=`${pad(d.getHours())}h${pad(d.getMinutes())}`;if(d.toDateString()===j.toDateString())return h;return `${['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'][d.getDay()]} ${pad(d.getDate())}/${pad(d.getMonth()+1)} ${h}`;};
+/* « aujourd'hui », « demain » ou « sam. 24/10 » */
+const evDay=t=>{const d=new Date(t),j=new Date();const k=Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate())-new Date(j.getFullYear(),j.getMonth(),j.getDate()))/86400e3);
+  if(k===0)return 'aujourd\'hui';if(k===1)return 'demain';return `${['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'][d.getDay()]} ${pad(d.getDate())}/${pad(d.getMonth()+1)}`;};
+const evHm=t=>{const d=new Date(t);return `${pad(d.getHours())}h${pad(d.getMinutes())}`;};
+const evWhen=(a,b)=>evDay(a)===evDay(b)?`${evDay(a)} de ${evHm(a)} à ${evHm(b)}`:`${evDay(a)} ${evHm(a)} → ${evDay(b)} ${evHm(b)}`;
+const evAt=t=>evDay(t)==='aujourd\'hui'?`à ${evHm(t)}`:`${evDay(t)} à ${evHm(t)}`;
+const evIn=ms=>ms<86400e3?leftTxt(ms):(n=>`${n} jour${n>1?'s':''}`)(Math.round(ms/86400e3));
 const leftTxt=ms=>{const m=Math.max(1,Math.round(ms/60000));if(m<60)return `${m} min`;const h=Math.floor(m/60),r=m%60;return r?`${h} h ${pad(r)}`:`${h} h`;};
-function evText(){const e=S.ev,st=evState();if(st==='on')return `⚡ ${evName(e)} jusqu'à ${hhmm(e.end)} (encore ${leftTxt(e.end-Date.now())})`;if(st==='soon')return `⏳ ${evName(e)} prévu de ${hhmm(e.start)} à ${hhmm(e.end)}`;return 'Aucun événement';}
+function evText(){const e=S.ev,st=evState();if(st==='on')return `⚡ ${evName(e)} jusqu'à ${hhmm(e.end)} (encore ${leftTxt(e.end-Date.now())})`;if(st==='soon')return `⏳ ${evName(e)} prévu ${evWhen(e.start,e.end)} (dans ${evIn(e.start-Date.now())})`;return 'Aucun événement';}
 const toLocalInput=t=>{const d=new Date(t);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;};
 
 /* =========================================================
@@ -462,8 +474,8 @@ function rulesText(uid,pseudo){
 // À coller dans la console Firebase : Firestore Database > onglet « Règles » > Publier.
 //
 // Chaque joueur ne peut lire, modifier et supprimer QUE sa propre progression.
-// Les administrateurs peuvent voir et modifier toutes les progressions,
-// mais ils ne peuvent ni les supprimer ni changer les pseudos.
+// Les administrateurs peuvent voir, modifier et supprimer toutes les progressions,
+// mais ils ne peuvent pas changer les pseudos. Un compte supprimé ne peut plus être recréé.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -476,14 +488,25 @@ service cloud.firestore {
       allow read, delete: if request.auth != null && request.auth.uid == uid;
       allow create, update: if request.auth != null
                             && request.auth.uid == uid
+                            && !exists(/databases/$(database)/documents/supprimes/$(uid))
                             && request.resource.data.keys().hasOnly(['pseudo', 'progress', 'updatedAt'])
                             && request.resource.data.progress is map;
 
-      allow read: if estAdmin();
+      allow read, delete: if estAdmin();
       allow update: if estAdmin()
                     && request.resource.data.keys().hasOnly(['pseudo', 'progress', 'updatedAt'])
                     && request.resource.data.progress is map
                     && request.resource.data.pseudo == resource.data.pseudo;
+    }
+
+    // Comptes supprimés par l'administrateur : le jeu ne peut plus les recréer.
+    match /supprimes/{uid} {
+      allow read: if (request.auth != null && request.auth.uid == uid) || estAdmin();
+      allow create, update: if estAdmin()
+                            && request.resource.data.keys().hasOnly(['pseudo', 'at', 'by'])
+                            && request.resource.data.pseudo is string
+                            && request.resource.data.at is int;
+      allow delete: if estAdmin();
     }
 
     // Événement en cours (XP x2, bretzels x2…) : tout le monde peut le lire, seul l'administrateur le change.
@@ -542,7 +565,10 @@ async function loadPlayers(first){
     const list=[];
     snap.forEach(d=>{const x=d.data()||{};list.push({uid:d.id,pseudo:x.pseudo,progress:obj(x.progress),updatedAt:num(x.updatedAt)});});
     S.players=list;S.loaded=true;S.lastLoad=Date.now();
-    try{const es=await S.F.getDoc(S.F.doc(S.db,'config','evenement'));S.ev=es.exists()?es.data():null;}catch(x){S.ev=null;}
+    {const [er,sr]=await Promise.allSettled([S.F.getDoc(S.F.doc(S.db,'config','evenement')),S.F.getDoc(S.F.doc(S.db,'supprimes',S.user.uid))]);
+     S.ev=er.status==='fulfilled'&&er.value.exists()?er.value.data():null;
+     const denied=r=>r.status==='rejected'&&String(r.reason&&r.reason.code)==='permission-denied';
+     S.rulesOld=denied(er)||denied(sr);}
     if(S.sel){const p=cur();if(p){if(!dirty()){S.orig=clone(p.progress);S.edit=clone(p.progress);}}else{S.sel=null;S.orig=S.edit=null;S.tab='ens';}}
     setStatus(`${list.length} joueur${list.length>1?'s':''} chargé${list.length>1?'s':''} à ${fmtTime(Date.now())}`);
     return true;
@@ -596,7 +622,7 @@ function renderTabs(){
 }
 function renderTools(){
   const p=cur(),d=dirty();
-  $('#t-save').disabled=!d;$('#t-cancel').disabled=!d;$('#t-reset').disabled=!p||isArch(p);$('#t-pw').disabled=!canPw();
+  $('#t-save').disabled=!d;$('#t-cancel').disabled=!d;$('#t-reset').disabled=!p||isArch(p);$('#t-pw').disabled=!canPw();$('#t-del').disabled=!canDel();
   $('#fbtns').innerHTML=p&&S.tab!=='ens'?`<button class="btn" data-act="close">Fermer la fiche</button><button class="btn" data-act="cancel" ${d?'':'disabled'}>Annuler</button><button class="btn def" data-act="save" ${d?'':'disabled'}>Enregistrer</button>`:'';
 }
 function renderStatus(){
@@ -615,13 +641,13 @@ function renderEns(){
   const xp=P.reduce((t,p)=>t+num(p.xp),0),gh=P.reduce((t,p)=>t+ghostsOf(p),0);
   const best=A.slice().sort((a,b)=>num(b.progress.xp)-num(a.progress.xp))[0];
   const rows=sorted();
-  return `<div class="kv">
+  return `${S.rulesOld?`<div class="info rulesbox" role="alert">⚠️ <b>Les règles de Firebase ne sont pas à jour.</b> Les événements et la suppression de comptes ne marcheront pas tant que tu n'as pas collé les nouvelles règles (une seule fois). <button class="btn mini" data-act="rules">🛡️ Mettre à jour les règles…</button></div>`:''}<div class="kv">
     <div class="sunken">Joueurs<b>${A.length}</b></div>
     <div class="sunken">Actifs aujourd'hui<b>${today}</b></div>
     <div class="sunken">Actifs cette semaine<b>${week}</b></div>
     <div class="sunken">XP gagnés en tout<b>${fmtN(xp)}</b></div>
     <div class="sunken">Fantômes à vaincre<b>${fmtN(gh)}</b></div>
-    <div class="sunken click" data-act="event" title="Lancer ou arrêter un événement XP / bretzels">🎉 Événement<b style="font-size:13px" id="ens-ev">${esc(evText())}</b></div>
+    <div class="sunken click${evState()!=='none'?' evon':''}" data-act="event" title="Lancer, arrêter ou annuler un événement XP / bretzels">🎉 Événement<b style="font-size:13px" id="ens-ev">${esc(evText())}</b></div>
     <div class="sunken">En tête<b style="font-size:14px">${best?`${rankOf(best.progress.xp).e} ${esc(nameOf(best)||'?')}`:'—'}</b></div>
   </div>
   <fieldset><legend>Tous les joueurs</legend>
@@ -647,6 +673,7 @@ function renderGen(){
     <div class="row"><span class="l">Identifiant de connexion :</span><span class="v"><input type="text" readonly value="${esc(p.pseudo||'')}" aria-label="Identifiant de connexion"></span></div>
     <div class="row"><label for="f-nick">Nom affiché${chg(String(g.nick||''),String(o.nick||''))} :</label><span class="v"><input type="text" id="f-nick" data-f="nick" maxlength="20" value="${esc(g.nick||'')}" placeholder="${esc(p.pseudo||'')}" autocomplete="off" spellcheck="false"></span></div>
     <div class="row"><span class="l">Mot de passe :</span><span class="v">${p.uid===S.user.uid?'<span class="muted">(ton compte : change-le dans le jeu, écran Mon compte)</span>':`<button class="btn mini" data-act="pw">🔑 Nouveau mot de passe…</button>${g.pwTemp?' <span class="tag">temporaire, pas encore changé</span>':''}`}</span></div>
+    <div class="row"><span class="l">Compte :</span><span class="v">${p.uid===S.user.uid?'<span class="muted">(ton compte : tu peux le supprimer dans le jeu, écran Mon compte)</span>':'<button class="btn mini" data-act="delacc">🗑️ Supprimer ce compte…</button>'}</span></div>
     <div class="row"><span class="l">Identifiant technique :</span><span class="v"><code>${esc(p.uid)}</code></span></div>
     <div class="row"><span class="l">Dernière activité :</span><span class="v">${esc(fmtDate(p.updatedAt))} (${esc(ago(p.updatedAt))})</span></div>
     <div class="row"><span class="l">Modifié par l'admin :</span><span class="v">${o.adminAt?esc(fmtDate(o.adminAt)):'jamais'}</span></div>
@@ -754,7 +781,8 @@ function renderArch(){
     <div class="row"><span class="l">Identifiant technique :</span><span class="v"><code>${esc(p.uid)}</code></span></div>
     <div class="row"><span class="l">XP au moment du départ :</span><span class="v">${fmtN(p.progress.xp)}</span></div>
   </fieldset>
-  <p class="muted">Si l'ancien compte existe encore dans Firebase (Authentication), tu peux le supprimer : il ne sert plus.</p>`;
+  <p><button class="btn" data-act="delacc">🗑️ Supprimer cette fiche archivée…</button></p>
+  <p class="muted">Elle ne sert plus : tu peux la supprimer pour faire le ménage.</p>`;
 }
 function renderSheet(){
   const el=$('#sheet');const y=el.scrollTop;
@@ -883,7 +911,8 @@ function help(){
   <p><b>Mot de passe oublié ?</b> Bouton 🔑 <b>Mot de passe</b> : supprime l'ancien compte dans Firebase, puis la console recrée le compte avec un mot de passe temporaire et toute la progression. Le joueur choisit son propre mot de passe à sa prochaine connexion. Tu peux aussi lui donner un nouvel identifiant de connexion.</p>
   <p><b>Événements :</b> bouton 🎉 <b>Événement</b> : XP x2, bretzels x2 (ou x3) pendant 15 minutes, une heure, une soirée ou un week-end. Les joueurs voient un bandeau avec le temps restant.</p>
   <p><b>Raccourcis :</b> F5 = actualiser, Ctrl+S = enregistrer, Échap = fermer une fenêtre.</p>
-  <p class="muted">Les mots de passe ne sont jamais visibles, ni ici ni dans la base. Personne ne peut supprimer un compte depuis cette console.</p>`});
+  <p><b>Supprimer un compte :</b> bouton 🗑️ <b>Supprimer</b> (il faut écrire l'identifiant du joueur pour confirmer). Sa progression est effacée et le jeu le déconnecte. Pour que l'identifiant puisse resservir, supprime aussi sa connexion dans Firebase (Authentication) : la console t'explique comment.</p>
+  <p class="muted">Les mots de passe ne sont jamais visibles, ni ici ni dans la base. Ton propre compte ne peut pas être supprimé d'ici (fais-le dans le jeu, écran Mon compte).</p>`});
 }
 function about(){box({title:'À propos de Bretzel Admin',icon:'🥨',html:`<p><b>Bretzel Admin</b> – version 1.0<br>Console d'administration d'Opération Bretzel.</p><p class="muted">Base : ${esc(FB_CFG?FB_CFG.projectId:'?')}<br>Connecté : ${esc(me())}</p>`});}
 
@@ -992,7 +1021,7 @@ async function rulesUpdate(why){
   const rules=rulesText(S.user.uid,me());
   const url=`https://console.firebase.google.com/project/${encodeURIComponent(FB_CFG.projectId)}/firestore/rules`;
   await box({title:'Mettre à jour les règles',icon:'🛡️',wide:true,buttons:['Copier les règles','Ouvrir Firebase','Fermer'],def:0,cancel:2,
-    html:`<p>${why}</p><p><b>Une seule fois :</b> copie les nouvelles règles, colle-les dans Firebase (Firestore Database, onglet <b>Règles</b>) à la place des anciennes, puis clique sur <b>Publier</b>. Attends une minute et recommence.</p>
+    html:`<p>${why}</p><p><b>Une seule fois :</b> copie les nouvelles règles, colle-les dans Firebase (Firestore Database, onglet <b>Règles</b>) à la place des anciennes, puis clique sur <b>Publier</b>. Attends une minute, clique sur <b>🔄 Actualiser</b>, puis recommence.</p>
       <textarea id="rules2" rows="12" readonly spellcheck="false" aria-label="Règles Firestore à coller">${esc(rules)}</textarea><p class="err" id="r2-msg" role="status"></p>`,
     onOpen:(back)=>{const msg=back.querySelector('#r2-msg');
       back.querySelector('[data-i="0"]').addEventListener('click',async e=>{e.stopPropagation();let ok=false;try{await navigator.clipboard.writeText(rules);ok=true;}catch(x){}if(!ok){const ta=back.querySelector('#rules2');ta.focus();ta.select();try{ok=document.execCommand('copy');}catch(x){}}msg.className=ok?'okc':'err';msg.textContent=ok?'✅ Règles copiées ! Colle-les dans Firebase, puis Publier.':'Sélectionne le texte, puis Ctrl+C.';});
@@ -1006,17 +1035,17 @@ async function evWrite(data){
   }
 }
 async function evStop(ask){
-  if(evState()==='none')return;
-  if(ask){const v=await box({title:'Événement',icon:'❓',html:`<p>Arrêter l'événement <b>${esc(evName(S.ev))}</b> maintenant ?</p>`,buttons:['Oui','Non'],def:1,cancel:1});if(v!==0)return;}
-  const was=evName(S.ev);
+  const st=evState();if(st==='none')return;
+  const was=evName(S.ev),soon=st==='soon';
+  if(ask){const v=await box({title:'Événement',icon:'❓',html:soon?`<p>Annuler l'événement prévu <b>${esc(was)}</b> (${esc(evWhen(S.ev.start,S.ev.end))}) ?</p>`:`<p>Arrêter l'événement <b>${esc(was)}</b> maintenant ?</p>`,buttons:['Oui','Non'],def:1,cancel:1});if(v!==0)return;}
   const ok=await evWrite({type:'aucun',mult:1,start:0,end:0,title:'',by:S.user.uid,updatedAt:Date.now()});
-  if(ok){S.ev=null;addLog(`Événement « ${was} » arrêté`);setStatus('Événement arrêté');render();}
+  if(ok){S.ev=null;addLog(`Événement « ${was} » ${soon?'annulé':'arrêté'}`);setStatus(soon?'Événement annulé':'Événement arrêté');render();}
 }
 async function evDialog(){
   closeMenus();
   const st=evState(),e=S.ev;
   let launched=null;
-  const v=await box({title:'Événement XP / bretzels',icon:'🎉',wide:true,buttons:['Lancer l\'événement','Arrêter l\'événement','Fermer'],def:0,cancel:2,
+  const v=await box({title:'Événement XP / bretzels',icon:'🎉',wide:true,buttons:['Lancer l\'événement',st==='soon'?'Annuler l\'événement prévu':'Arrêter l\'événement','Fermer'],def:0,cancel:2,
     html:`<p><b>En ce moment :</b> ${esc(evText())}${st!=='none'&&e.title?` – « ${esc(e.title)} »`:''}</p>
     <div id="evform">
     <fieldset><legend>Quoi ?</legend>
@@ -1038,7 +1067,7 @@ async function evDialog(){
       <input type="text" id="ev-title" maxlength="60" placeholder="Spécial contrôle : révisez !" style="width:100%" autocomplete="off">
     </fieldset>
     </div>
-    <div class="info">Les joueurs voient un bandeau sur le QG avec le temps restant (même les invités). Un événement dure 3 jours au maximum.</div>
+    <div class="info">Les joueurs voient un bandeau sur le QG avec le temps restant (même les invités). Un événement prévu plus tard y est annoncé tout de suite. Un événement dure 3 jours au maximum.</div>
     <p class="err" id="ev-err" role="alert"></p>`,
     onOpen:(back,done)=>{
       const q=x=>back.querySelector(x);
@@ -1068,7 +1097,63 @@ async function evDialog(){
   if(!launched)return;
   addLog(`Événement « ${evName(launched)} » ${launched.start>Date.now()+60000?`prévu de ${hhmm(launched.start)} à ${hhmm(launched.end)}`:`lancé jusqu'à ${hhmm(launched.end)}`}${launched.title?` : « ${launched.title} »`:''}`);
   setStatus(`Événement ${evName(launched)} enregistré`);render();
-  await box({title:'Événement',icon:'🎉',html:`<p><b>${esc(evName(launched))}</b> ${launched.start>Date.now()+60000?`commencera ${esc(hhmm(launched.start))}`:'a commencé'} et s'arrêtera ${esc(hhmm(launched.end))}.</p><p>Les joueurs le verront en ouvrant le jeu (ou en moins de 5 minutes s'il est déjà ouvert).</p>`});
+  {const later=launched.start>Date.now()+60000;
+  await box({title:'Événement',icon:'🎉',html:`<p><b>${esc(evName(launched))}</b> ${later?`commencera ${esc(evDay(launched.start))} à ${esc(evHm(launched.start))}`:'a commencé'} et s'arrêtera ${esc(evAt(launched.end))}.</p><p>${later?'Les joueurs voient déjà l\'annonce « Événement prévu » sur le QG du jeu.':'Les joueurs voient le bandeau sur le QG du jeu.'} Si le jeu est déjà ouvert, il apparaît en revenant au QG (ou en moins de 5 minutes).</p>`});}
+}
+
+/* =========================================================
+   Supprimer un compte
+   La fiche est effacée et le compte est noté dans « supprimes » (en une seule fois) :
+   le jeu déconnecte le joueur et ne recrée jamais sa fiche. La connexion elle-même
+   (Authentication) ne peut être supprimée que dans la console Firebase : c'est la
+   dernière étape, facultative, pour que l'identifiant puisse resservir.
+   ========================================================= */
+async function delDialog(){
+  closeMenus();
+  if(!canDel()||S.busy)return;
+  const p=cur(),g=obj(p.progress),arch=isArch(p),login=p.pseudo||'',name=nameOf(p)||login||'?';
+  const a=obj(g.archived),reused=arch&&pseudoKey(a.login)===pseudoKey(login);
+  const nb=badgesOf(g);
+  const v=await box({title:'Supprimer le compte',icon:'🗑️',buttons:['Supprimer définitivement','Annuler'],def:1,cancel:1,
+    html:`<p>Supprimer ${arch?'la fiche archivée':'le compte'} de <b>${esc(name)}</b>${name!==login?` (identifiant <b>${esc(login)}</b>)`:''} ?</p>
+    <ul><li>${arch?'Cette ancienne fiche est effacée':'Sa progression est effacée'} : ${fmtN(g.xp)} XP, ${starsOf(g)} ★, ${nb} badge${nb>1?'s':''}, ${fmtN(coinsOf(g))} 🥨, son avatar et ses objets.</li>
+    ${arch?'':'<li>Le jeu le déconnecte et ne le laisse plus utiliser ce compte.</li>'}
+    <li>C'est <b>définitif</b> : on ne peut pas annuler.</li></ul>
+    <p>Pour confirmer, écris son identifiant (<b>${esc(login)}</b>) :</p><input type="text" id="dz" autocomplete="off" spellcheck="false" style="width:100%">`,
+    onOpen:(back)=>{const b=back.querySelector('[data-i="0"]');b.disabled=true;back.querySelector('#dz').addEventListener('input',e=>{b.disabled=pseudoKey(e.target.value)!==pseudoKey(login);});}});
+  if(v!==0)return;
+  S.busy=true;setStatus('Suppression…');
+  try{
+    const b=S.F.writeBatch(S.db);
+    b.set(S.F.doc(S.db,'supprimes',p.uid),{pseudo:login,at:Date.now(),by:S.user.uid});
+    b.delete(S.F.doc(S.db,'joueurs',p.uid));
+    await b.commit();
+  }catch(x){
+    S.busy=false;setStatus('Suppression annulée');
+    if(String(x&&x.code)==='permission-denied')await rulesUpdate('Firestore refuse la suppression : les règles de sécurité ne permettent pas encore à l\'administrateur de supprimer un compte.');
+    else await box({title:'Erreur',icon:'⛔',html:`<p>Le compte n'a pas pu être supprimé.</p><p>${esc(fsMsg(x))}</p>`});
+    return;
+  }
+  S.busy=false;
+  S.players=S.players.filter(x=>x.uid!==p.uid);S.sel=null;S.orig=S.edit=null;S.ghostSel=new Set();S.tab='ens';
+  addLog(`${name} : ${arch?'fiche archivée supprimée':'compte supprimé'}`);
+  render();setStatus(`${arch?'Fiche archivée':'Compte'} de ${name} supprimé${arch?'e':''} à ${fmtTime(Date.now())}`);
+  if(reused){
+    await box({title:'Fiche supprimée',icon:'✅',html:`<p>La fiche archivée de <b>${esc(name)}</b> est supprimée.</p><p>Son identifiant « ${esc(login)} » sert maintenant à sa nouvelle fiche : <b>ne supprime rien</b> dans Firebase.</p>`});
+    return;
+  }
+  const email=`${pseudoKey(login)}@${FB_CFG.projectId}.firebaseapp.com`;
+  const authUrl=`https://console.firebase.google.com/project/${encodeURIComponent(FB_CFG.projectId)}/authentication/users`;
+  await box({title:arch?'Fiche supprimée':'Compte supprimé',icon:'✅',wide:true,buttons:['Copier l\'adresse','Ouvrir Firebase','OK'],def:2,cancel:2,
+    html:`<p>${arch?`La fiche archivée de <b>${esc(name)}</b> est supprimée.`:`Le compte de <b>${esc(name)}</b> est supprimé : sa progression est effacée et le jeu ne le laissera plus s'en servir.`}</p>
+    <fieldset><legend>Dernière étape (facultative) : libérer l'identifiant</legend>
+      <p>L'identifiant « <b>${esc(login)}</b> » reste pris tant que sa connexion existe dans Firebase${arch?' (si elle existe encore)':''}. Pour qu'il puisse resservir, par exemple pour recréer un compte avec le même identifiant :</p>
+      <ol><li>Clique sur <b>Ouvrir Firebase</b> (Authentication › Users).</li><li>Cherche <code>${esc(email)}</code>.</li><li>Clique sur <b>⋮</b> au bout de la ligne, puis sur <b>Supprimer le compte</b>.</li></ol>
+    </fieldset>
+    <p class="err" id="dz-msg" role="status"></p>`,
+    onOpen:(back)=>{const msg=back.querySelector('#dz-msg');
+      back.querySelector('[data-i="0"]').addEventListener('click',async e=>{e.stopPropagation();let ok=false;try{await navigator.clipboard.writeText(email);ok=true;}catch(x){}msg.className=ok?'okc':'err';msg.textContent=ok?'✅ Adresse copiée : colle-la dans la recherche de Firebase.':'Sélectionne l\'adresse ci-dessus, puis Ctrl+C.';});
+      back.querySelector('[data-i="1"]').addEventListener('click',e=>{e.stopPropagation();window.open(authUrl,'_blank','noopener');});}});
 }
 
 /* ---------- menus ---------- */
@@ -1076,8 +1161,8 @@ const MENUS={
   fichier:()=>[['🔄 Actualiser','F5','refresh'],['📤 Exporter la liste…','','export'],'-',['🎮 Ouvrir le jeu','','game'],'-',['🚪 Se déconnecter','','logout']],
   edition:()=>[['💾 Enregistrer','Ctrl+S','save',!dirty()],['↩️ Annuler les modifications','','cancel',!dirty()],'-',['👻 Supprimer tous les fantômes','','gdelall',!cur()]],
   affichage:()=>[['📊 Vue d\'ensemble','','tab:ens'],[`${S.showArch?'☑':'☐'} Afficher les fiches archivées`,'','arch'],'-',['Trier par pseudo','','sort:pseudo'],['Trier par XP','','sort:xp'],['Trier par activité','','sort:act'],'-',['📒 Journal des modifications','','journal']],
-  joueur:()=>[['Général','','tab:gen',!cur()],['Missions','','tab:mis',!cur()],['Fantômes','','tab:fan',!cur()],['Badges','','tab:bad',!cur()],['Boutique','','tab:bou',!cur()],'-',['🧹 Remettre à zéro…','','reset',!cur()||isArch(cur())],['🔑 Mot de passe / identifiant…','','pw',!canPw()],['Fermer la fiche','','close',!cur()]],
-  outils:()=>[['🎉 Événement XP / bretzels…','','event'],[`⏹ Arrêter l'événement`,'','evstop',evState()==='none'],'-',['📤 Exporter la liste…','','export'],['📒 Journal des modifications','','journal']],
+  joueur:()=>[['Général','','tab:gen',!cur()],['Missions','','tab:mis',!cur()],['Fantômes','','tab:fan',!cur()],['Badges','','tab:bad',!cur()],['Boutique','','tab:bou',!cur()],'-',['🧹 Remettre à zéro…','','reset',!cur()||isArch(cur())],['🔑 Mot de passe / identifiant…','','pw',!canPw()],['🗑️ Supprimer le compte…','','delacc',!canDel()],['Fermer la fiche','','close',!cur()]],
+  outils:()=>[['🎉 Événement XP / bretzels…','','event'],[`⏹ Arrêter / annuler l'événement`,'','evstop',evState()==='none'],'-',['📤 Exporter la liste…','','export'],['📒 Journal des modifications','','journal']],
   aide:()=>[['❓ Aide','F1','help'],['🥨 À propos de Bretzel Admin','','about']]
 };
 function closeMenus(){document.querySelectorAll('.menubar .m.open').forEach(m=>{m.classList.remove('open');const x=m.querySelector('.menu');if(x)x.remove();});const sm=$('.startmenu');if(sm)sm.remove();}
@@ -1099,7 +1184,8 @@ async function doAction(a){
   if(a.startsWith('tab:'))return setTab(a.slice(4));
   if(a.startsWith('sort:')){const k=a.slice(5);S.sort={k,d:k==='pseudo'?1:-1};return render();}
   if(a==='arch'){S.showArch=!S.showArch;return render();}
-  ({refresh,export:exportCsv,pw:pwDialog,event:evDialog,evstop:()=>evStop(true),game:()=>window.open('./','_blank','noopener'),logout,save,cancel,reset:resetPlayer,journal:showJournal,help,about,
+  ({refresh,export:exportCsv,pw:pwDialog,event:evDialog,evstop:()=>evStop(true),delacc:delDialog,
+    rules:()=>rulesUpdate('Les règles de sécurité de Firebase datent d\'avant les dernières nouveautés : les événements et la suppression de comptes ne peuvent pas marcher.'),game:()=>window.open('./','_blank','noopener'),logout,save,cancel,reset:resetPlayer,journal:showJournal,help,about,
     gdelall:()=>delGhosts(true),close:closeFiche})[a]?.();
 }
 function setTab(t){if(t!=='ens'&&!cur())return;S.tab=t;renderTabs();renderSheet();renderTools();$('#sheet').scrollTop=0;}
