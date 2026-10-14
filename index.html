@@ -385,6 +385,9 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.05;
 .pbtns{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
 .pbtns .btn{font-size:17px;padding:9px 6px 10px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;line-height:1.1;text-align:center}
 .coinline{margin:0;text-align:center;font-weight:800}
+.adminpanel{background:#E8F0FF}
+.adminpanel h2{display:flex;align-items:center;gap:8px}
+.adminpanel p{margin:6px 0 12px}
 .coinline .evx{display:block;color:#B4400B;margin-top:2px}
 .evban{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#FFE14D,#FFB13B 55%,#FF7A45);position:relative;overflow:hidden}
 .evban.soon{background:linear-gradient(135deg,#FFF6C8,#FFE9A8)}
@@ -1580,6 +1583,21 @@ async function accountDeleted(){
   Acc.notice='Ce compte a été supprimé par l\'administrateur du jeu. Tu peux jouer sans compte ou créer un nouvel identifiant.';
   openAuth('login','welcome');
 }
+/* Administrateur ou super-administrateur ? (fiche admins/{uid} : chaque joueur ne peut lire que la sienne)
+   → lien vers la console d'administration dans « Mon compte ». */
+async function checkRole(){
+  const before=Acc.role;
+  if(!Acc.F||!Acc.db||profile.type!=='account'||!profile.uid){Acc.role=null;return;}
+  const uid=profile.uid;
+  try{
+    const s=await Acc.F.getDoc(Acc.F.doc(Acc.db,'admins',uid));
+    if(profile.uid!==uid)return;
+    const a=s.exists()?s.data():null;
+    Acc.role=a?(a.super===true?'super':'admin'):null;
+  }catch(e){/* anciennes règles ou hors ligne : on garde ce qu'on savait */}
+  Acc.roleAt=Date.now();
+  if(Acc.role!==before&&screen==='account')renderAccount();
+}
 function syncFromCloud(){
   if(!Sync.can())return Promise.resolve();
   if(Sync.pulling)return Sync.pulling;
@@ -1633,8 +1651,9 @@ async function onUser(u){
     lsSet(LAST_KEY,JSON.stringify({uid:u.uid,pseudo:profile.pseudo}));
     if(screen==='auth'){show('home');renderHome();}else refresh();
     await syncFromCloud();
+    if(Acc.user&&Acc.user.uid===u.uid)checkRole();
   }else{
-    Acc.user=null;
+    Acc.user=null;Acc.role=null;
     if(profile.type==='account'){
       clearTimeout(Sync.timer);
       if(!isDirty()||Acc.wipe)lsDel(accKey(profile.uid));
@@ -1950,6 +1969,9 @@ function renderAccount(){
       <div class="acc-help"><p>Pour retrouver ta progression sur un autre appareil (téléphone, ordinateur du CDI…), ouvre le jeu et connecte-toi avec :</p><p class="idline">Identifiant : <b>${esc(key)}</b></p>${String(state.nick||'').trim()?`<p>Nom affiché dans le jeu : <b>${esc(state.nick)}</b> (choisi par l'administrateur).</p>`:''}</div>
       <button class="btn dark full" data-act="logout" id="logout">Me déconnecter</button>
     </section>
+    ${Acc.role?`<section class="panel adminpanel" id="adminpanel"><h2><span class="emo">${Acc.role==='super'?'👑':'🛠️'}</span>${Acc.role==='super'?'Super-administrateur':'Administrateur'}</h2>
+      <p>${Acc.role==='super'?'Tu as tous les droits sur le jeu, et tu choisis les autres administrateurs.':'Le super-administrateur t\'a donné des droits sur le jeu.'} Connecte-toi à la console avec ton identifiant et ton mot de passe.</p>
+      <a class="btn full" href="admin.html" target="_blank" rel="noopener" id="admin-link"><span class="emo">🖥️</span> Ouvrir la console d'administration</a></section>`:''}
     <section class="panel">
       ${pwOpen?`<form id="pwform" novalidate><h2>Changer mon mot de passe</h2>
         <label class="lbl" for="f-pwold">Mot de passe actuel</label>
@@ -2894,7 +2916,7 @@ const ACT={
   'mode-signup'(){authMode='signup';renderAuth();},
   eye(a){const i=document.getElementById(a.dataset.for);if(!i)return;const vis=i.type==='password';i.type=vis?'text':'password';a.setAttribute('aria-pressed',String(vis));a.setAttribute('aria-label',vis?'Masquer le mot de passe':'Afficher le mot de passe');},
   guest(){lsSet(GUEST_KEY,'1');Acc.notice='';show('home');renderHome();},
-  account(){delOpen=false;pwOpen=false;pwDone=false;show('account');renderAccount();},
+  account(){delOpen=false;pwOpen=false;pwDone=false;show('account');renderAccount();if(Date.now()-(Acc.roleAt||0)>60000)checkRole();},
   'pw-ask'(){pwOpen=true;delOpen=false;renderAccount();try{$('#f-pwold').focus();}catch(e){}},
   'pw-no'(){pwOpen=false;renderAccount();},
   logout(){logout();},

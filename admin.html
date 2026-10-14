@@ -73,6 +73,14 @@ input[type=checkbox],input[type=radio]{width:13px;height:13px;accent-color:var(-
 #evform .v label{display:inline-flex;align-items:center;gap:3px;margin-right:8px;white-space:nowrap}
 #evform input[type=datetime-local]{min-width:0}
 .kv>div.click{cursor:pointer}
+.admgrid th.c,.admgrid td.c{text-align:center;white-space:normal;line-height:1.2}
+.admgrid tr.sup td{background:#FFF6C8}
+.admgrid tr.hl td{background:#DDE8FF}
+.admhelp{margin:0;padding-left:18px}
+.admhelp li{margin:2px 0}
+.info.ro{background:#E8E8E8}
+#sheet input:disabled,#sheet select:disabled{background:var(--face-hi);color:#444}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .kv>div.evon{background:#FFF6C8}
 .rulesbox{background:#FFE9A8}
 .rulesbox .btn{margin-left:6px}
@@ -233,6 +241,7 @@ legend{padding:0 4px;color:#00248F}
     <span class="tsep"></span>
     <button class="tool" data-act="tab" data-tab="ens" title="Vue d'ensemble de tous les joueurs"><span class="i emo">📊</span><span class="lbl">Ensemble</span></button>
     <button class="tool" data-act="event" id="t-ev" title="Lancer un événement XP ou bretzels"><span class="i emo">🎉</span><span class="lbl">Événement</span></button>
+    <button class="tool" data-act="admins" id="t-adm" title="Administrateurs et leurs droits (super-administrateur)" hidden><span class="i emo">👥</span><span class="lbl">Admins</span></button>
     <button class="tool" data-act="export" title="Exporter la liste (tableur)"><span class="i emo">📤</span><span class="lbl">Exporter</span></button>
     <button class="tool" data-act="journal" title="Journal des modifications"><span class="i emo">📒</span><span class="lbl">Journal</span></button>
     <span class="tsep"></span>
@@ -343,6 +352,7 @@ function authMsg(e){
 }
 function fsMsg(e){
   const c=String((e&&e.code)||'');
+  if(c==='permission-denied'&&S.role==='admin')return 'Accès refusé : tu n\'as pas (ou plus) ce droit, ou c\'est la fiche d\'un administrateur.';
   if(c==='permission-denied')return 'Accès refusé par Firestore : les règles de sécurité ne te reconnaissent pas comme administrateur.';
   if(c==='unavailable'||c==='deadline-exceeded')return 'Pas de connexion avec la base. Vérifie internet, puis réessaie.';
   if(c==='unauthenticated')return 'Ta session a expiré : reconnecte-toi.';
@@ -352,13 +362,34 @@ function fsMsg(e){
 
 /* ---------- état ---------- */
 const S={A:null,F:null,auth:null,db:null,user:null,players:[],sel:null,orig:null,edit:null,tab:'ens',
-  sort:{k:'xp',d:-1},q:'',log:[],busy:false,loaded:false,lastLoad:0,ghostSel:new Set(),showArch:false,appM:null,auth2:null,db2:null,ev:null};
+  sort:{k:'xp',d:-1},q:'',log:[],busy:false,loaded:false,lastLoad:0,ghostSel:new Set(),showArch:false,appM:null,auth2:null,db2:null,ev:null,role:null,droits:{},admins:[]};
 const cur=()=>S.players.find(p=>p.uid===S.sel)||null;
 const dirty=()=>!!S.sel&&!!S.edit&&JSON.stringify(S.edit)!==JSON.stringify(S.orig);
 const me=()=>S.user?pseudoKey(String(S.user.email||'').split('@')[0]):'';
 const active=()=>S.players.filter(p=>!isArch(p));
-const canPw=()=>{const p=cur();return !!p&&!isArch(p)&&p.uid!==S.user.uid;};
-const canDel=()=>{const p=cur();return !!p&&p.uid!==S.user.uid;};
+/* rôles : 'super' (un seul, écrit dans les règles), 'admin' (droits choisis par le super-administrateur),
+   'legacy' (anciennes règles : le seul administrateur, qui deviendra super-administrateur) */
+const RULES_V='regles_v16';
+const DROITS=[
+  ['voir','👁️','Voir','voir les joueurs et leur progression (toujours donné)'],
+  ['modifier','✏️','Modifier','modifier les fiches : XP, étoiles, fantômes, badges, boutique, nom affiché, remise à zéro'],
+  ['motdepasse','🔑','Mots de passe','donner un mot de passe temporaire ou un nouvel identifiant (il faut aussi « Modifier »)'],
+  ['supprimer','🗑️','Supprimer','supprimer des comptes'],
+  ['evenements','🎉','Événements','lancer, arrêter ou annuler des événements XP / bretzels']];
+const ALL_DROITS=Object.fromEntries(DROITS.map(d=>[d[0],true]));
+const isSuper=()=>S.role==='super'||S.role==='legacy';
+const can=d=>isSuper()||!!(S.droits&&S.droits[d]);
+const adminOf=uid=>S.admins.find(a=>a.uid===uid)||null;
+/* la fiche d'un administrateur (ou du super-administrateur) : seul le super-administrateur la change */
+const shielded=p=>!!p&&!isSuper()&&!!adminOf(p.uid);
+const roleTxt=()=>S.role==='super'?'super-administrateur':'administrateur';
+const canEdit=()=>{const p=cur();return can('modifier')&&!!p&&!isArch(p)&&!shielded(p);};
+const canPw=()=>{const p=cur();return can('motdepasse')&&can('modifier')&&!!p&&!isArch(p)&&p.uid!==S.user.uid&&!shielded(p);};
+const canDel=()=>{const p=cur();return can('supprimer')&&!!p&&p.uid!==S.user.uid&&!shielded(p);};
+const droitsTxt=d=>DROITS.filter(x=>d&&d[x[0]]).map(x=>x[2]).join(', ');
+async function noRight(what){
+  await box({title:'Accès refusé',icon:'⛔',html:`<p>Tu n'as pas (ou plus) le droit ${what}.</p><p>Seul le <b>super-administrateur</b> peut changer tes droits.</p>`});
+}
 /* événement en cours */
 const evOk=e=>!!e&&['xp','bretzel','les2'].includes(e.type)&&num(e.mult)>=2&&num(e.end)>num(e.start);
 const evState=()=>{const e=S.ev,t=Date.now();if(!evOk(e))return 'none';return t<e.start?'soon':t<e.end?'on':'none';};
@@ -430,7 +461,8 @@ function showLogin(msg){
       setTimeout(()=>{if(loginBack&&S.user&&!S.busyLogin)onLogin();},600);}
     catch(x){$('#l-err').textContent=authMsg(x);$('#l-go').disabled=false;$('#l-prog').hidden=true;}
   });
-  setTimeout(()=>{const i=$('#l-p');if(i)i.focus();},30);
+  try{const l=JSON.parse(localStorage.getItem('operation-bretzel-compte')||'null');if(l&&l.pseudo&&!$('#l-p').value)$('#l-p').value=pseudoKey(l.pseudo);}catch(e){}
+  setTimeout(()=>{const i=$('#l-p');if(i&&i.value){const w=$('#l-w');if(w)w.focus();}else if(i)i.focus();},30);
 }
 function hideLogin(){if(loginBack){loginBack.remove();loginBack=null;}}
 
@@ -474,14 +506,26 @@ function rulesText(uid,pseudo){
 // À coller dans la console Firebase : Firestore Database > onglet « Règles » > Publier.
 //
 // Chaque joueur ne peut lire, modifier et supprimer QUE sa propre progression.
-// Les administrateurs peuvent voir, modifier et supprimer toutes les progressions,
-// mais ils ne peuvent pas changer les pseudos. Un compte supprimé ne peut plus être recréé.
+// Il y a UN super-administrateur (ci-dessous). Depuis la console, il peut nommer d'autres
+// administrateurs et choisir leurs droits (fiches « admins »). Un administrateur ne peut pas
+// toucher à la fiche d'un autre administrateur.
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Administrateur(s) : identifiant technique du compte « ${pseudo.replace(/[^a-z0-9_-]/g,'')} »
-    function estAdmin() {
-      return request.auth != null && request.auth.uid in ['${uid}'];
+    // Super-administrateur (un seul) : identifiant technique du compte « ${pseudo.replace(/[^a-z0-9_-]/g,'')} »
+    function estSuper() {
+      return request.auth != null && request.auth.uid == '${uid}';
+    }
+    // Un droit d'administrateur : 'voir', 'modifier', 'motdepasse', 'supprimer' ou 'evenements'
+    function droit(d) {
+      return estSuper()
+          || (request.auth != null
+              && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+              && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.droits.get(d, false) == true);
+    }
+    // La fiche d'un administrateur : seul le super-administrateur peut la changer
+    function protege(uid) {
+      return !estSuper() && exists(/databases/$(database)/documents/admins/$(uid));
     }
 
     match /joueurs/{uid} {
@@ -492,33 +536,52 @@ service cloud.firestore {
                             && request.resource.data.keys().hasOnly(['pseudo', 'progress', 'updatedAt'])
                             && request.resource.data.progress is map;
 
-      allow read, delete: if estAdmin();
-      allow update: if estAdmin()
+      allow read: if droit('voir');
+      allow update: if droit('modifier') && !protege(uid)
                     && request.resource.data.keys().hasOnly(['pseudo', 'progress', 'updatedAt'])
                     && request.resource.data.progress is map
                     && request.resource.data.pseudo == resource.data.pseudo;
+      allow delete: if droit('supprimer') && !protege(uid);
     }
 
-    // Comptes supprimés par l'administrateur : le jeu ne peut plus les recréer.
+    // Comptes supprimés depuis la console : le jeu ne peut plus les recréer.
     match /supprimes/{uid} {
-      allow read: if (request.auth != null && request.auth.uid == uid) || estAdmin();
-      allow create, update: if estAdmin()
+      allow read: if (request.auth != null && request.auth.uid == uid) || droit('voir');
+      allow create, update: if droit('supprimer')
                             && request.resource.data.keys().hasOnly(['pseudo', 'at', 'by'])
                             && request.resource.data.pseudo is string
                             && request.resource.data.at is int;
-      allow delete: if estAdmin();
+      allow delete: if estSuper();
     }
 
-    // Événement en cours (XP x2, bretzels x2…) : tout le monde peut le lire, seul l'administrateur le change.
+    // Administrateurs et leurs droits : chacun lit sa propre fiche (le jeu montre alors le lien
+    // de la console), les administrateurs voient la liste, seul le super-administrateur la change.
+    match /admins/{uid} {
+      allow read: if (request.auth != null && request.auth.uid == uid) || droit('voir');
+      allow create, update: if estSuper()
+                            && request.resource.data.keys().hasOnly(['pseudo', 'droits', 'super', 'by', 'at'])
+                            && request.resource.data.pseudo is string
+                            && request.resource.data.droits is map
+                            && request.resource.data.droits.keys().hasOnly(['voir', 'modifier', 'motdepasse', 'supprimer', 'evenements'])
+                            && request.resource.data.get('super', false) == (uid == request.auth.uid);
+      allow delete: if estSuper() && uid != request.auth.uid;
+    }
+
+    // Événement en cours (XP x2, bretzels x2…) : tout le monde peut le lire.
     match /config/evenement {
       allow read: if true;
-      allow write: if estAdmin()
+      allow write: if droit('evenements')
                    && request.resource.data.keys().hasOnly(['type', 'mult', 'start', 'end', 'title', 'by', 'updatedAt'])
                    && request.resource.data.type in ['xp', 'bretzel', 'les2', 'aucun']
                    && request.resource.data.mult is int
                    && request.resource.data.mult >= 1 && request.resource.data.mult <= 5
                    && request.resource.data.start is int && request.resource.data.end is int
                    && request.resource.data.title is string && request.resource.data.title.size() <= 60;
+    }
+
+    // Version des règles (la console vérifie qu'elles sont à jour)
+    match /config/${RULES_V} {
+      allow read: if true;
     }
   }
 }
@@ -532,12 +595,12 @@ async function notAdmin(){
   const v=await box({title:'Accès refusé',icon:'⛔',wide:true,buttons:['Copier les règles','Ouvrir Firebase','Réessayer','Se déconnecter'],def:2,cancel:3,
     html:`<p>Ton compte <b>${esc(ps)}</b> n'est pas encore <b>administrateur</b> : Firestore refuse de montrer la progression des autres joueurs.</p>
       <p>Ton identifiant technique : <code style="font:11px 'Courier New',monospace">${esc(uid)}</code></p>
-      <p><b>Pour devenir administrateur (une seule fois) :</b></p>
+      <p><b>C'est toi qui as créé le jeu ? Deviens super-administrateur (une seule fois) :</b></p>
       <ol><li>Clique sur <b>Copier les règles</b>.</li>
       <li>Clique sur <b>Ouvrir Firebase</b> : Firestore Database, onglet <b>Règles</b>.</li>
       <li>Efface l'ancien texte, colle le nouveau, puis clique sur <b>Publier</b>.</li>
       <li>Reviens ici et clique sur <b>Réessayer</b> (attends une minute si ça ne marche pas tout de suite).</li></ol>
-      <p class="okc">Ces règles gardent la protection des joueurs : chacun ne voit toujours que sa propre progression. Seul ton compte peut tout voir.</p>
+      <p class="okc">Ces règles gardent la protection des joueurs : chacun ne voit toujours que sa propre progression. Seul ton compte (le super-administrateur) peut tout voir, puis nommer d'autres administrateurs depuis la console.</p>
       <textarea id="rules" rows="12" readonly spellcheck="false" aria-label="Règles Firestore à coller">${esc(rules)}</textarea>
       <p class="err" id="r-msg" role="status"></p>`,
     onOpen:(back)=>{
@@ -553,27 +616,63 @@ async function notAdmin(){
   if(v===2){const ok=await loadPlayers(true);if(ok!==false)showWin();return;}
   try{await S.A.signOut(S.auth);}catch(e){showLogin();}
 }
+async function notAdminYet(was){
+  $('#win').hidden=true;
+  await box({title:'Accès refusé',icon:'⛔',buttons:['Se déconnecter'],def:0,cancel:0,
+    html:`<p>Ton compte <b>${esc(me())}</b> ${was?'n\'est plus':'n\'est pas'} <b>administrateur</b> d'Opération Bretzel.</p>
+      <p>Seul le <b>super-administrateur</b> du jeu peut donner des droits d'administrateur. Demande-lui, puis reconnecte-toi.</p>`});
+  S.role=null;S.droits={};S.admins=[];S.players=[];S.sel=null;S.orig=S.edit=null;S.loaded=false;
+  try{await S.A.signOut(S.auth);}catch(e){showLogin();}
+}
 function showWin(){hideLogin();$('#win').hidden=false;$('#task').classList.add('on');render();}
 
 /* =========================================================
    Lecture des progressions
    ========================================================= */
+async function detectRole(){
+  /* config/regles_v16 n'est lisible qu'avec les nouvelles règles (qui connaissent le super-administrateur) */
+  try{await S.F.getDoc(S.F.doc(S.db,'config',RULES_V));}
+  catch(x){if(String(x&&x.code)==='permission-denied')return {role:'legacy'};throw x;}
+  const ref=S.F.doc(S.db,'admins',S.user.uid);
+  const snap=await S.F.getDoc(ref);
+  if(snap.exists()){const a=snap.data()||{};return a.super===true?{role:'super'}:{role:'admin',droits:Object.assign({},obj(a.droits),{voir:true})};}
+  /* pas encore de fiche : seul le super-administrateur peut l'écrire, on essaie */
+  try{await S.F.setDoc(ref,{pseudo:me(),droits:ALL_DROITS,super:true,by:S.user.uid,at:Date.now()});return {role:'super',created:true};}
+  catch(x){if(String(x&&x.code)==='permission-denied')return {role:'none'};throw x;}
+}
 async function loadPlayers(first){
   setStatus('Chargement des progressions…');
+  const wasAdmin=S.loaded&&!!S.role;
   try{
-    const snap=await S.F.getDocs(S.F.collection(S.db,'joueurs'));
+    const r=await detectRole();
+    if(r.role==='none'){hideLogin();await notAdminYet(wasAdmin);return false;}
+    S.role=r.role;S.droits=r.role==='admin'?r.droits:Object.assign({},ALL_DROITS);
+    if(r.created)addLog('Compte de super-administrateur enregistré');
+    let snap;
+    try{snap=await S.F.getDocs(S.F.collection(S.db,'joueurs'));}
+    catch(x){
+      if(String(x&&x.code)!=='permission-denied')throw x;
+      hideLogin();
+      if(S.role==='legacy'){
+        /* anciennes règles : s'il y a déjà les règles des événements, un administrateur existe déjà */
+        let ev=true;try{await S.F.getDoc(S.F.doc(S.db,'config','evenement'));}catch(y){ev=false;}
+        if(!ev){await notAdmin();return false;}
+      }
+      await notAdminYet(wasAdmin);return false;
+    }
     const list=[];
     snap.forEach(d=>{const x=d.data()||{};list.push({uid:d.id,pseudo:x.pseudo,progress:obj(x.progress),updatedAt:num(x.updatedAt)});});
     S.players=list;S.loaded=true;S.lastLoad=Date.now();
-    {const [er,sr]=await Promise.allSettled([S.F.getDoc(S.F.doc(S.db,'config','evenement')),S.F.getDoc(S.F.doc(S.db,'supprimes',S.user.uid))]);
-     S.ev=er.status==='fulfilled'&&er.value.exists()?er.value.data():null;
-     const denied=r=>r.status==='rejected'&&String(r.reason&&r.reason.code)==='permission-denied';
-     S.rulesOld=denied(er)||denied(sr);}
+    const [er,ar]=await Promise.allSettled([S.F.getDoc(S.F.doc(S.db,'config','evenement')),
+      S.role==='legacy'?Promise.reject({code:'anciennes-regles'}):S.F.getDocs(S.F.collection(S.db,'admins'))]);
+    S.ev=er.status==='fulfilled'&&er.value.exists()?er.value.data():null;
+    S.admins=[];
+    if(ar.status==='fulfilled')ar.value.forEach(d=>{const a=d.data()||{};S.admins.push({uid:d.id,pseudo:String(a.pseudo||''),droits:Object.assign({},obj(a.droits),{voir:true}),super:a.super===true});});
+    S.rulesOld=S.role==='legacy';
     if(S.sel){const p=cur();if(p){if(!dirty()){S.orig=clone(p.progress);S.edit=clone(p.progress);}}else{S.sel=null;S.orig=S.edit=null;S.tab='ens';}}
     setStatus(`${list.length} joueur${list.length>1?'s':''} chargé${list.length>1?'s':''} à ${fmtTime(Date.now())}`);
     return true;
   }catch(e){
-    if(String(e&&e.code)==='permission-denied'){hideLogin();await notAdmin();return false;}
     setStatus(fsMsg(e));
     if(first){showLogin(fsMsg(e));return false;}
     await box({title:'Erreur',icon:'⛔',html:`<p>${esc(fsMsg(e))}</p>`});
@@ -590,7 +689,7 @@ function render(){
 }
 function renderTitle(){
   const p=cur();
-  $('#wtitle').textContent=`Bretzel Admin – Opération Bretzel – Mode administrateur – ${me()}${p?` – [${nameOf(p)||'?'}]`:''}`;
+  $('#wtitle').textContent=`Bretzel Admin – Opération Bretzel – Mode ${roleTxt()} – ${me()}${p?` – [${nameOf(p)||'?'}]`:''}`;
   $('#tasklbl').textContent=p?`Bretzel Admin – ${nameOf(p)||'?'}`:'Bretzel Admin';
 }
 function sorted(){
@@ -610,7 +709,7 @@ function renderList(){
     const r=rankOf(p.progress.xp);
     const nk=String(p.progress.nick||'').trim();
     return `<tr class="click${p.uid===S.sel?' sel':''}${isArch(p)?' arch':''}" data-act="pick" data-uid="${esc(p.uid)}" tabindex="0" aria-selected="${p.uid===S.sel}">
-      <td><span class="dot ${activity(p.updatedAt)}" aria-hidden="true"></span><span class="emo">${isArch(p)?'📦':r.e}</span> ${esc(nameOf(p)||'(sans pseudo)')}${nk&&nk!==p.pseudo?` <span class="muted">(${esc(p.pseudo||'')})</span>`:''}${p.uid===S.user.uid?' <span class="muted">(toi)</span>':''}${isArch(p)?' <span class="muted">(archivée)</span>':''}</td>
+      <td><span class="dot ${activity(p.updatedAt)}" aria-hidden="true"></span><span class="emo">${isArch(p)?'📦':r.e}</span> ${esc(nameOf(p)||'(sans pseudo)')}${nk&&nk!==p.pseudo?` <span class="muted">(${esc(p.pseudo||'')})</span>`:''}${(a=>a?` <span class="emo" title="${a.super?'Super-administrateur':'Administrateur'}">${a.super?'👑':'🛠️'}</span>`:'')(adminOf(p.uid))}${p.uid===S.user.uid?' <span class="muted">(toi)</span>':''}${isArch(p)?' <span class="muted">(archivée)</span>':''}</td>
       <td class="n">${fmtN(p.progress.xp)}</td><td class="muted">${esc(ago(p.updatedAt))}</td></tr>`;}).join('')}</tbody></table>`;
 }
 function renderTabs(){
@@ -622,14 +721,15 @@ function renderTabs(){
 }
 function renderTools(){
   const p=cur(),d=dirty();
-  $('#t-save').disabled=!d;$('#t-cancel').disabled=!d;$('#t-reset').disabled=!p||isArch(p);$('#t-pw').disabled=!canPw();$('#t-del').disabled=!canDel();
-  $('#fbtns').innerHTML=p&&S.tab!=='ens'?`<button class="btn" data-act="close">Fermer la fiche</button><button class="btn" data-act="cancel" ${d?'':'disabled'}>Annuler</button><button class="btn def" data-act="save" ${d?'':'disabled'}>Enregistrer</button>`:'';
+  $('#t-save').disabled=!d||!canEdit();$('#t-cancel').disabled=!d;$('#t-reset').disabled=!canEdit();$('#t-pw').disabled=!canPw();$('#t-del').disabled=!canDel();
+  $('#t-ev').disabled=!can('evenements');$('#t-adm').hidden=!isSuper();
+  $('#fbtns').innerHTML=p&&S.tab!=='ens'?`<button class="btn" data-act="close">Fermer la fiche</button><button class="btn" data-act="cancel" ${d?'':'disabled'}>Annuler</button><button class="btn def" data-act="save" ${d&&canEdit()?'':'disabled'}>Enregistrer</button>`:'';
 }
 function renderStatus(){
   const d=dirty();
   $('#st2').innerHTML=d?'<span class="dirty">● Modifications non enregistrées</span>':'Aucune modification';
   const N=active().length;$('#st3').textContent=`${N} joueur${N>1?'s':''}`;
-  $('#st4').innerHTML=`Connecté : <b>${esc(me())}</b> (administrateur)`;
+  $('#st4').innerHTML=`Connecté : <b>${esc(me())}</b> (${roleTxt()})`;
   const st=evState();$('#st3').innerHTML=`${esc($('#st3').textContent)}${st!=='none'?` · <b>${esc(st==='on'?'⚡ '+evName(S.ev):'⏳ '+evName(S.ev))}</b>`:''}`;
 }
 function setStatus(t){const el=$('#st1');if(el)el.textContent=t;}
@@ -641,7 +741,7 @@ function renderEns(){
   const xp=P.reduce((t,p)=>t+num(p.xp),0),gh=P.reduce((t,p)=>t+ghostsOf(p),0);
   const best=A.slice().sort((a,b)=>num(b.progress.xp)-num(a.progress.xp))[0];
   const rows=sorted();
-  return `${S.rulesOld?`<div class="info rulesbox" role="alert">⚠️ <b>Les règles de Firebase ne sont pas à jour.</b> Les événements et la suppression de comptes ne marcheront pas tant que tu n'as pas collé les nouvelles règles (une seule fois). <button class="btn mini" data-act="rules">🛡️ Mettre à jour les règles…</button></div>`:''}<div class="kv">
+  return `${S.rulesOld?`<div class="info rulesbox" role="alert">⚠️ <b>Les règles de Firebase ne sont pas à jour.</b> Colle les nouvelles règles (une seule fois) : elles font de toi le <b>super-administrateur</b>, et les événements, la suppression de comptes et les autres administrateurs ne marchent pas sans elles. <button class="btn mini" data-act="rules">🛡️ Mettre à jour les règles…</button></div>`:''}<div class="kv">
     <div class="sunken">Joueurs<b>${A.length}</b></div>
     <div class="sunken">Actifs aujourd'hui<b>${today}</b></div>
     <div class="sunken">Actifs cette semaine<b>${week}</b></div>
@@ -672,8 +772,9 @@ function renderGen(){
   <fieldset><legend>Identité</legend>
     <div class="row"><span class="l">Identifiant de connexion :</span><span class="v"><input type="text" readonly value="${esc(p.pseudo||'')}" aria-label="Identifiant de connexion"></span></div>
     <div class="row"><label for="f-nick">Nom affiché${chg(String(g.nick||''),String(o.nick||''))} :</label><span class="v"><input type="text" id="f-nick" data-f="nick" maxlength="20" value="${esc(g.nick||'')}" placeholder="${esc(p.pseudo||'')}" autocomplete="off" spellcheck="false"></span></div>
-    <div class="row"><span class="l">Mot de passe :</span><span class="v">${p.uid===S.user.uid?'<span class="muted">(ton compte : change-le dans le jeu, écran Mon compte)</span>':`<button class="btn mini" data-act="pw">🔑 Nouveau mot de passe…</button>${g.pwTemp?' <span class="tag">temporaire, pas encore changé</span>':''}`}</span></div>
-    <div class="row"><span class="l">Compte :</span><span class="v">${p.uid===S.user.uid?'<span class="muted">(ton compte : tu peux le supprimer dans le jeu, écran Mon compte)</span>':'<button class="btn mini" data-act="delacc">🗑️ Supprimer ce compte…</button>'}</span></div>
+    <div class="row"><span class="l">Mot de passe :</span><span class="v">${p.uid===S.user.uid?'<span class="muted">(ton compte : change-le dans le jeu, écran Mon compte)</span>':`${canPw()?'<button class="btn mini" data-act="pw">🔑 Nouveau mot de passe…</button>':`<span class="muted">${shielded(p)?'(fiche d\'un administrateur)':'(tu n\'as pas ce droit)'}</span>`}${g.pwTemp?' <span class="tag">temporaire, pas encore changé</span>':''}`}</span></div>
+    <div class="row"><span class="l">Rôle :</span><span class="v">${(a=>a?(a.super?'<span class="emo">👑</span> <b>Super-administrateur</b>':`<span class="emo">🛠️</span> <b>Administrateur</b> <span class="muted">(${esc(droitsTxt(a.droits))})</span>`):'Joueur')(adminOf(p.uid))}${S.role==='super'&&p.uid!==S.user.uid?` <button class="btn mini" data-act="admfor" data-uid="${esc(p.uid)}">👥 Droits d'administrateur…</button>`:''}</span></div>
+    <div class="row"><span class="l">Compte :</span><span class="v">${p.uid===S.user.uid?'<span class="muted">(ton compte : tu peux le supprimer dans le jeu, écran Mon compte)</span>':canDel()?'<button class="btn mini" data-act="delacc">🗑️ Supprimer ce compte…</button>':`<span class="muted">${shielded(p)?'(fiche d\'un administrateur)':'(tu n\'as pas ce droit)'}</span>`}</span></div>
     <div class="row"><span class="l">Identifiant technique :</span><span class="v"><code>${esc(p.uid)}</code></span></div>
     <div class="row"><span class="l">Dernière activité :</span><span class="v">${esc(fmtDate(p.updatedAt))} (${esc(ago(p.updatedAt))})</span></div>
     <div class="row"><span class="l">Modifié par l'admin :</span><span class="v">${o.adminAt?esc(fmtDate(o.adminAt)):'jamais'}</span></div>
@@ -781,13 +882,15 @@ function renderArch(){
     <div class="row"><span class="l">Identifiant technique :</span><span class="v"><code>${esc(p.uid)}</code></span></div>
     <div class="row"><span class="l">XP au moment du départ :</span><span class="v">${fmtN(p.progress.xp)}</span></div>
   </fieldset>
-  <p><button class="btn" data-act="delacc">🗑️ Supprimer cette fiche archivée…</button></p>
-  <p class="muted">Elle ne sert plus : tu peux la supprimer pour faire le ménage.</p>`;
+  ${canDel()?'<p><button class="btn" data-act="delacc">🗑️ Supprimer cette fiche archivée…</button></p><p class="muted">Elle ne sert plus : tu peux la supprimer pour faire le ménage.</p>':''}`;
 }
 function renderSheet(){
   const el=$('#sheet');const y=el.scrollTop;
   const p=cur();if(!p&&S.tab!=='ens')S.tab='ens';
-  el.innerHTML=S.tab==='ens'?renderEns():isArch(p)?renderArch():S.tab==='gen'?renderGen():S.tab==='mis'?renderMis():S.tab==='fan'?renderFan():S.tab==='bad'?renderBad():renderBou();
+  const ro=S.tab!=='ens'&&!!p&&!isArch(p)&&!canEdit();
+  el.innerHTML=(ro?`<div class="info ro">🔒 <b>Lecture seule</b> : ${shielded(p)?'c\'est la fiche d\'un administrateur, seul le super-administrateur peut la modifier.':'tu n\'as pas le droit de modifier les fiches.'}</div>`:'')+(S.tab==='ens'?renderEns():isArch(p)?renderArch():S.tab==='gen'?renderGen():S.tab==='mis'?renderMis():S.tab==='fan'?renderFan():S.tab==='bad'?renderBad():renderBou());
+  if(ro){el.querySelectorAll('input:not([readonly]),select,textarea').forEach(i=>{i.disabled=true;});
+    el.querySelectorAll('[data-act=xp],[data-act=bonus],[data-act=gdel],[data-act=gdelall],[data-act=reset]').forEach(b=>{b.disabled=true;});}
   el.scrollTop=y;
 }
 function refreshLive(){
@@ -834,6 +937,7 @@ function summary(a,b){
 }
 async function save(){
   const p=cur();if(!p||!dirty()||S.busy)return true;
+  if(!canEdit()){await noRight('de modifier cette fiche');return false;}
   S.busy=true;setStatus('Enregistrement…');
   try{
     /* quelqu'un a-t-il joué depuis l'ouverture de la fiche ? */
@@ -861,7 +965,7 @@ async function save(){
 }
 function cancel(){if(!dirty())return;S.edit=clone(S.orig);S.ghostSel=new Set();render();setStatus('Modifications annulées');}
 async function resetPlayer(){
-  const p=cur();if(!p)return;
+  const p=cur();if(!p||!canEdit())return;
   const name=p.pseudo||'';
   const v=await box({title:'Remise à zéro',icon:'⚠️',buttons:['Remettre à zéro','Annuler'],def:1,cancel:1,
     html:`<p>Tout effacer pour <b>${esc(name)}</b> : XP, étoiles, fantômes, badges, série, boss, carte et objets achetés ?</p>
@@ -910,11 +1014,12 @@ function help(){
   <p>La prochaine fois que le joueur ouvre le jeu (ou dès sa prochaine sauvegarde), il reçoit ta version et un petit message lui dit que l'administrateur a mis sa progression à jour.</p>
   <p><b>Mot de passe oublié ?</b> Bouton 🔑 <b>Mot de passe</b> : supprime l'ancien compte dans Firebase, puis la console recrée le compte avec un mot de passe temporaire et toute la progression. Le joueur choisit son propre mot de passe à sa prochaine connexion. Tu peux aussi lui donner un nouvel identifiant de connexion.</p>
   <p><b>Événements :</b> bouton 🎉 <b>Événement</b> : XP x2, bretzels x2 (ou x3) pendant 15 minutes, une heure, une soirée ou un week-end. Les joueurs voient un bandeau avec le temps restant.</p>
+  <p><b>Administrateurs :</b> il y a un seul <b>super-administrateur</b> (celui dont l'identifiant est dans les règles de Firebase). Avec le bouton 👥 <b>Admins</b>, il nomme d'autres administrateurs et coche leurs droits dans la grille : 👁️ voir, ✏️ modifier, 🔑 mots de passe, 🗑️ supprimer, 🎉 événements. Un administrateur ne peut pas toucher à la fiche d'un autre administrateur.</p>
   <p><b>Raccourcis :</b> F5 = actualiser, Ctrl+S = enregistrer, Échap = fermer une fenêtre.</p>
   <p><b>Supprimer un compte :</b> bouton 🗑️ <b>Supprimer</b> (il faut écrire l'identifiant du joueur pour confirmer). Sa progression est effacée et le jeu le déconnecte. Pour que l'identifiant puisse resservir, supprime aussi sa connexion dans Firebase (Authentication) : la console t'explique comment.</p>
   <p class="muted">Les mots de passe ne sont jamais visibles, ni ici ni dans la base. Ton propre compte ne peut pas être supprimé d'ici (fais-le dans le jeu, écran Mon compte).</p>`});
 }
-function about(){box({title:'À propos de Bretzel Admin',icon:'🥨',html:`<p><b>Bretzel Admin</b> – version 1.0<br>Console d'administration d'Opération Bretzel.</p><p class="muted">Base : ${esc(FB_CFG?FB_CFG.projectId:'?')}<br>Connecté : ${esc(me())}</p>`});}
+function about(){box({title:'À propos de Bretzel Admin',icon:'🥨',html:`<p><b>Bretzel Admin</b> – version 1.0<br>Console d'administration d'Opération Bretzel.</p><p class="muted">Base : ${esc(FB_CFG?FB_CFG.projectId:'?')}<br>Connecté : ${esc(me())} (${esc(roleTxt())}${S.role==='admin'?' : '+esc(droitsTxt(S.droits)):''})</p>`});}
 
 /* =========================================================
    Nouveau mot de passe temporaire
@@ -1004,6 +1109,9 @@ async function recreate(p,newLogin,temp){
   const np=S.players.find(x=>x.uid===nu.uid);
   if(np){S.sel=np.uid;S.orig=clone(np.progress);S.edit=clone(np.progress);S.tab='gen';}
   render();setStatus(`Nouveau compte « ${newLogin} » créé à ${fmtTime(Date.now())}`);
+  {const a=adminOf(p.uid);
+   if(S.role==='super'&&a&&!a.super){try{const b=S.F.writeBatch(S.db);b.set(S.F.doc(S.db,'admins',nu.uid),{pseudo:newLogin,droits:Object.assign({},a.droits,{voir:true}),by:S.user.uid,at:Date.now()});b.delete(S.F.doc(S.db,'admins',p.uid));await b.commit();
+     addLog(`${newLogin} : droits d'administrateur gardés sur le nouveau compte`);await loadPlayers(false);render();}catch(x){}}}
   return {name:nameOf(np||p),login:newLogin,temp,renamed:!same,oldLogin:p.pseudo};
 }
 
@@ -1030,6 +1138,7 @@ async function rulesUpdate(why){
 async function evWrite(data){
   try{await S.F.setDoc(S.F.doc(S.db,'config','evenement'),data);S.ev=data;return true;}
   catch(x){
+    if(String(x&&x.code)==='permission-denied'&&!isSuper()){await noRight('de lancer des événements');return false;}
     if(String(x&&x.code)==='permission-denied'){await rulesUpdate('Firestore refuse d\'enregistrer l\'événement : les règles de sécurité ne connaissent pas encore les événements.');return false;}
     await box({title:'Erreur',icon:'⛔',html:`<p>L'événement n'a pas pu être enregistré.</p><p>${esc(fsMsg(x))}</p>`});return false;
   }
@@ -1043,6 +1152,7 @@ async function evStop(ask){
 }
 async function evDialog(){
   closeMenus();
+  if(!can('evenements')){await noRight('de lancer des événements');return;}
   const st=evState(),e=S.ev;
   let launched=null;
   const v=await box({title:'Événement XP / bretzels',icon:'🎉',wide:true,buttons:['Lancer l\'événement',st==='soon'?'Annuler l\'événement prévu':'Arrêter l\'événement','Fermer'],def:0,cancel:2,
@@ -1127,15 +1237,17 @@ async function delDialog(){
     const b=S.F.writeBatch(S.db);
     b.set(S.F.doc(S.db,'supprimes',p.uid),{pseudo:login,at:Date.now(),by:S.user.uid});
     b.delete(S.F.doc(S.db,'joueurs',p.uid));
+    if(S.role==='super'&&adminOf(p.uid))b.delete(S.F.doc(S.db,'admins',p.uid));
     await b.commit();
   }catch(x){
     S.busy=false;setStatus('Suppression annulée');
-    if(String(x&&x.code)==='permission-denied')await rulesUpdate('Firestore refuse la suppression : les règles de sécurité ne permettent pas encore à l\'administrateur de supprimer un compte.');
+    if(String(x&&x.code)==='permission-denied'&&!isSuper())await noRight('de supprimer ce compte');
+    else if(String(x&&x.code)==='permission-denied')await rulesUpdate('Firestore refuse la suppression : les règles de sécurité ne permettent pas encore à l\'administrateur de supprimer un compte.');
     else await box({title:'Erreur',icon:'⛔',html:`<p>Le compte n'a pas pu être supprimé.</p><p>${esc(fsMsg(x))}</p>`});
     return;
   }
   S.busy=false;
-  S.players=S.players.filter(x=>x.uid!==p.uid);S.sel=null;S.orig=S.edit=null;S.ghostSel=new Set();S.tab='ens';
+  S.players=S.players.filter(x=>x.uid!==p.uid);S.admins=S.admins.filter(x=>x.uid!==p.uid);S.sel=null;S.orig=S.edit=null;S.ghostSel=new Set();S.tab='ens';
   addLog(`${name} : ${arch?'fiche archivée supprimée':'compte supprimé'}`);
   render();setStatus(`${arch?'Fiche archivée':'Compte'} de ${name} supprimé${arch?'e':''} à ${fmtTime(Date.now())}`);
   if(reused){
@@ -1156,13 +1268,81 @@ async function delDialog(){
       back.querySelector('[data-i="1"]').addEventListener('click',e=>{e.stopPropagation();window.open(authUrl,'_blank','noopener');});}});
 }
 
+/* =========================================================
+   Administrateurs et droits (seulement le super-administrateur)
+   ========================================================= */
+async function adminsDialog(focus){
+  closeMenus();
+  if(S.role==='legacy'){await rulesUpdate('Pour nommer d\'autres administrateurs, colle d\'abord les nouvelles règles de Firebase : elles font de toi le super-administrateur.');return;}
+  if(S.role!=='super')return;
+  const nameFor=(uid,ps)=>{const p=S.players.find(x=>x.uid===uid);return (p&&nameOf(p))||ps||'?';};
+  const rows=S.admins.filter(a=>!a.super).map(a=>({uid:a.uid,pseudo:a.pseudo,droits:Object.assign({},a.droits,{voir:true}),orig:JSON.stringify(Object.assign({},a.droits,{voir:true})),isNew:false,del:false}));
+  const addRow=uid=>{const p=S.players.find(x=>x.uid===uid);if(!p||isArch(p)||uid===S.user.uid)return;
+    const r=rows.find(x=>x.uid===uid);if(r){r.del=false;return;}rows.push({uid,pseudo:p.pseudo||'',droits:{voir:true},isNew:true,del:false});};
+  if(focus)addRow(focus);
+  const sup=S.admins.find(a=>a.super)||{uid:S.user.uid,pseudo:me()};
+  const gridHtml=()=>`<table class="grid admgrid"><thead><tr><th scope="col">Administrateur</th>${DROITS.map(d=>`<th scope="col" class="c" title="${esc(d[3])}"><span class="emo">${d[1]}</span><br>${esc(d[2])}</th>`).join('')}<th scope="col"><span class="sr">Retirer</span></th></tr></thead><tbody>
+    <tr class="sup"><td><span class="emo">👑</span> <b>${esc(nameFor(sup.uid,sup.pseudo))}</b> <span class="muted">(super-administrateur${sup.uid===S.user.uid?', toi':''})</span></td>${DROITS.map(d=>`<td class="c"><input type="checkbox" checked disabled aria-label="${esc(d[2])}"></td>`).join('')}<td></td></tr>
+    ${rows.filter(r=>!r.del).map(r=>`<tr data-row="${esc(r.uid)}"${r.uid===focus?' class="hl"':''}><td><span class="emo">🛠️</span> ${esc(nameFor(r.uid,r.pseudo))}${r.isNew?' <span class="tag">nouveau</span>':JSON.stringify(r.droits)!==r.orig?' <span class="tag">modifié</span>':''}</td>${DROITS.map(d=>`<td class="c"><input type="checkbox" data-adm="${esc(r.uid)}" data-dr="${d[0]}" ${r.droits[d[0]]?'checked':''} ${d[0]==='voir'?'disabled':''} aria-label="${esc(d[2])} pour ${esc(nameFor(r.uid,r.pseudo))}"></td>`).join('')}<td><button type="button" class="btn mini" data-rm="${esc(r.uid)}">Retirer</button></td></tr>`).join('')}
+    </tbody></table>${rows.some(r=>!r.del)?'':'<p class="muted" style="margin:6px">Aucun autre administrateur pour l\'instant.</p>'}`;
+  const optsHtml=()=>{const c=S.players.filter(p=>!isArch(p)&&p.uid!==S.user.uid&&!rows.some(r=>r.uid===p.uid&&!r.del)).sort((a,b)=>pseudoKey(nameOf(a)).localeCompare(pseudoKey(nameOf(b))));
+    return c.length?c.map(p=>`<option value="${esc(p.uid)}">${esc(nameOf(p)||p.pseudo||'?')}${nameOf(p)!==p.pseudo?` (${esc(p.pseudo||'')})`:''}</option>`).join(''):'<option value="">(personne d\'autre)</option>';};
+  let saved=false;
+  await box({title:'Administrateurs et droits',icon:'👥',wide:true,buttons:['Enregistrer','Fermer'],def:0,cancel:1,
+    html:`<p>Le <b>super-administrateur</b> a tous les droits ; il n'y en a qu'un. Ici, tu nommes d'autres administrateurs et tu choisis ce qu'ils ont le droit de faire.</p>
+      <div class="list sunken" id="adm-grid" style="max-height:38vh">${gridHtml()}</div>
+      <div class="row" style="margin-top:8px"><label for="adm-add">Ajouter un administrateur :</label><span class="v"><select id="adm-add">${optsHtml()}</select><button type="button" class="btn mini" id="adm-addb">➕ Ajouter</button></span></div>
+      <fieldset><legend>Les droits</legend><ul class="admhelp">${DROITS.map(d=>`<li><span class="emo">${d[1]}</span> <b>${esc(d[2])}</b> : ${esc(d[3])}</li>`).join('')}</ul>
+        <p class="muted" style="margin:4px 0 0">Un administrateur ne peut pas modifier, supprimer ni changer le mot de passe d'un autre administrateur, ni le tien. Dans le jeu, il trouve le lien de la console dans « Mon compte ».</p></fieldset>
+      <p class="err" id="adm-err" role="alert"></p>`,
+    onOpen:(back,done)=>{
+      const q=x=>back.querySelector(x);
+      const redraw=()=>{q('#adm-grid').innerHTML=gridHtml();q('#adm-add').innerHTML=optsHtml();q('#adm-addb').disabled=!q('#adm-add').value;};
+      q('#adm-addb').disabled=!q('#adm-add').value;
+      back.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset.adm===undefined)return;e.stopPropagation();
+        const r=rows.find(x=>x.uid===t.dataset.adm);if(!r)return;const k=t.dataset.dr;r.droits[k]=t.checked;
+        if(k==='motdepasse'&&t.checked)r.droits.modifier=true;
+        if(k==='modifier'&&!t.checked)r.droits.motdepasse=false;
+        redraw();});
+      back.addEventListener('click',e=>{
+        const rm=e.target.closest('[data-rm]');
+        if(rm){e.stopPropagation();const i=rows.findIndex(x=>x.uid===rm.dataset.rm);if(i>=0){if(rows[i].isNew)rows.splice(i,1);else rows[i].del=true;}redraw();return;}
+        if(e.target.closest('#adm-addb')){e.stopPropagation();const v=q('#adm-add').value;if(v){addRow(v);redraw();}}
+      });
+      const go=q('[data-i="0"]');
+      go.addEventListener('click',async e=>{
+        e.stopPropagation();
+        const err=q('#adm-err');err.textContent='';
+        const full=d=>Object.fromEntries(DROITS.map(x=>[x[0],x[0]==='voir'?true:!!d[x[0]]]));
+        const sets=rows.filter(r=>!r.del&&(r.isNew||JSON.stringify(full(r.droits))!==JSON.stringify(full(JSON.parse(r.orig)))));
+        const dels=rows.filter(r=>r.del&&!r.isNew);
+        if(!sets.length&&!dels.length){done(1);return;}
+        go.disabled=true;
+        try{
+          const b=S.F.writeBatch(S.db),t=Date.now();
+          for(const r of sets)b.set(S.F.doc(S.db,'admins',r.uid),{pseudo:r.pseudo,droits:full(r.droits),by:S.user.uid,at:t});
+          for(const r of dels)b.delete(S.F.doc(S.db,'admins',r.uid));
+          await b.commit();
+          for(const r of sets)addLog(`${nameFor(r.uid,r.pseudo)} : ${r.isNew?'nommé administrateur':'droits changés'} (${droitsTxt(full(r.droits))})`);
+          for(const r of dels)addLog(`${nameFor(r.uid,r.pseudo)} : n'est plus administrateur`);
+          saved=true;done(0);
+        }catch(x){
+          go.disabled=false;
+          if(String(x&&x.code)==='permission-denied'){err.textContent='Firestore refuse : les règles de Firebase ne sont pas à jour (bouton « Mettre à jour les règles » dans la vue d\'ensemble).';}
+          else err.textContent='Ça n\'a pas marché : '+fsMsg(x);
+        }
+      });
+    }});
+  if(saved){await loadPlayers(false);render();setStatus('Administrateurs enregistrés');}
+}
+
 /* ---------- menus ---------- */
 const MENUS={
   fichier:()=>[['🔄 Actualiser','F5','refresh'],['📤 Exporter la liste…','','export'],'-',['🎮 Ouvrir le jeu','','game'],'-',['🚪 Se déconnecter','','logout']],
-  edition:()=>[['💾 Enregistrer','Ctrl+S','save',!dirty()],['↩️ Annuler les modifications','','cancel',!dirty()],'-',['👻 Supprimer tous les fantômes','','gdelall',!cur()]],
+  edition:()=>[['💾 Enregistrer','Ctrl+S','save',!dirty()||!canEdit()],['↩️ Annuler les modifications','','cancel',!dirty()],'-',['👻 Supprimer tous les fantômes','','gdelall',!canEdit()]],
   affichage:()=>[['📊 Vue d\'ensemble','','tab:ens'],[`${S.showArch?'☑':'☐'} Afficher les fiches archivées`,'','arch'],'-',['Trier par pseudo','','sort:pseudo'],['Trier par XP','','sort:xp'],['Trier par activité','','sort:act'],'-',['📒 Journal des modifications','','journal']],
-  joueur:()=>[['Général','','tab:gen',!cur()],['Missions','','tab:mis',!cur()],['Fantômes','','tab:fan',!cur()],['Badges','','tab:bad',!cur()],['Boutique','','tab:bou',!cur()],'-',['🧹 Remettre à zéro…','','reset',!cur()||isArch(cur())],['🔑 Mot de passe / identifiant…','','pw',!canPw()],['🗑️ Supprimer le compte…','','delacc',!canDel()],['Fermer la fiche','','close',!cur()]],
-  outils:()=>[['🎉 Événement XP / bretzels…','','event'],[`⏹ Arrêter / annuler l'événement`,'','evstop',evState()==='none'],'-',['📤 Exporter la liste…','','export'],['📒 Journal des modifications','','journal']],
+  joueur:()=>[['Général','','tab:gen',!cur()],['Missions','','tab:mis',!cur()],['Fantômes','','tab:fan',!cur()],['Badges','','tab:bad',!cur()],['Boutique','','tab:bou',!cur()],'-',['🧹 Remettre à zéro…','','reset',!canEdit()],['🔑 Mot de passe / identifiant…','','pw',!canPw()],['🗑️ Supprimer le compte…','','delacc',!canDel()],['Fermer la fiche','','close',!cur()]],
+  outils:()=>[['🎉 Événement XP / bretzels…','','event',!can('evenements')],[`⏹ Arrêter / annuler l'événement`,'','evstop',evState()==='none'||!can('evenements')],'-',['👥 Administrateurs et droits…','','admins',!isSuper()],'-',['📤 Exporter la liste…','','export'],['📒 Journal des modifications','','journal']],
   aide:()=>[['❓ Aide','F1','help'],['🥨 À propos de Bretzel Admin','','about']]
 };
 function closeMenus(){document.querySelectorAll('.menubar .m.open').forEach(m=>{m.classList.remove('open');const x=m.querySelector('.menu');if(x)x.remove();});const sm=$('.startmenu');if(sm)sm.remove();}
@@ -1176,7 +1356,7 @@ function openMenu(name){
 function startMenu(){
   if($('.startmenu')){closeMenus();return;}closeMenus();
   const d=document.createElement('div');d.className='startmenu raised';
-  d.innerHTML=`<div class="side">Bretzel Admin</div><div class="items"><button data-act="mi" data-do="game"><span class="emo">🎮</span>Ouvrir le jeu</button><button data-act="mi" data-do="tab:ens"><span class="emo">📊</span>Vue d'ensemble</button><button data-act="mi" data-do="event"><span class="emo">🎉</span>Événement…</button><button data-act="mi" data-do="help"><span class="emo">❓</span>Aide</button><hr style="border:0;border-top:1px solid var(--shadow);border-bottom:1px solid var(--light);margin:2px"><button data-act="mi" data-do="logout"><span class="emo">🚪</span>Se déconnecter…</button></div>`;
+  d.innerHTML=`<div class="side">Bretzel Admin</div><div class="items"><button data-act="mi" data-do="game"><span class="emo">🎮</span>Ouvrir le jeu</button><button data-act="mi" data-do="tab:ens"><span class="emo">📊</span>Vue d'ensemble</button><button data-act="mi" data-do="event"><span class="emo">🎉</span>Événement…</button>${isSuper()?'<button data-act="mi" data-do="admins"><span class="emo">👥</span>Administrateurs…</button>':''}<button data-act="mi" data-do="help"><span class="emo">❓</span>Aide</button><hr style="border:0;border-top:1px solid var(--shadow);border-bottom:1px solid var(--light);margin:2px"><button data-act="mi" data-do="logout"><span class="emo">🚪</span>Se déconnecter…</button></div>`;
   document.body.appendChild(d);
 }
 async function doAction(a){
@@ -1184,13 +1364,14 @@ async function doAction(a){
   if(a.startsWith('tab:'))return setTab(a.slice(4));
   if(a.startsWith('sort:')){const k=a.slice(5);S.sort={k,d:k==='pseudo'?1:-1};return render();}
   if(a==='arch'){S.showArch=!S.showArch;return render();}
-  ({refresh,export:exportCsv,pw:pwDialog,event:evDialog,evstop:()=>evStop(true),delacc:delDialog,
+  ({refresh,export:exportCsv,pw:pwDialog,event:evDialog,evstop:()=>evStop(true),delacc:delDialog,admins:()=>adminsDialog(),
     rules:()=>rulesUpdate('Les règles de sécurité de Firebase datent d\'avant les dernières nouveautés : les événements et la suppression de comptes ne peuvent pas marcher.'),game:()=>window.open('./','_blank','noopener'),logout,save,cancel,reset:resetPlayer,journal:showJournal,help,about,
     gdelall:()=>delGhosts(true),close:closeFiche})[a]?.();
 }
 function setTab(t){if(t!=='ens'&&!cur())return;S.tab=t;renderTabs();renderSheet();renderTools();$('#sheet').scrollTop=0;}
 async function closeFiche(){if(!await askSave())return;S.sel=null;S.orig=S.edit=null;S.tab='ens';render();}
 async function delGhosts(all){
+  if(!canEdit())return;
   const g=S.edit;if(!g)return;const gh=obj(g.ghosts);const ids=all?Object.keys(gh):[...S.ghostSel].filter(i=>i in gh);
   if(!ids.length)return;
   if(all){const v=await box({title:'Fantômes',icon:'❓',html:`<p>Supprimer les <b>${ids.length}</b> fantôme${ids.length>1?'s':''} de ${esc(cur().pseudo||'?')} ?</p>`,buttons:['Oui','Non'],def:1,cancel:1});if(v!==0)return;}
@@ -1208,6 +1389,7 @@ document.addEventListener('click',e=>{
   if(a==='mi')return doAction(t.dataset.do);
   closeMenus();
   if(a==='pick')return pick(t.dataset.uid);
+  if(a==='admfor')return adminsDialog(t.dataset.uid);
   if(a==='sort'){const k=t.dataset.k;S.sort=S.sort.k===k?{k,d:-S.sort.d}:{k,d:k==='pseudo'?1:-1};return render();}
   if(a==='tab')return setTab(t.dataset.tab);
   if(a==='xp'){S.edit.xp=int(num(S.edit.xp)+num(t.dataset.v),0,1e6);const i=$('#f-xp');if(i)i.value=S.edit.xp;return renderSheet(),refreshLive();}
