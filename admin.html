@@ -1226,7 +1226,7 @@ function help(){
   <p><b>Suspendre un compte :</b> bouton ⏸️ <b>Suspendre</b> : le joueur ne peut plus jouer avec son compte pendant 1 jour, 3 jours, une semaine… (sa progression est gardée). Le jeu lui dit jusqu'à quand, avec le motif si tu en écris un. Tu peux lever la suspension avant la fin.</p>
   <p><b>Sauvegarde :</b> bouton 💾 <b>Sauvegarde</b> (super-administrateur) : télécharge un fichier avec la progression de tous les joueurs. Avec ce fichier, tu peux remettre les joueurs de ton choix comme ils étaient (tu vois la liste avant).</p>
   <p><b>Saisons :</b> bouton 🎄 <b>Saisons</b>. Pour <b>Halloween</b> (objets en vente dans la boutique) et le <b>calendrier de l'Avent</b> (une case surprise par jour : un emoji pour l'avatar ou des bretzels), choisis <b>Désactivé</b>, <b>Aperçu seulement</b> (annoncé, mais rien en vente et aucune case ne s'ouvre) ou <b>Tout</b>, les dates et combien de jours avant on l'annonce. Pour le calendrier, tu choisis aussi ce qu'il y a dans chaque case.</p>
-  <p><b>Codes cadeaux :</b> bouton 🎟️ <b>Codes</b>. Crée un code (ou plusieurs d'un coup, par exemple un par élève) qui donne des bretzels, des XP et/ou des objets. Tu choisis combien de joueurs peuvent l'utiliser, à partir de quand et jusqu'à quand, pour qui, et le message affiché. Dans le jeu, le joueur le tape dans <b>Mon compte</b> › <b>Code cadeau</b> ; chacun ne peut l'utiliser qu'une fois. Tu vois qui l'a utilisé, tu peux le mettre en pause, l'exporter ou imprimer les codes.</p>
+  <p><b>Codes cadeaux :</b> bouton 🎟️ <b>Codes</b>. Crée un code (ou plusieurs d'un coup, par exemple un par élève) qui donne des bretzels, des XP et/ou des objets. Tu choisis combien de joueurs peuvent l'utiliser, à partir de quand et jusqu'à quand, pour qui, et le message affiché. Dans le jeu, le joueur le tape dans <b>Mon compte</b> › <b>Code cadeau</b> ; chacun ne peut l'utiliser qu'une fois. Tu vois qui l'a utilisé, tu peux le mettre en pause, l'exporter ou imprimer les codes. Coche plusieurs codes (ou « Sélectionner les expirés et épuisés ») pour les supprimer d'un coup.</p>
   <p><b>Journal :</b> bouton 📒 <b>Journal</b>. Chaque action faite dans la console est enregistrée ; le super-administrateur voit celles de tous les administrateurs (avec la date), peut chercher, exporter ou vider le journal.</p>
   <p><b>Raccourcis :</b> F5 = actualiser, Ctrl+S = enregistrer, Échap = fermer une fenêtre.</p>
   <p><b>Supprimer un compte :</b> bouton 🗑️ <b>Supprimer</b> (il faut écrire l'identifiant du joueur pour confirmer). Sa progression est effacée et le jeu le déconnecte. Pour que l'identifiant puisse resservir, supprime aussi sa connexion dans Firebase (Authentication) : la console t'explique comment.</p>
@@ -1909,12 +1909,13 @@ async function codesDialog(){
   try{await codesLoad();}
   catch(x){setStatus('Codes indisponibles');await box({title:'Codes cadeaux',icon:'⛔',html:`<p>La liste des codes n'a pas pu être lue.</p><p>${esc(fsMsg(x))}</p>`});return;}
   setStatus(`${S.codes.length} code${S.codes.length>1?'s':''} cadeau${S.codes.length>1?'x':''}`);
-  let q='',old=false;
+  let q='',old=false;const sel=new Set();
   const vis=()=>{const k=codeKey(q),kn=pseudoKey(q);
     return S.codes.filter(c=>(old||!['fini','epuise'].includes(codeSt(c)))&&(!q||c.id.includes(k)||pseudoKey(c.note).includes(kn)||pseudoKey(c.msg).includes(kn)||pseudoKey(rewardTxt(c)).includes(kn)));};
   const table=()=>{const v=vis();
-    return v.length?`<table class="grid codegrid"><thead><tr><th scope="col">Code</th><th scope="col">Récompense</th><th scope="col" class="n">Utilisé</th><th scope="col">Quand</th><th scope="col">État</th><th scope="col"><span class="sr">Actions</span></th></tr></thead><tbody>${v.map(c=>{const st=codeSt(c);
-      return `<tr data-code="${esc(c.id)}"><td><code class="cd">${esc(c.id)}</code>${c.pour.length?` <span class="tag" title="Réservé à ${c.pour.length} joueur${c.pour.length>1?'s':''}">👤 ${c.pour.length}</span>`:''}${c.note?`<br><span class="muted">${esc(c.note)}</span>`:''}</td>
+    const all=v.length>0&&v.every(c=>sel.has(c.id));
+    return v.length?`<table class="grid codegrid"><thead><tr><th scope="col" class="c"><input type="checkbox" id="cd-all"${all?' checked':''} aria-label="Tout sélectionner"></th><th scope="col">Code</th><th scope="col">Récompense</th><th scope="col" class="n">Utilisé</th><th scope="col">Quand</th><th scope="col">État</th><th scope="col"><span class="sr">Actions</span></th></tr></thead><tbody>${v.map(c=>{const st=codeSt(c);
+      return `<tr data-code="${esc(c.id)}"${sel.has(c.id)?' class="sel2"':''}><td class="c"><input type="checkbox" data-cdsel="${esc(c.id)}"${sel.has(c.id)?' checked':''} aria-label="Sélectionner ${esc(c.id)}"></td><td><code class="cd">${esc(c.id)}</code>${c.pour.length?` <span class="tag" title="Réservé à ${c.pour.length} joueur${c.pour.length>1?'s':''}">👤 ${c.pour.length}</span>`:''}${c.note?`<br><span class="muted">${esc(c.note)}</span>`:''}</td>
         <td style="white-space:normal">${esc(rewardTxt(c))}</td><td class="n">${c.utilise} / ${c.limite||'∞'}</td><td>${esc(whenTxt2(c))}</td><td>${CODE_ST[st]}</td>
         <td class="acts"><button type="button" class="btn mini" data-cd="edit" title="Modifier">✏️</button><button type="button" class="btn mini" data-cd="pause" title="${c.actif?'Mettre en pause':'Réactiver'}">${c.actif?'⏸️':'▶️'}</button><button type="button" class="btn mini" data-cd="uses" title="Qui l'a utilisé ?">👥</button><button type="button" class="btn mini" data-cd="copy" title="Copier le code">📋</button><button type="button" class="btn mini" data-cd="del" title="Supprimer">🗑️</button></td></tr>`;}).join('')}</tbody></table>`
       :`<p class="muted" style="margin:8px">${S.codes.length?'Aucun code ne correspond.':'Aucun code pour l\'instant. Clique sur « Nouveau code… ».'}</p>`;};
@@ -1922,11 +1923,22 @@ async function codesDialog(){
     html:`<p style="margin-top:0">Dans le jeu, le joueur tape le code dans <b>Mon compte</b> › <b>Code cadeau</b> (ou dans la boutique) et gagne des bretzels, des XP ou des objets. Chaque joueur ne peut utiliser un même code qu'<b>une seule fois</b>.</p>
       <div class="row"><label for="cd-q">Chercher :</label><span class="v"><input type="search" id="cd-q" placeholder="un code, une note…" autocomplete="off"><label style="margin-left:8px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="cd-old"> les codes expirés ou épuisés aussi</label></span></div>
       <div class="list sunken" id="cd-list" style="max-height:44vh">${table()}</div>
-      <p class="muted" id="cd-n" role="status" style="margin:6px 0 0"></p>`,
+      <div class="szbar"><span class="muted" id="cd-n" role="status"></span><span><button type="button" class="btn mini" id="cd-selold">Sélectionner les expirés et épuisés</button><button type="button" class="btn mini" id="cd-selnone">Tout désélectionner</button><button type="button" class="btn mini" id="cd-delsel" disabled>🗑️ Supprimer la sélection</button></span></div>`,
     onOpen:(back,done)=>{
       const qq=x=>back.querySelector(x);
       qq('.dlg').style.width='min(940px,100%)';
-      const upd=()=>{qq('#cd-list').innerHTML=table();const n=vis().length;qq('#cd-n').textContent=`${n} code${n>1?'s':''} affiché${n>1?'s':''} sur ${S.codes.length}`;};
+      const upd=()=>{for(const id of [...sel])if(!S.codes.some(c=>c.id===id))sel.delete(id);
+        qq('#cd-list').innerHTML=table();const n=vis().length,m=sel.size;
+        qq('#cd-n').textContent=`${n} code${n>1?'s':''} affiché${n>1?'s':''} sur ${S.codes.length}${m?` · ${m} sélectionné${m>1?'s':''}`:''}`;
+        const d=qq('#cd-delsel');d.disabled=!m;d.textContent=m?`🗑️ Supprimer la sélection (${m})`:'🗑️ Supprimer la sélection';};
+      qq('#cd-list').addEventListener('change',e=>{const t=e.target;e.stopPropagation();
+        if(t.id==='cd-all'){for(const c of vis()){if(t.checked)sel.add(c.id);else sel.delete(c.id);}upd();return;}
+        if(t.dataset.cdsel!==undefined){if(t.checked)sel.add(t.dataset.cdsel);else sel.delete(t.dataset.cdsel);upd();}});
+      qq('#cd-selold').addEventListener('click',e=>{e.stopPropagation();const xs=S.codes.filter(c=>['fini','epuise'].includes(codeSt(c)));
+        xs.forEach(c=>sel.add(c.id));if(xs.length&&!old){old=true;qq('#cd-old').checked=true;}upd();setStatus(xs.length?`${xs.length} code${xs.length>1?'s':''} expiré${xs.length>1?'s':''} ou épuisé${xs.length>1?'s':''} sélectionné${xs.length>1?'s':''}`:'Aucun code expiré ou épuisé');});
+      qq('#cd-selnone').addEventListener('click',e=>{e.stopPropagation();sel.clear();upd();});
+      qq('#cd-delsel').addEventListener('click',async e=>{e.stopPropagation();const list=S.codes.filter(c=>sel.has(c.id));if(!list.length)return;
+        if(await codesDelMany(list)){sel.clear();upd();}});
       upd();
       qq('#cd-q').addEventListener('input',e=>{e.stopPropagation();q=e.target.value;upd();});
       qq('#cd-old').addEventListener('change',e=>{e.stopPropagation();old=e.target.checked;upd();});
@@ -2105,6 +2117,32 @@ async function codeUses(c){
   await box({title:`Code ${c.id} : qui l'a utilisé ?`,icon:'👥',wide:true,
     html:`<p style="margin-top:0">${rows.length?`<b>${rows.length}</b> joueur${rows.length>1?'s':''}`:'Personne pour l\'instant'}${c.limite?` sur ${c.limite} au maximum`:''}. Récompense : ${esc(rewardTxt(c))}.</p>
       ${rows.length?`<div class="list sunken" style="max-height:46vh"><table class="grid"><thead><tr><th scope="col">Joueur</th><th scope="col">Date</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(S.players.some(p=>p.uid===r.uid)?pName(r.uid):(r.pseudo||'?'))}</td><td>${esc(fmtDate(r.at))}</td></tr>`).join('')}</tbody></table></div>`:''}`});
+}
+/* supprimer plusieurs codes d'un coup (avec leurs fiches « uses ») */
+async function codesDelMany(list){
+  const n=list.length,show=list.slice(0,12).map(c=>`<code class="cd">${esc(c.id)}</code>`).join(', ')+(n>12?` et ${n-12} autre${n-12>1?'s':''}`:'');
+  const v=await box({title:'Supprimer des codes',icon:'🗑️',buttons:[`Supprimer ${n} code${n>1?'s':''}`,'Annuler'],def:1,cancel:1,
+    html:`<p>Supprimer <b>${n} code${n>1?'s':''}</b> : ${show} ?</p><p>Ils ne marcheront plus dans le jeu. Les joueurs qui les ont déjà utilisés gardent leur récompense. On ne peut pas annuler.</p>`});
+  if(v!==0)return false;
+  setStatus(`Suppression de ${n} code${n>1?'s':''}…`);
+  const done=[];let err=null;
+  try{
+    let b=S.F.writeBatch(S.db),k=0;
+    const flush=async()=>{if(k){await b.commit();b=S.F.writeBatch(S.db);k=0;}};
+    for(const c of list){
+      const snap=await S.F.getDocs(S.F.collection(S.db,'codes',c.id,'uses'));const refs=[];snap.forEach(d=>refs.push(d.ref));
+      if(k+refs.length+1>400)await flush();
+      for(const r of refs){b.delete(r);k++;if(k>=400)await flush();}
+      b.delete(S.F.doc(S.db,'codes',c.id));k++;done.push(c.id);
+    }
+    await flush();
+  }catch(x){err=x;}
+  try{await codesLoad();}catch(x){S.codes=S.codes.filter(c=>!done.includes(c.id));}
+  const gone=list.filter(c=>!S.codes.some(x=>x.id===c.id)).map(c=>c.id);
+  if(gone.length){addLog(`${gone.length} code${gone.length>1?'s':''} cadeau${gone.length>1?'x':''} supprimé${gone.length>1?'s':''} : ${gone.slice(0,20).join(', ')}${gone.length>20?'…':''}`);
+    setStatus(`${gone.length} code${gone.length>1?'s':''} supprimé${gone.length>1?'s':''}`);}
+  if(err)await box({title:'Erreur',icon:'⛔',html:`<p>${gone.length?`${gone.length} code${gone.length>1?'s':''} supprimé${gone.length>1?'s':''}, mais pas tous.`:'Les codes n\'ont pas pu être supprimés.'}</p><p>${esc(fsMsg(err))}</p>`});
+  return gone.length>0;
 }
 async function codeDel(c){
   const v=await box({title:'Supprimer le code',icon:'🗑️',buttons:['Supprimer','Annuler'],def:1,cancel:1,
