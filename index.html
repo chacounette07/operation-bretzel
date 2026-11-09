@@ -42,6 +42,8 @@
   --t-ctrl:#FFE14D;
   --t-patch:#FFADAD;
   --t-tier:#E8A86B;
+  --t-imbiss:#FFB347;
+  --t-eis:#F7B5D8;
   --t-dict:#7FD1AE;
   --f-display:'Lilita One','Arial Rounded MT Bold','Trebuchet MS',sans-serif;
   --f-body:'Nunito','Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
@@ -122,6 +124,8 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.05;
 .worlds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .worlds>.wt:last-child:nth-child(odd){grid-column:1/-1}
 .h2sub{margin:-6px 0 12px;font-weight:800;font-size:14px}
+.wt[data-w="imbiss"] .band{background:repeating-linear-gradient(45deg,#FFB347 0 14px,#FFD27F 14px 28px)}
+.wt[data-w="eis"] .band{background:radial-gradient(circle at 50% 50%,#fff 0 5px,transparent 6px) 0 0/26px 26px,linear-gradient(180deg,#F7B5D8,#B5E3F7)}
 .wt[data-w="tier"] .band{background:radial-gradient(circle at 50% 50%,rgba(122,74,30,.22) 0 4px,transparent 5px) 0 0/22px 22px,#E8A86B}
 .wt[data-w="patch"] .band{background:conic-gradient(#FFADAD 0 25%,#FDFFB6 0 50%,#A0E7E5 0 75%,#CAFFBF 0) 0 0/36px 36px}
 .wt[data-w="land"] .band{background:linear-gradient(180deg,#000 0 33.4%,#DD0000 33.4% 66.7%,#FFCE00 66.7%)}
@@ -1254,6 +1258,102 @@ S('pr.schwein','pr','mcq',{ask:'Dans « Meerschweinchen », le « ei » se prono
 const PAIRS5=[['das Haustier','l\'animal domestique'],['der Hund','le chien'],['die Katze','le chat'],['das Kaninchen','le lapin'],['das Meerschweinchen','le cochon d\'Inde'],['der Wellensittich','la perruche'],['der Hamster','le hamster']];
 
 /* =========================================================
+   Thema 3 : Essen und Trinken (cours des 2, 3 et 5 novembre)
+   2 nov. : commander à manger ou à boire (Ich möchte einen Kartoffelsalat / eine Currywurst / ein Schaschlik),
+            demander le prix (Wie viel kostet…?), ich habe Hunger / Durst ; ein → einen au COD
+   3 nov. : le dialogue vendeur / client (Was möchtest du? Ist das alles? Und zum Trinken? Hier bitte)
+   5 nov. : commander une glace (Ich hätte gern ein Eis. Im Becher oder in der Waffel? Wie viele Kugeln? Welche Sorte?)
+   Uniquement des ajouts : les questions existantes ne changent pas.
+   ========================================================= */
+Object.assign(WORLDS,{
+  imbiss:{name:'Am Imbiss',sub:'Commander : einen Kartoffelsalat, eine Currywurst… et le prix',emo:'🌭',col:'var(--t-imbiss)',neu:true},
+  eis:{name:'Ein Eis, bitte!',sub:'Le dialogue au marchand de glaces',emo:'🍦',col:'var(--t-eis)',neu:true}
+});
+WORLDS.tier.neu=false;
+THEMES.push({title:'Thema 3 : Essen und Trinken',sub:'Les cours depuis le 2 novembre',worlds:['imbiss','eis']});
+LW.push('Hunger','Durst','Currywurst','Kartoffelsalat','Apfelsaft','Wasser','Becher','Waffel','Kugel','billig','teuer');
+Object.assign(MEAN,{Hunger:'la faim',Durst:'la soif',Currywurst:'la saucisse au curry',Kartoffelsalat:'la salade de pommes de terre',Apfelsaft:'le jus de pomme',Wasser:'l\'eau',Becher:'le pot',Waffel:'le cornet (la gaufrette)',Kugel:'la boule',billig:'bon marché',teuer:'cher'});
+
+/* ---------- le vocabulaire du 2 novembre ---------- */
+const IMB=[
+  {k:'Bratwurst',art:'die',fr:'la saucisse grillée',emo:'🌭',hook:'braten = faire griller, die Wurst = la saucisse. Wurst est féminin : die Bratwurst → ich möchte eine Bratwurst.'},
+  {k:'Currywurst',art:'die',fr:'la saucisse au curry',emo:'🌭',hook:'Inventée à Berlin en 1949 ! Comme toutes les Wurst, c\'est féminin : eine Currywurst.'},
+  {k:'Schaschlik',art:'das',fr:'la brochette',emo:'🍢',hook:'Un mot venu de l\'Est (comme « chachlik »). Neutre : das Schaschlik → ich möchte ein Schaschlik.'},
+  {k:'Kartoffelsalat',art:'der',fr:'la salade de pommes de terre',emo:'🥗',hook:'die Kartoffel = la pomme de terre + der Salat. Le dernier mot décide : der Kartoffelsalat → einen Kartoffelsalat.'},
+  {k:'Apfelsaft',art:'der',fr:'le jus de pomme',emo:'🧃',hook:'der Apfel = la pomme, der Saft = le jus : der Apfelsaft → ich möchte einen Apfelsaft.'},
+  {k:'Apfelschorle',art:'die',fr:'le jus de pomme pétillant',emo:'🍹',hook:'Du jus de pomme + de l\'eau gazeuse : la boisson préférée des Allemands ! Féminin : eine Apfelschorle.'},
+  {k:'Wasser',art:'das',fr:'l\'eau',emo:'💧',hook:'Wasser ressemble à l\'anglais « water ». W se dit « v » : vasseur. Neutre : ein Wasser.'},
+  {k:'Portion Pommes',art:'die',fr:'la portion de frites',emo:'🍟',hook:'Pommes (on dit « pom-meus ») = les frites. C\'est die Portion qui compte : eine Portion Pommes.'}
+];
+const IMBK=Object.fromEntries(IMB.map(f=>[f.k,f]));
+const igen=f=>({der:'masculin',die:'féminin',das:'neutre'})[f.art];
+const iacc=f=>({der:'einen',die:'eine',das:'ein'})[f.art];
+const inom=f=>({der:'ein',die:'eine',das:'ein'})[f.art];
+GEN['imbiss.fr2de']=k=>{const f=IMBK[k];if(!f)return null;const o=sample(IMB.filter(x=>x.k!==k),3);
+  return{kind:'mcq',ask:'Comment dit-on en allemand… ?',big:`${f.emo} ${f.fr}`,opts:[f,...o].map(x=>`${x.art} ${x.k}`),answer:`${f.art} ${f.k}`,optLang:'de',say:`${f.art} ${f.k}`,why:`${cap(f.fr)} = <b>${f.art} ${f.k}</b>, un mot ${igen(f)}.`,tip:f.hook};};
+GEN['imbiss.de2fr']=k=>{const f=IMBK[k];if(!f)return null;const o=sample(IMB.filter(x=>x.k!==k),3);
+  return{kind:'mcq',ask:'Que veut dire… ?',big:`${f.art} ${f.k}`,bigLang:'de',opts:[f,...o].map(x=>x.fr),answer:f.fr,say:`${f.art} ${f.k}`,why:`<b>${f.art} ${f.k}</b> = ${f.fr}.`,tip:f.hook};};
+GEN['imbiss.gen']=k=>{const f=IMBK[k];if(!f)return null;
+  return{kind:'mcq',ask:'Quel article : der, die ou das ?',big:`___ ${f.k}`,bigLang:'de',blank:true,opts:['der','die','das'],noShuffle:true,answer:f.art,optLang:'de',say:`${f.art} ${f.k}`,
+    why:`<b>${f.k}</b> = ${f.fr}. C'est un mot ${igen(f)} : <b>${f.art}</b> ${f.k}.`,tip:f.hook};};
+GEN['imbiss.acc']=k=>{const f=IMBK[k];if(!f)return null;
+  return{kind:'mcq',ask:'Tu commandes. Complète :',big:`Ich möchte ___ ${f.k}.`,bigLang:'de',opts:['einen','eine','ein'],noShuffle:true,answer:iacc(f),optLang:'de',say:`Ich möchte ${iacc(f)} ${f.k}.`,
+    why:`${f.art} ${f.k} → ich möchte <b>${iacc(f)}</b> ${f.k}. Après « ich möchte » (c'est un COD) : der → <b>einen</b>, die → eine, das → ein.`,tip:f.hook};};
+GEN['imbiss.kost']=k=>{const f=IMBK[k];if(!f)return null;
+  return{kind:'mcq',ask:'Tu demandes le prix. Complète :',big:`Wie viel kostet ___ ${f.k}?`,bigLang:'de',opts:['ein','eine','einen'],noShuffle:true,answer:inom(f),optLang:'de',say:`Wie viel kostet ${inom(f)} ${f.k}?`,
+    why:`Ici, ${f.k} est le sujet de « kostet » (ce n'est pas un COD) : on garde <b>${inom(f)}</b> ${f.k}.`,
+    tip:'einen, c\'est seulement pour le COD : « Ich möchte einen Apfelsaft. » Mais « Wie viel kostet ein Apfelsaft? »'};};
+GEN['imbiss.type']=k=>{const f=IMBK[k];if(!f)return null;
+  return{kind:'type',ask:'Écris en allemand, avec l\'article (der, die ou das) :',big:`${f.emo} ${f.fr}`,accept:[`${f.art} ${f.k}`],say:`${f.art} ${f.k}`,why:`${cap(f.fr)} = <b>${f.art} ${f.k}</b>, un mot ${igen(f)}.`,tip:f.hook};};
+
+S('imbiss.q.hunger','imbiss','mcq',{ask:'Comment dit-on en allemand… ?',big:'J\'ai faim. 😋',opts:['Ich habe Hunger.','Ich habe Durst.','Ich bin Hunger.','Ich möchte Hunger.'],answer:'Ich habe Hunger.',optLang:'de',say:'Ich habe Hunger.',why:'Mot à mot : « j\'ai faim » → <b>Ich habe Hunger.</b> On utilise haben, comme en français.'});
+S('imbiss.q.durst','imbiss','mcq',{ask:'Comment dit-on en allemand… ?',big:'J\'ai soif. 🥤',opts:['Ich habe Durst.','Ich habe Hunger.','Ich bin Durst.','Ich trinke Durst.'],answer:'Ich habe Durst.',optLang:'de',say:'Ich habe Durst.',why:'<b>der Durst</b> = la soif → <b>Ich habe Durst.</b>'});
+S('imbiss.q.keinhunger','imbiss','mcq',{ask:'Comment dit-on en allemand… ?',big:'Je n\'ai pas faim.',opts:['Ich habe keinen Hunger.','Ich habe nicht Hunger.','Ich habe kein Hunger.','Ich habe keine Hunger.'],answer:'Ich habe keinen Hunger.',optLang:'de',say:'Ich habe keinen Hunger.',why:'der Hunger est masculin : <b>keinen</b> Hunger (comme einen). Pareil : Ich habe <b>keinen</b> Durst.'});
+S('imbiss.q.hastdu','imbiss','mcq',{ask:'Que veut dire… ?',big:'Hast du Durst?',bigLang:'de',opts:['As-tu soif ?','As-tu faim ?','Veux-tu boire ?','Tu es fatigué ?'],answer:'As-tu soif ?',say:'Hast du Durst?',why:'<b>Hast du Durst?</b> = As-tu soif ? (Hast du Hunger? = As-tu faim ?)'});
+S('imbiss.q.kostet','imbiss','mcq',{ask:'Comment dit-on en allemand… ?',big:'Combien coûte une Currywurst ?',opts:['Wie viel kostet eine Currywurst?','Wie viele kostet eine Currywurst?','Was kostet einen Currywurst?','Wie alt ist eine Currywurst?'],answer:'Wie viel kostet eine Currywurst?',optLang:'de',say:'Wie viel kostet eine Currywurst?',why:'<b>Wie viel</b> = combien, <b>kostet</b> = coûte (de kosten).'});
+S('imbiss.q.moechte','imbiss','mcq',{ask:'Comment dit-on en allemand… ?',big:'Je voudrais une salade de pommes de terre.',opts:['Ich möchte einen Kartoffelsalat.','Ich möchte ein Kartoffelsalat.','Ich möchte eine Kartoffelsalat.','Ich habe einen Kartoffelsalat.'],answer:'Ich möchte einen Kartoffelsalat.',optLang:'de',say:'Ich möchte einen Kartoffelsalat.',why:'<b>ich möchte</b> = je voudrais. der Kartoffelsalat est masculin et COD → <b>einen</b>.'});
+S('imbiss.rule.einen','imbiss','mcq',{ask:'Après « ich möchte », « ein » devant un mot masculin (der) devient…',big:'der Apfelsaft → Ich möchte ___ Apfelsaft.',bigLang:'de',opts:['einen','ein','eine','einer'],answer:'einen',optLang:'de',say:'Ich möchte einen Apfelsaft.',why:'Au COD, seul le masculin change : der → <b>einen</b>. Le féminin (eine) et le neutre (ein) ne bougent pas.',tip:'Grammatik du 2 novembre : le ein masculin devient einen au COD.'});
+S('imbiss.rule.fem','imbiss','mcq',{ask:'Au COD, que devient « eine » (féminin) ?',big:'die Currywurst → Ich möchte ___ Currywurst.',bigLang:'de',opts:['eine','einen','ein','keine'],answer:'eine',optLang:'de',say:'Ich möchte eine Currywurst.',why:'Le féminin ne change pas : <b>eine</b> Currywurst. Seul le masculin devient einen.'});
+S('imbiss.tf.wasser','imbiss','tf',{big:'On dit « Ich möchte einen Wasser ».',answer:false,say:'Ich möchte ein Wasser.',why:'Faux : das Wasser est neutre, il ne change pas → Ich möchte <b>ein</b> Wasser.'});
+S('imbiss.tf.saft','imbiss','tf',{big:'« Ich möchte einen Apfelsaft » est correct.',answer:true,say:'Ich möchte einen Apfelsaft.',why:'Vrai : der Apfelsaft est masculin, au COD → <b>einen</b> Apfelsaft.'});
+S('imbiss.tf.durst','imbiss','tf',{big:'« Ich habe Durst » veut dire « j\'ai faim ».',answer:false,say:'Ich habe Durst.',why:'Faux : Durst = la soif. J\'ai faim = <b>Ich habe Hunger.</b>'});
+S('imbiss.b.moechte','imbiss','build',{ask:'Construis la phrase en allemand :',big:'Je voudrais une saucisse au curry.',tiles:['Ich','möchte','eine','Currywurst','einen','habe'],target:['Ich','möchte','eine','Currywurst'],say:'Ich möchte eine Currywurst.',why:'<b>Ich möchte eine Currywurst.</b> (die Currywurst → eine)'});
+S('imbiss.b.kostet','imbiss','build',{ask:'Construis la question en allemand :',big:'Combien coûte un jus de pomme ?',tiles:['Wie','viel','kostet','ein','Apfelsaft?','einen','viele'],target:['Wie','viel','kostet','ein','Apfelsaft?'],say:'Wie viel kostet ein Apfelsaft?',why:'<b>Wie viel kostet ein Apfelsaft?</b> Ici Apfelsaft est le sujet : ein, pas einen.'});
+S('imbiss.b.hunger','imbiss','build',{ask:'Construis la phrase en allemand :',big:'Je n\'ai pas soif.',tiles:['Ich','habe','keinen','Durst','kein','bin'],target:['Ich','habe','keinen','Durst'],say:'Ich habe keinen Durst.',why:'<b>Ich habe keinen Durst.</b> (der Durst → keinen)'});
+
+/* ---------- le dialogue au marchand de glaces (3 et 5 novembre) ---------- */
+S('eis.q.was','eis','mcq',{ask:'Le vendeur te demande ce que tu veux. Il dit…',big:'Que voudrais-tu ?',opts:['Was möchtest du?','Wie heißt du?','Was machst du?','Wo wohnst du?'],answer:'Was möchtest du?',optLang:'de',say:'Was möchtest du?',why:'<b>Was</b> = quoi, <b>möchtest du</b> = voudrais-tu.'});
+S('eis.q.gern','eis','mcq',{ask:'Comment dit-on poliment… ?',big:'Je voudrais une glace. 🍦',opts:['Ich hätte gern ein Eis.','Ich habe gern ein Eis.','Ich hätte gern einen Eis.','Ich bin gern ein Eis.'],answer:'Ich hätte gern ein Eis.',optLang:'de',say:'Ich hätte gern ein Eis.',why:'<b>Ich hätte gern…</b> = je voudrais bien… (très poli). das Eis est neutre → <b>ein</b> Eis.'});
+S('eis.q.becher','eis','mcq',{ask:'Que veut dire… ?',big:'Im Becher oder in der Waffel?',bigLang:'de',opts:['En pot ou en cornet ?','Vanille ou chocolat ?','Une ou deux boules ?','Sur place ou à emporter ?'],answer:'En pot ou en cornet ?',say:'Im Becher oder in der Waffel?',why:'<b>der Becher</b> = le pot, <b>die Waffel</b> = le cornet (la gaufrette).'});
+S('eis.q.kugeln','eis','mcq',{ask:'Le vendeur demande combien de boules tu veux. Il dit…',big:'Combien de boules ?',opts:['Wie viele Kugeln?','Wie viel kostet das?','Welche Sorte?','Ist das alles?'],answer:'Wie viele Kugeln?',optLang:'de',say:'Wie viele Kugeln?',why:'<b>Wie viele</b> = combien (qu\'on peut compter), <b>die Kugel</b> = la boule → zwei <b>Kugeln</b>.'});
+S('eis.q.sorte','eis','mcq',{ask:'Que veut dire… ?',big:'Welche Sorte?',bigLang:'de',opts:['Quel parfum ?','Quelle taille ?','Combien ?','Quelle couleur ?'],answer:'Quel parfum ?',say:'Welche Sorte?',why:'<b>die Sorte</b> = la sorte, le parfum. On répond : Vanille, Schokolade und Joghurt.'});
+S('eis.q.sorten','eis','mcq',{ask:'Comment dit-on en allemand… ?',big:'Vanille, chocolat et yaourt',opts:['Vanille, Schokolade und Joghurt','Vanille, Schokolade oder Joghurt','Vanille, Kakao und Milch','Vanilla, Chocolate and Yogurt'],answer:'Vanille, Schokolade und Joghurt',optLang:'de',say:'Vanille, Schokolade und Joghurt',why:'<b>Schokolade</b> = chocolat, <b>Joghurt</b> = yaourt, <b>und</b> = et.'});
+S('eis.q.macht','eis','mcq',{ask:'Que veut dire… ?',big:'Das macht drei Euro.',bigLang:'de',opts:['Ça fait trois euros.','Ça coûte trop cher.','Il fait trois degrés.','J\'ai trois euros.'],answer:'Ça fait trois euros.',say:'Das macht drei Euro.',why:'<b>Das macht…</b> = ça fait… (le prix à payer).',tip:'On dit « drei Euro », sans s au pluriel !'});
+S('eis.q.billig','eis','mcq',{ask:'Une glace à 1 euro, c\'est…',big:'1 Euro 🍦',opts:['billig','teuer','alles','gern'],answer:'billig',optLang:'de',say:'Das ist billig!',why:'<b>billig</b> = bon marché, pas cher. Le contraire : <b>teuer</b> = cher.'});
+S('eis.q.teuer','eis','mcq',{ask:'Que veut dire… ?',big:'Das ist teuer!',bigLang:'de',opts:['C\'est cher !','C\'est bon marché !','C\'est délicieux !','C\'est tout !'],answer:'C\'est cher !',say:'Das ist teuer!',why:'<b>teuer</b> = cher. <b>billig</b> = bon marché.'});
+S('eis.q.alles','eis','mcq',{ask:'Le vendeur dit « Ist das alles? ». Ça veut dire…',big:'Ist das alles?',bigLang:'de',opts:['C\'est tout ?','C\'est bon ?','C\'est à toi ?','C\'est combien ?'],answer:'C\'est tout ?',say:'Ist das alles?',why:'<b>alles</b> = tout. On peut répondre : « Ja, danke! »'});
+S('eis.q.trinken','eis','mcq',{ask:'Que veut dire… ?',big:'Und zum Trinken?',bigLang:'de',opts:['Et pour boire ?','Et pour manger ?','Et pour toi ?','Et ensuite ?'],answer:'Et pour boire ?',say:'Und zum Trinken?',why:'<b>trinken</b> = boire. <b>Und zum Essen?</b> = Et pour manger ?'});
+S('eis.q.hier','eis','mcq',{ask:'Le vendeur te tend ta glace. Il dit…',big:'Tiens, voilà !',opts:['Hier bitte!','Danke schön!','Tschüss!','Wie viele?'],answer:'Hier bitte!',optLang:'de',say:'Hier bitte!',why:'<b>Hier bitte!</b> = Tenez / tiens, voilà ! Et toi, tu réponds : <b>Danke, tschüss!</b>'});
+S('eis.q.ordre','eis','mcq',{ask:'Le vendeur dit « Wie viele Kugeln? ». Que réponds-tu ?',big:'Wie viele Kugeln?',bigLang:'de',opts:['Drei Kugeln, bitte.','Im Becher, bitte.','Vanille, bitte.','Das macht drei Euro.'],answer:'Drei Kugeln, bitte.',optLang:'de',say:'Drei Kugeln, bitte.',why:'Il demande <b>combien de boules</b> : « Drei Kugeln, bitte. »'});
+S('eis.q.spaghetti','eis','mcq',{ask:'Karambolage : le « Spaghettieis », c\'est…',big:'das Spaghettieis 🍝🍦',bigLang:'de',opts:['de la glace à la vanille en forme de spaghettis','des spaghettis avec de la glace dessus','une glace au goût de tomate','un plat de pâtes froid'],answer:'de la glace à la vanille en forme de spaghettis',say:'das Spaghettieis',why:'De la glace vanille passée dans un presse-purée pour ressembler à des spaghettis, avec une « sauce tomate » à la fraise et du chocolat blanc râpé pour le parmesan !',tip:'Il a été inventé en 1969 à Mannheim.'});
+S('eis.q.curry','eis','mcq',{ask:'Karambolage : la « Currywurst », c\'est…',big:'die Currywurst 🌭',bigLang:'de',opts:['une saucisse coupée en rondelles, avec une sauce ketchup au curry','une saucisse au poulet et au riz','une soupe de saucisses','une saucisse végétarienne'],answer:'une saucisse coupée en rondelles, avec une sauce ketchup au curry',say:'die Currywurst',why:'La Currywurst est née à Berlin en 1949 : une saucisse en rondelles, sauce ketchup et poudre de curry, souvent avec des Pommes.'});
+S('eis.tf.waffel','eis','tf',{big:'« die Waffel » veut dire « le pot ».',answer:false,say:'in der Waffel',why:'Faux : <b>die Waffel</b> = le cornet (la gaufrette). Le pot = <b>der Becher</b>.'});
+S('eis.tf.billig','eis','tf',{big:'« billig » est le contraire de « teuer ».',answer:true,say:'billig, teuer',why:'Vrai : <b>billig</b> = bon marché, <b>teuer</b> = cher.'});
+S('eis.tf.euro','eis','tf',{big:'On dit « Das macht drei Euros ».',answer:false,say:'Das macht drei Euro.',why:'Faux : en allemand, on ne met pas de s : <b>drei Euro</b>.'});
+S('eis.b.gern','eis','build',{ask:'Construis la phrase en allemand :',big:'Je voudrais bien une glace.',tiles:['Ich','hätte','gern','ein','Eis','einen','habe'],target:['Ich','hätte','gern','ein','Eis'],say:'Ich hätte gern ein Eis.',why:'<b>Ich hätte gern ein Eis.</b> (das Eis → ein)'});
+S('eis.b.becher','eis','build',{ask:'Construis la question du vendeur :',big:'En pot ou en cornet ?',tiles:['Im','Becher','oder','in','der','Waffel?','und','die'],target:['Im','Becher','oder','in','der','Waffel?'],say:'Im Becher oder in der Waffel?',why:'<b>Im Becher oder in der Waffel?</b>'});
+S('eis.b.tschuess','eis','build',{ask:'Construis la phrase en allemand :',big:'Merci, au revoir !',tiles:['Danke,','tschüss!','Bitte,','hallo!'],target:['Danke,','tschüss!'],say:'Danke, tschüss!',why:'<b>Danke, tschüss!</b> = Merci, salut / au revoir !'});
+/* combien de boules ? (1 à 5) */
+GEN['eis.kug']=k=>{const n=Math.max(1,Math.min(5,parseInt(k,10)||1));const w=n===1?'eine Kugel':`${de(n)} Kugeln`;const all=['eine Kugel','zwei Kugeln','drei Kugeln','vier Kugeln','fünf Kugeln'];
+  return{kind:'mcq',ask:'Tu veux ce nombre de boules. Que dis-tu ?',big:'🍨'.repeat(n),opts:sample(all.filter(x=>x!==w),3).concat(w),answer:w,optLang:'de',say:`${w}, bitte.`,why:`${n} = <b>${n===1?'eins':de(n)}</b> → <b>${w}</b>, bitte.`,tip:'eine Kugel (une boule), mais zwei Kugeln (pluriel : on ajoute -n).'};};
+/* le prix : « Das macht … Euro » */
+GEN['eis.preis']=k=>{const n=Math.max(1,Math.min(20,parseInt(k,10)||3));const o=sample([...Array(20).keys()].map(i=>i+1).filter(x=>x!==n),3);
+  return{kind:'mcq',ask:'Le vendeur dit le prix. Combien dois-tu payer ?',big:`Das macht ${de(n)} Euro.`,bigLang:'de',opts:[n,...o].map(x=>`${x} €`),answer:`${n} €`,say:`Das macht ${de(n)} Euro.`,why:`<b>${de(n)}</b> = ${n} : ça fait ${n} euro${n>1?'s':''}.`,tip:'Euro ne prend pas de s : zwei Euro, drei Euro…'};};
+
+/* ---------- Memory : nouvelles paires ---------- */
+const PAIRS6=[['die Currywurst','la saucisse au curry'],['der Kartoffelsalat','la salade de pommes de terre'],['der Apfelsaft','le jus de pomme'],['das Wasser','l\'eau'],['Ich habe Hunger.','J\'ai faim.'],['Ich habe Durst.','J\'ai soif.'],['der Becher','le pot'],['die Waffel','le cornet'],['die Kugel','la boule'],['billig','bon marché'],['teuer','cher'],['Ist das alles?','C\'est tout ?']];
+
+/* =========================================================
    Grosse mise à jour : fantômes malins, dictée, série de jours, badges, boss
    ========================================================= */
 /* ---------- le temps (jour du calendrier, heure locale) ---------- */
@@ -1276,7 +1376,7 @@ const nextDue=()=>{const t=Object.values(state.ghosts).filter(g=>!isDue(g)).map(
 const KEEP_KEYS=['streak','badges','boss','news'];
 
 /* ---------- les leçons les plus récentes (défi du jour, dictée) ---------- */
-const RECENT_W=['tier','patch','plur','meine'];
+const RECENT_W=['eis','imbiss','tier','patch'];
 
 /* ---------- dictée : on entend un mot, on l'écrit ---------- */
 Object.assign(WORLDS,{dict:{name:'Dictée',sub:'Écoute un mot ou une phrase en allemand et écris-le',emo:'✍️',col:'var(--t-dict)'}});
@@ -1299,7 +1399,11 @@ const DICT_RAW=[
   ['plur','wir spielen','nous jouons'],['plur','sie schwimmen','ils / elles nagent'],['plur','wir sind','nous sommes'],['plur','ich mag','j\'aime'],['plur','Wir mögen Sport.','Nous aimons le sport.'],
   ['patch','die Patchworkfamilie','la famille recomposée'],['patch','der Stiefvater','le beau-père'],['patch','die Stiefmutter','la belle-mère'],['patch','der Halbbruder','le demi-frère'],['patch','die Halbschwester','la demi-sœur'],
   ['tier','das Haustier','l\'animal domestique'],['tier','der Hund','le chien'],['tier','die Katze','le chat'],['tier','das Kaninchen','le lapin'],['tier','der Hamster','le hamster'],
-  ['tier','das Meerschweinchen','le cochon d\'Inde'],['tier','Ich habe einen Hund.','J\'ai un chien.'],['tier','Ich habe kein Haustier.','Je n\'ai pas d\'animal.'],['tier','Hast du ein Haustier?','As-tu un animal domestique ?']
+  ['tier','das Meerschweinchen','le cochon d\'Inde'],['tier','Ich habe einen Hund.','J\'ai un chien.'],['tier','Ich habe kein Haustier.','Je n\'ai pas d\'animal.'],['tier','Hast du ein Haustier?','As-tu un animal domestique ?'],
+  ['imbiss','Ich habe Hunger.','J\'ai faim.'],['imbiss','Ich habe Durst.','J\'ai soif.'],['imbiss','die Currywurst','la saucisse au curry'],['imbiss','der Kartoffelsalat','la salade de pommes de terre'],
+  ['imbiss','Ich möchte einen Apfelsaft.','Je voudrais un jus de pomme.'],['imbiss','Wie viel kostet das?','Combien ça coûte ?'],['imbiss','das Wasser','l\'eau'],
+  ['eis','Was möchtest du?','Que voudrais-tu ?'],['eis','Ich hätte gern ein Eis.','Je voudrais une glace.'],['eis','im Becher','en pot'],['eis','in der Waffel','en cornet'],
+  ['eis','drei Kugeln','trois boules'],['eis','Ist das alles?','C\'est tout ?'],['eis','Das ist teuer.','C\'est cher.'],['eis','Danke, tschüss!','Merci, au revoir !']
 ];
 const dslug=s=>String(s).toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const DICT=DICT_RAW.map(([w,de,fr])=>({k:dslug(de),w,de,fr}));
@@ -1374,8 +1478,11 @@ const MAP_STOPS=[
   {id:'plur',w:'plur',city:'Dortmund',emo:'⚽',fact:'La ville du Borussia et de son « mur jaune » : près de 25 000 supporters debout !'},
   {id:'patch',w:'patch',city:'Bremen',emo:'🐓',fact:'Les musiciens de Brême : un âne, un chien, un chat et un coq. Une vraie Patchworkfamilie !'},
   {id:'tier',w:'tier',city:'Stuttgart',emo:'🐴',fact:'Son nom vient de « Stutengarten », un élevage de chevaux : il y a un cheval sur son blason… et sur le logo de Porsche !'},
-  {id:'t2',boss:'t2',city:'Drachenfels',emo:'🐉',fact:'Le « rocher du dragon », où le héros Siegfried aurait battu un dragon. La Hydra t\'y attend !'}
+  {id:'t2',boss:'t2',city:'Drachenfels',emo:'🐉',fact:'Le « rocher du dragon », où le héros Siegfried aurait battu un dragon. La Hydra t\'y attend !'},
+  {id:'imbiss',w:'imbiss',city:'Nürnberg',emo:'🌭',fact:'La ville des toutes petites Bratwürste : on en mange « drei im Weggla », trois dans un petit pain !'},
+  {id:'eis',w:'eis',city:'Mannheim',emo:'🍝',fact:'C\'est ici qu\'a été inventé le Spaghettieis, en 1969 : de la glace qui ressemble à des spaghettis !'}
 ];
+BADGES.splice(BADGES.findIndex(b=>b.id==='explorer'),0,{id:'thema3',emo:'🍦',name:'Thema 3 : top !',desc:'3 étoiles à toutes les missions du Thema 3',test:s=>THEMES[2].worlds.every(w=>(s.stars[w]||0)>=3)});
 const MAP_BONUS=10;
 
 /* ---------- la boutique : 1 bretzel tous les 10 XP, + des bretzels pour chaque étape de la carte ---------- */
@@ -1486,7 +1593,7 @@ KEEP_KEYS.push('shop','mapDone','mapInit','adminAt','nick','pwTemp','avent','cod
 function kindOf(id){
   if(STATIC[id])return STATIC[id].kind;
   const k=id.split('.').slice(0,2).join('.');
-  return {'fam.type':'type','num.type':'type','num.dig':'type','num.build':'build','num.listen':'listen','pr.listen':'listen','konj.t':'type','plur.t':'type','patch.type':'type','tier.type':'type','dict.w':'type'}[k]||'mcq';
+  return {'fam.type':'type','num.type':'type','num.dig':'type','num.build':'build','num.listen':'listen','pr.listen':'listen','konj.t':'type','plur.t':'type','patch.type':'type','tier.type':'type','imbiss.type':'type','dict.w':'type'}[k]||'mcq';
 }
 function getQ(id){
   let q;
@@ -2368,6 +2475,16 @@ function pickWorld(w,n,exclude){
     const g2=gen.filter(ok);
     return shuffle([...g2,...pickStatics(w,n-g2.length,exclude,{type:1})]).slice(0,n);
   }
+  if(w==='imbiss'){
+    const ws=shuffle(IMB.map(f=>f.k));
+    const gen=['fr2de','acc','de2fr','kost','gen','type'].map((k,i)=>`imbiss.${k}.${ws[i]}`);
+    const g2=gen.filter(ok);
+    return shuffle([...g2,...pickStatics(w,n-g2.length,exclude,{type:1})]).slice(0,n);
+  }
+  if(w==='eis'){
+    const gen=[`eis.kug.${1+rnd(5)}`,`eis.preis.${1+rnd(12)}`].filter(ok);
+    return shuffle([...gen,...pickStatics(w,n-gen.length,exclude)]).slice(0,n);
+  }
   if(w==='patch'){
     const ws=shuffle(PATCH.map(f=>f.k));
     const gen=['fr2de','de2fr','gen','type'].map((k,i)=>`patch.${k}.${ws[i]}`);
@@ -3145,6 +3262,7 @@ function blitzNextId(){
   else if(r<.83)id=`plur.f.${pick(PLV).inf}.${pick(['wir','siepl'])}`;
   else if(r<.87)id=`patch.${pick(['fr2de','de2fr','gen'])}.${pick(PATCH).k}`;
   else if(r<.91)id=`tier.${pick(['fr2de','de2fr','gen','acc','kein'])}.${pick(TIER).k}`;
+  else if(r<.95)id=`imbiss.${pick(['fr2de','de2fr','gen','acc','kost'])}.${pick(IMB).k}`;
   else{const n=pick([16,17,20,21,30,60,70,52,48,99,13+rnd(7),(2+rnd(8))*10,21+rnd(79),21+rnd(79)]);id=`num.${pick(['d2w','w2d'])}.${n}`;}
   if(run.recent.includes(id))return blitzNextId();
   run.recent.push(id);if(run.recent.length>10)run.recent.shift();
@@ -3197,7 +3315,7 @@ function blitzEnd(){
 }
 
 /* ---------- Memory ---------- */
-const PAIRS=[['der Vater','le père'],['die Mutter','la mère'],['die Eltern','les parents'],['der Sohn','le fils'],['die Tochter','la fille'],['der Bruder','le frère'],['die Schwester','la sœur'],['die Kinder','les enfants'],['der Großvater','le grand-père'],['die Großmutter','la grand-mère'],['die Großeltern','les grands-parents'],['krank','malade'],['müde','fatigué(e)'],['gestresst','stressé(e)'],['Warum?','Pourquoi ?'],['verliebt','amoureux'],['zwanzig','20'],['dreißig','30'],['sechzehn','16'],['siebzig','70'],['zweiundfünfzig','52'],['achtundvierzig','48']].concat(PAIRS2,PAIRS3,PAIRS4,PAIRS5);
+const PAIRS=[['der Vater','le père'],['die Mutter','la mère'],['die Eltern','les parents'],['der Sohn','le fils'],['die Tochter','la fille'],['der Bruder','le frère'],['die Schwester','la sœur'],['die Kinder','les enfants'],['der Großvater','le grand-père'],['die Großmutter','la grand-mère'],['die Großeltern','les grands-parents'],['krank','malade'],['müde','fatigué(e)'],['gestresst','stressé(e)'],['Warum?','Pourquoi ?'],['verliebt','amoureux'],['zwanzig','20'],['dreißig','30'],['sechzehn','16'],['siebzig','70'],['zweiundfünfzig','52'],['achtundvierzig','48']].concat(PAIRS2,PAIRS3,PAIRS4,PAIRS5,PAIRS6);
 let mem=null;
 function startMemory(){
   const pairs=sample(PAIRS,6);
