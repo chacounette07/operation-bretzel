@@ -124,11 +124,11 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.05;
 .worlds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .worlds>.wt:last-child:nth-child(odd){grid-column:1/-1}
 .h2sub{margin:-6px 0 12px;font-weight:800;font-size:14px}
-.wt[data-w="imbiss"] .band{background:repeating-linear-gradient(45deg,#FFB347 0 14px,#FFD27F 14px 28px)}
-.wt[data-w="eis"] .band{background:radial-gradient(circle at 50% 50%,#fff 0 5px,transparent 6px) 0 0/26px 26px,linear-gradient(180deg,#F7B5D8,#B5E3F7)}
-.wt[data-w="tier"] .band{background:radial-gradient(circle at 50% 50%,rgba(122,74,30,.22) 0 4px,transparent 5px) 0 0/22px 22px,#E8A86B}
-.wt[data-w="patch"] .band{background:conic-gradient(#FFADAD 0 25%,#FDFFB6 0 50%,#A0E7E5 0 75%,#CAFFBF 0) 0 0/36px 36px}
-.wt[data-w="land"] .band{background:linear-gradient(180deg,#000 0 33.4%,#DD0000 33.4% 66.7%,#FFCE00 66.7%)}
+.wt[data-w^="imbiss"] .band{background:repeating-linear-gradient(45deg,#FFB347 0 14px,#FFD27F 14px 28px)}
+.wt[data-w^="eis"] .band{background:radial-gradient(circle at 50% 50%,#fff 0 5px,transparent 6px) 0 0/26px 26px,linear-gradient(180deg,#F7B5D8,#B5E3F7)}
+.wt[data-w^="tier"] .band{background:radial-gradient(circle at 50% 50%,rgba(122,74,30,.22) 0 4px,transparent 5px) 0 0/22px 22px,#E8A86B}
+.wt[data-w^="patch"] .band{background:conic-gradient(#FFADAD 0 25%,#FDFFB6 0 50%,#A0E7E5 0 75%,#CAFFBF 0) 0 0/36px 36px}
+.wt[data-w^="land"] .band{background:linear-gradient(180deg,#000 0 33.4%,#DD0000 33.4% 66.7%,#FFCE00 66.7%)}
 .wt{appearance:none;position:relative;text-align:left;border:3px solid var(--ink);border-radius:18px;background:var(--paper);box-shadow:5px 5px 0 var(--ink);padding:0;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;transition:transform .06s,box-shadow .06s}
 .wt:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--ink)}
 .wt .band{background:var(--c);border-bottom:3px solid var(--ink);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:56px}
@@ -538,6 +538,26 @@ html[data-bg="geisternacht"]{background-color:#2B1240}
 body[data-bg="geisternacht"]:not(.paper){background-color:#2B1240;background-image:radial-gradient(circle,rgba(255,138,31,.55) 1.2px,transparent 1.8px),radial-gradient(circle,rgba(190,130,255,.3) 1px,transparent 1.6px);background-size:44px 44px,22px 22px;background-position:0 0,11px 13px}
 body[data-bg="geisternacht"]:not(.paper) :is(.h2,.h2sub,.pitch,.savenote,.reset,.reset .link,.res-hero .tr,.res-hero .quip,.coinline,.coinline .link){color:#F3EEDF}
 @media (prefers-reduced-motion: reduce){.mstop.cur .pin,.mstop .me{animation:none}}
+/* niveau 2 */
+.lvlbox{margin:26px 0 0}
+.lvlbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.lvlb{appearance:none;font:inherit;color:var(--ink);text-align:left;border:3px solid var(--ink);border-radius:16px;background:var(--paper);box-shadow:4px 4px 0 var(--ink);padding:10px 12px 11px;cursor:pointer;display:flex;flex-direction:column;gap:3px;min-width:0}
+.lvlb:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+.lvlb b{font-family:var(--f-display);font-weight:400;font-size:21px;line-height:1.05;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.lvlb small{font-weight:800;font-size:13.5px;line-height:1.25;color:var(--muted)}
+.lvlb.on{background:var(--ink);color:var(--gold);box-shadow:4px 4px 0 var(--red)}
+.lvlb.on small{color:var(--paper)}
+.lvlb .neu{margin:0;font-size:12px;padding:2px 7px 3px}
+.lvlnote{margin:12px 0 0;background:var(--paper);border:3px solid var(--ink);border-radius:14px;padding:9px 12px;font-weight:700;font-size:14.5px;line-height:1.35}
+.wt .n2{margin-right:auto;font-family:var(--f-display);font-size:13px;line-height:1;background:var(--ink);color:var(--gold);border-radius:999px;padding:4px 9px 5px;white-space:nowrap}
+.l2more{margin:12px 0 0;font-weight:800;font-size:14px}
+.l2skip{align-self:center;color:var(--muted)}
+.typer input.long{font-size:18px}
+.l2diff{font-weight:800;font-size:17px;overflow-wrap:anywhere}
+.l2diff del{color:var(--red);text-decoration:line-through;text-decoration-thickness:2px}
+.l2diff ins{text-decoration:none;color:var(--good);background:var(--paper);border:2px solid var(--good);border-radius:5px;padding:0 2px;font-weight:900}
+.l2diff .sp{display:inline-block;min-width:.6em;min-height:1em;vertical-align:-2px}
+.l2diff del.sp{background:var(--paper);border:2px dashed var(--red);border-radius:5px}
 </style>
 </head>
 <body>
@@ -1457,8 +1477,426 @@ const BOSSES={
   t2:{theme:1,name:'Die Familien-Hydra',fr:'l\'hydre de la famille',emo:'🐲',hp:14,hello:'Une tête pour chaque membre de la famille… Essaie donc de toutes les couper !'}
 };
 
+/* =========================================================
+   Niveau 2 : on lit le français et on écrit tout en allemand (le « thème »)
+   Toutes les questions se tapent au clavier, avec l'orthographe exacte.
+   Une erreur devient un fantôme, exactement comme au niveau 1.
+   ========================================================= */
+const L2LIVES=5;
+const L2SUB={moi:'Écris les questions et les réponses pour te présenter',land:'Écris les pays, les couleurs et les drapeaux',hobby:'Écris les loisirs, ich… / er… et les jours',konj:'Écris les verbes conjugués : ich, du, er, sie',wg:'Écris comment ça va, au copain et à la prof',
+  cast:'Écris des phrases sur Kurt, Sandra et leurs enfants',fam:'Écris la famille avec der ou die',meine:'Écris : mein, meine, einen, keine…',num:'Écris les nombres en lettres (et les âges)',plur:'Écris avec wir et sie, sein et mögen',
+  patch:'Écris : Stief-, Halb- et le verbe haben',tier:'Écris : einen Hund, keine Katze, kein Haustier…',imbiss:'Écris ta commande et demande le prix',eis:'Écris le dialogue chez le marchand de glaces',exam:'Le contrôle du 15 octobre, tout à l\'écrit'};
+for(const [w,sub] of Object.entries(L2SUB)){const W=WORLDS[w];WORLDS[w+'2']={name:W.name,sub,emo:W.emo,col:W.col,l2:true,base:w};}
+WGROUP.exam2=['fam2','meine2','plur2','patch2','tier2'];
+const l2On=()=>!!(state&&state.settings&&state.settings.lvl===2);
+
+/* ---------- la banque de questions : T2(monde, catégorie, français, allemand, options) ---------- */
+const L2T={},L2K={};
+const L2ASK={mot:'Écris en allemand, avec l\'article (der, die ou das) :',q:'Écris la question en allemand :',f:'Écris en allemand (le pronom et le verbe) :',n:'Écris ce nombre en lettres :'};
+function T2(w,c,fr,de,o){
+  const W=w+'2',t=L2T[W]||(L2T[W]={}),ks=L2K[W]||(L2K[W]=[]);
+  const k0=dslug(de)||'x';let k=k0,i=2;while(t[k])k=k0+'-'+(i++);
+  t[k]=Object.assign({c,fr,de},o||{});ks.push(k);return k;
+}
+function l2Q(W,k){
+  const it=(L2T[W]||{})[k];if(!it)return null;
+  return{kind:'type',strict:true,ask:it.ask||L2ASK[it.c]||'Écris en allemand :',big:it.fr,bigLang:'fr',bigNum:!!it.num,accept:[it.de,...(it.acc||[])],say:it.say||it.de,why:it.why||'',tip:it.tip||''};
+}
+
+/* Thema 1 : Ich stelle mich vor */
+T2('moi','q',"Comment tu t'appelles ?",'Wie heißt du?',{why:'heißen → du <b>heißt</b>, avec ß.'});
+T2('moi','q','Où habites-tu ?','Wo wohnst du?',{why:'<b>Wo</b> = où. wohnen → du wohn<b>st</b>.'});
+T2('moi','q',"D'où viens-tu ?",'Woher kommst du?',{why:"<b>Woher</b> = d'où. kommen → du komm<b>st</b>."});
+T2('moi','q','Quel âge as-tu ?','Wie alt bist du?',{why:'En allemand, on demande « comment vieux es-tu ? » : <b>Wie alt bist du?</b>'});
+T2('moi','q','Quelle langue parles-tu ?','Welche Sprache sprichst du?',{why:'die <b>S</b>prache est un nom : majuscule ! sprechen → du spr<b>i</b>chst.'});
+T2('moi','q','Qui es-tu ?','Wer bist du?',{why:'<b>Wer</b> = qui. Attention, « où » se dit wo.'});
+T2('moi','p',"Je m'appelle Tina.",'Ich heiße Tina.',{acc:['Mein Name ist Tina.'],why:'heißen → ich heiß<b>e</b>.'});
+T2('moi','p',"J'habite à Paris.",'Ich wohne in Paris.',{why:'à Paris = <b>in</b> Paris.'});
+T2('moi','p',"Je viens d'Allemagne.",'Ich komme aus Deutschland.',{why:'venir de = <b>kommen aus</b>.'});
+T2('moi','p',"J'ai douze ans.",'Ich bin zwölf.',{acc:['Ich bin zwölf Jahre alt.'],why:'En allemand, on « est » son âge : <b>Ich bin zwölf</b> (ou Ich bin zwölf Jahre alt).'});
+T2('moi','p','Je parle allemand.','Ich spreche Deutsch.',{why:'Les langues prennent une majuscule : <b>D</b>eutsch.'});
+T2('moi','p',"Elle s'appelle Angela.",'Sie heißt Angela.',{why:'sie (elle) → sie heiß<b>t</b>.'});
+T2('moi','p','Il habite à Berlin.','Er wohnt in Berlin.',{why:'er → er wohn<b>t</b>.'});
+T2('moi','p','Elle vient de Suisse.','Sie kommt aus der Schweiz.',{why:'La Suisse a un article : aus <b>der</b> Schweiz.'});
+T2('moi','p',"Il vient d'Autriche.",'Er kommt aus Österreich.',{why:'<b>Ö</b>sterreich commence par un Ö majuscule : utilise la touche Ö.'});
+T2('moi','p','Je me présente.','Ich stelle mich vor.',{why:'se présenter = sich vorstellen : ich stelle mich <b>vor</b> (vor va à la fin).'});
+T2('moi','p','Je suis Clara.','Ich bin Clara.');
+T2('moi','p',"Je m'appelle Tina et j'habite à Paris.",'Ich heiße Tina und ich wohne in Paris.',{acc:['Ich heiße Tina und wohne in Paris.']});
+T2('moi','p','Il a douze ans.','Er ist zwölf.',{acc:['Er ist zwölf Jahre alt.']});
+
+T2('land','pays',"🇩🇪 l'Allemagne",'Deutschland',{s:1,why:'Les pays sont des noms : majuscule !'});
+T2('land','pays',"🇦🇹 l'Autriche",'Österreich',{s:1,why:'Avec un Ö majuscule (touche Ö).'});
+T2('land','pays','🇨🇭 la Suisse','die Schweiz',{s:1,why:'La Suisse est un des rares pays avec un article : <b>die</b> Schweiz.'});
+T2('land','pays','🇫🇷 la France','Frankreich',{s:1});
+T2('land','pays',"🇮🇹 l'Italie",'Italien',{s:1});
+T2('land','pays',"🇪🇸 l'Espagne",'Spanien',{s:1});
+T2('land','coul','🟥 rouge','rot',{s:1,why:'Les couleurs sont des adjectifs : pas de majuscule.'});
+T2('land','coul','🟦 bleu','blau',{s:1});
+T2('land','coul','🟩 vert','grün',{s:1,why:'Avec un ü : gr<b>ü</b>n.'});
+T2('land','coul','🟨 jaune','gelb',{s:1});
+T2('land','coul','⬛ noir','schwarz',{s:1,why:'sch + w + arz : <b>schwarz</b>.'});
+T2('land','coul','⬜ blanc','weiß',{s:1,why:'Avec un ß : wei<b>ß</b>.'});
+T2('land','coul','🥇 or, doré','gold',{s:1});
+T2('land','drap','🇩🇪 noir, rouge, or','schwarz, rot, gold',{acc:['Schwarz, Rot, Gold'],ask:'Écris les couleurs du drapeau en allemand :'});
+T2('land','drap','🇫🇷 bleu, blanc, rouge','blau, weiß, rot',{acc:['Blau, Weiß, Rot'],ask:'Écris les couleurs du drapeau en allemand :'});
+T2('land','drap','🇦🇹 rouge, blanc, rouge','rot, weiß, rot',{acc:['Rot, Weiß, Rot'],ask:'Écris les couleurs du drapeau en allemand :'});
+T2('land','p',"Je viens d'Autriche.",'Ich komme aus Österreich.');
+T2('land','p',"J'habite à Vienne. C'est en Autriche.",'Ich wohne in Wien. Das ist in Österreich.',{acc:['Ich wohne in Wien, das ist in Österreich.'],why:'Vienne = <b>Wien</b>.'});
+T2('land','p',"J'habite à Berlin. C'est en Allemagne.",'Ich wohne in Berlin. Das ist in Deutschland.',{acc:['Ich wohne in Berlin, das ist in Deutschland.']});
+T2('land','p',"J'habite à Zurich. C'est en Suisse.",'Ich wohne in Zürich. Das ist in der Schweiz.',{acc:['Ich wohne in Zürich, das ist in der Schweiz.'],why:'en Suisse = in <b>der</b> Schweiz. Et Zürich prend un ü !'});
+
+const HOB_IL={schwimmen:'il nage',tanzen:'il danse',judo:'il fait du judo',boxen:'il fait de la boxe',wandern:'il fait de la randonnée',schach:'il joue aux échecs',yoga:'il fait du yoga',fotos:'il fait des photos',basketball:'il joue au basket',malen:'il dessine',
+  lesen:'il lit',reiten:'il fait du cheval',ski:'il fait du ski',rad:'il fait du vélo',musik:'il écoute de la musique',geige:'il joue du violon',klavier:'il joue du piano',trompete:'il joue de la trompette',saxofon:'il joue du saxophone',singen:'il chante'};
+const HOB_WHY={lesen:'lesen est un verbe fort : er l<b>ie</b>st.',ski:'fahren est un verbe fort : er f<b>ä</b>hrt.',rad:'fahren est un verbe fort : er f<b>ä</b>hrt.',reiten:'reiten : er reit<b>et</b> (un e entre les deux t).'};
+for(const h of HOB){
+  if(!HOB_IL[h.k])continue;
+  const sax=h.k==='saxofon';
+  T2('hobby','inf',`${h.emo} ${h.fr}`,h.de,{s:1,ask:'Écris l\'activité en allemand (à l\'infinitif) :',acc:sax?['Saxophon spielen']:[],why:`${cap(h.fr)} = <b>${h.de}</b>.`});
+  T2('hobby','er',`${h.emo} ${HOB_IL[h.k]}`,h.er,{s:1,acc:sax?['er spielt Saxophon']:[],why:HOB_WHY[h.k]||`Avec er (il), le verbe finit par <b>-t</b> : ${h.er}.`});
+}
+T2('hobby','jour','📅 le lundi','am Montag',{s:1,why:'Les jours sont des noms : majuscule ! le lundi = <b>am Montag</b>.'});
+T2('hobby','jour','📅 le mardi','am Dienstag',{s:1});
+T2('hobby','jour','📅 le mercredi','am Mittwoch',{s:1,tip:'Mittwoch = le milieu de la semaine (Mitte = milieu).'});
+T2('hobby','jour','📅 le jeudi','am Donnerstag',{s:1,tip:'Donner = le tonnerre : jeudi, c\'est le jour du dieu du tonnerre ⚡'});
+T2('hobby','p','Je dessine le lundi.','Ich male am Montag.',{acc:['Am Montag male ich.']});
+T2('hobby','p','Je danse le mardi.','Ich tanze am Dienstag.',{acc:['Am Dienstag tanze ich.']});
+T2('hobby','p','Il joue au basket le mercredi.','Er spielt Basketball am Mittwoch.',{acc:['Er spielt am Mittwoch Basketball.','Am Mittwoch spielt er Basketball.']});
+T2('hobby','p','Je lis le jeudi.','Ich lese am Donnerstag.',{acc:['Am Donnerstag lese ich.']});
+T2('hobby','p','Je suis sportif (sportive).','Ich bin sportlich.',{why:'sportlich est un adjectif : pas de majuscule.'});
+T2('hobby','p','Il est musicien.','Er ist musikalisch.');
+T2('hobby','p','Es-tu créatif ? Tu dessines ?','Bist du kreativ? Malst du?',{acc:['Bist du kreativ, malst du?']});
+T2('hobby','p','Je fais du vélo.','Ich fahre Rad.',{why:'Rad fahren → ich fahre Rad (pas de ä avec ich).'});
+T2('hobby','p','Tu écoutes de la musique.','Du hörst Musik.');
+T2('hobby','p','Je joue du piano.','Ich spiele Klavier.');
+T2('hobby','p','Mon ami nage.','Mein Freund schwimmt.');
+T2('hobby','p','Je fais du cheval.','Ich reite.');
+T2('hobby','p','je nage','ich schwimme',{s:1});
+T2('hobby','p','je danse','ich tanze',{s:1});
+
+const KJ_FR={spielen:['je joue','tu joues','il joue','elle joue'],wohnen:["j'habite",'tu habites','il habite','elle habite'],kommen:['je viens','tu viens','il vient','elle vient'],schwimmen:['je nage','tu nages','il nage','elle nage'],
+  malen:['je dessine','tu dessines','il dessine','elle dessine'],'hören':["j'écoute",'tu écoutes','il écoute','elle écoute'],singen:['je chante','tu chantes','il chante','elle chante'],machen:['je fais','tu fais','il fait','elle fait'],
+  wandern:['je fais de la randonnée','tu fais de la randonnée','il fait de la randonnée','elle fait de la randonnée']};
+for(const v of VERBS){const fr=KJ_FR[v.inf];if(!fr)continue;
+  ['ich','du','er','sie'].forEach((p,i)=>{const P=PERS[p],f=v.st+P.end;
+    T2('konj','reg',fr[i],`${p} ${f}`,{s:1,ask:L2ASK.f,why:`${v.inf} (${v.fr}) : ${p} → radical <b>${v.st}</b> + <b>-${P.end}</b> = <b>${p} ${f}</b>.`});});}
+const KJ_X=[
+  {c:'fort',fr:['je lis','tu lis','il lit','elle lit'],de:['ich lese','du liest','er liest','sie liest'],why:'lesen est un verbe fort : du l<b>ie</b>st, er l<b>ie</b>st (mais ich lese).'},
+  {c:'fort',fr:['je fais du vélo','tu fais du vélo','il fait du vélo','elle fait du vélo'],de:['ich fahre Rad','du fährst Rad','er fährt Rad','sie fährt Rad'],why:'fahren est un verbe fort : du f<b>ä</b>hrst, er f<b>ä</b>hrt (mais ich fahre). Et Rad prend une majuscule.'},
+  {c:'irr',fr:['je suis','tu es','il est','elle est'],de:['ich bin','du bist','er ist','sie ist'],why:'sein (être) est irrégulier : ich bin, du bist, er ist.'},
+  {c:'irr',fr:["je m'appelle","tu t'appelles","il s'appelle","elle s'appelle"],de:['ich heiße','du heißt','er heißt','sie heißt'],why:'heißen : ich heiße, du heißt, er heißt (avec ß, sans s en plus).'},
+  {c:'irr',fr:['je danse','tu danses','il danse','elle danse'],de:['ich tanze','du tanzt','er tanzt','sie tanzt'],why:'tanzen : le radical finit par z, donc du tanz<b>t</b> (sans s en plus).'}
+];
+for(const x of KJ_X)x.fr.forEach((fr,i)=>T2('konj',x.c,fr,x.de[i],{s:1,ask:L2ASK.f,why:x.why}));
+T2('konj','p','Tu joues au tennis.','Du spielst Tennis.');
+T2('konj','p',"J'habite à Munich.",'Ich wohne in München.',{why:'Munich = <b>München</b>, avec ü.'});
+T2('konj','p','Il vient de Hambourg.','Er kommt aus Hamburg.');
+T2('konj','p','Elle chante très bien.','Sie singt sehr gut.');
+T2('konj','p',"Elle s'appelle Angela et elle chante.",'Sie heißt Angela und sie singt.',{acc:['Sie heißt Angela und singt.']});
+T2('konj','p','Tu fais du ski.','Du fährst Ski.',{why:'fahren : du f<b>ä</b>hrst.'});
+T2('konj','p','Tu lis ?','Liest du?',{why:'Dans une question, le verbe passe en premier. lesen → du l<b>ie</b>st.'});
+T2('konj','p','Il écoute de la musique.','Er hört Musik.');
+
+T2('wg','q','Comment allez-vous ? (à ta prof)','Wie geht es Ihnen?',{why:'Pour vouvoyer : <b>Ihnen</b>, toujours avec un I majuscule.'});
+T2('wg','q','Comment vas-tu ? (à un copain)','Wie geht es dir?',{acc:["Wie geht's?","Wie geht's dir?"],why:'Pour tutoyer : <b>dir</b>. En plus court : Wie geht\'s?'});
+T2('wg','p','Je ne vais pas bien.','Mir geht es nicht gut.',{acc:["Mir geht's nicht gut."],why:'<b>nicht</b> = pas, juste avant gut.'});
+T2('wg','p','Je vais bien.','Mir geht es gut.',{acc:["Mir geht's gut."]});
+T2('wg','q','Pourquoi ?','Warum?',{s:1});
+T2('wg','p','Je suis malade.','Ich bin krank.');
+T2('wg','p','Je suis fatigué(e).','Ich bin müde.',{why:'<b>müde</b> s\'écrit avec ü.'});
+T2('wg','p','Je suis stressé(e).','Ich bin gestresst.',{why:'ge + stress + t : <b>gestresst</b> (deux s, puis t).'});
+T2('wg','p','Merci, bien.','Danke, gut.');
+T2('wg','p','Merci, super !','Danke, prima!');
+T2('wg','q','Et toi ?','Und dir?',{why:'Après « Mir geht es gut », on demande : <b>Und dir?</b>'});
+T2('wg','p','Salut !','Hallo!',{s:1});
+T2('wg','p','Merci !','Danke!',{s:1});
+T2('wg','q','Salut, comment ça va ?','Hallo, wie geht es dir?',{acc:["Hallo, wie geht's?","Hallo, wie geht's dir?"]});
+T2('wg','p','Je vais bien. Et toi ?','Mir geht es gut. Und dir?',{acc:["Mir geht's gut. Und dir?",'Mir geht es gut, und dir?',"Mir geht's gut, und dir?"]});
+T2('wg','p','Je ne vais pas bien. Je suis malade.','Mir geht es nicht gut. Ich bin krank.',{acc:["Mir geht's nicht gut. Ich bin krank.",'Mir geht es nicht gut, ich bin krank.']});
+T2('wg','p','Je suis fatigué(e) et stressé(e).','Ich bin müde und gestresst.');
+
+/* Thema 2 : Die Familie */
+T2('cast','age','Kurt a 52 ans.','Kurt ist zweiundfünfzig.',{acc:['Kurt ist zweiundfünfzig Jahre alt.'],why:'52 = zwei<b>und</b>fünfzig, en un seul mot.'});
+T2('cast','age','Sandra a 48 ans.','Sandra ist achtundvierzig.',{acc:['Sandra ist achtundvierzig Jahre alt.'],why:'48 = acht<b>und</b>vierzig, en un seul mot.'});
+T2('cast','age',"Je suis la mère. J'ai 48 ans.",'Ich bin die Mutter. Ich bin achtundvierzig.',{acc:['Ich bin die Mutter. Ich bin achtundvierzig Jahre alt.','Ich bin die Mutter, ich bin achtundvierzig.']});
+T2('cast','age',"Je suis le père. J'ai 52 ans.",'Ich bin der Vater. Ich bin zweiundfünfzig.',{acc:['Ich bin der Vater. Ich bin zweiundfünfzig Jahre alt.','Ich bin der Vater, ich bin zweiundfünfzig.']});
+T2('cast','p','Luna est amoureuse.','Luna ist verliebt.');
+T2('cast','p','Kurt et Sandra sont les parents.','Kurt und Sandra sind die Eltern.',{why:'Deux personnes → <b>sind</b>. Les parents = <b>die Eltern</b>.'});
+T2('cast','p','Philipp, Theo et Luna sont les enfants.','Philipp, Theo und Luna sind die Kinder.');
+T2('cast','p','Philipp fait de la danse classique.','Philipp macht Ballett.',{why:'<b>Ballett</b> : deux l et deux t !'});
+T2('cast','p','Philipp est un talent du basket.','Philipp ist ein Basketballtalent.',{why:'Un seul mot : Basketball + Talent = <b>Basketballtalent</b>.'});
+T2('cast','who','Je suis la mère.','Ich bin die Mutter.');
+T2('cast','who','Je suis le père.','Ich bin der Vater.');
+T2('cast','who','Je suis la fille.','Ich bin die Tochter.');
+T2('cast','who','Je suis le fils.','Ich bin der Sohn.');
+T2('cast','who','Qui suis-je ?','Wer bin ich?');
+T2('cast','who','Il fait de la danse classique.','Er macht Ballett.');
+T2('cast','who','Elle est amoureuse.','Sie ist verliebt.');
+
+for(const f of FAM)T2('fam','mot',`${f.emo} ${f.fr}`,`${f.art} ${f.k}`,{s:1,why:`${cap(f.fr)} = <b>${f.art} ${f.k}</b>${f.pl?' : c\'est un pluriel, donc die.':'.'}`,tip:f.hook});
+T2('fam','p','le père et la mère','der Vater und die Mutter');
+T2('fam','p','le frère et la sœur','der Bruder und die Schwester');
+T2('fam','p','le fils et la fille','der Sohn und die Tochter');
+T2('fam','p','le grand-père et la grand-mère','der Großvater und die Großmutter');
+T2('fam','p','Kurt est le père.','Kurt ist der Vater.');
+T2('fam','p','Sandra est la mère.','Sandra ist die Mutter.');
+T2('fam','p','Luna est la sœur.','Luna ist die Schwester.');
+T2('fam','p','Theo est le frère.','Theo ist der Bruder.');
+
+T2('meine','pos','mon père','mein Vater',{s:1,why:'der Vater → <b>mein</b> Vater.'});
+T2('meine','pos','ma mère','meine Mutter',{s:1,why:'die Mutter → <b>meine</b> Mutter.'});
+T2('meine','pos','mon frère','mein Bruder',{s:1});
+T2('meine','pos','ma sœur','meine Schwester',{s:1});
+T2('meine','pos','mes parents','meine Eltern',{s:1,why:'Au pluriel : <b>meine</b> Eltern.'});
+T2('meine','pos','mes grands-parents','meine Großeltern',{s:1});
+T2('meine','mot','les frères et sœurs','die Geschwister',{s:1});
+T2('meine','mot','les frères','die Brüder',{s:1,why:'der Bruder → die Br<b>ü</b>der (un ü au pluriel).'});
+T2('meine','mot','les sœurs','die Schwestern',{s:1,why:'die Schwester → die Schwester<b>n</b>.'});
+T2('meine','p',"J'ai un frère.",'Ich habe einen Bruder.',{why:'der Bruder → ich habe <b>einen</b> Bruder.'});
+T2('meine','p',"J'ai une sœur.",'Ich habe eine Schwester.');
+T2('meine','p','Je suis enfant unique.','Ich bin ein Einzelkind.');
+T2('meine','p',"J'ai deux frères et deux sœurs.",'Ich habe zwei Brüder und zwei Schwestern.');
+T2('meine','p',"J'ai cinq frères et sœurs.",'Ich habe fünf Geschwister.');
+T2('meine','p',"J'ai deux frères et une sœur.",'Ich habe zwei Brüder und eine Schwester.');
+T2('meine','p',"Mon père s'appelle Kurt.",'Mein Vater heißt Kurt.');
+T2('meine','p',"Ma mère s'appelle Sandra.",'Meine Mutter heißt Sandra.');
+T2('meine','kein',"Je n'ai pas de frère.",'Ich habe keinen Bruder.',{why:'der Bruder → ich habe <b>keinen</b> Bruder.'});
+T2('meine','kein',"Je n'ai pas de sœur.",'Ich habe keine Schwester.');
+T2('meine','kein',"Je n'ai pas de frères et sœurs.",'Ich habe keine Geschwister.');
+T2('meine','kein',"Je n'ai pas de frères et sœurs. Je suis enfant unique.",'Ich habe keine Geschwister. Ich bin ein Einzelkind.',{acc:['Ich habe keine Geschwister, ich bin ein Einzelkind.']});
+
+const NTRAP=[13,16,17,19,20,21,30,31,48,52,60,61,66,70,71,77,99];
+for(let n=1;n<=99;n++)T2('num',NTRAP.includes(n)?'piege':n<=12?'petit':n<20?'ado':n%10===0?'diz':'comp',String(n),de(n),{s:1,num:1,why:numWhy(n)});
+for(const [fr,s,n] of [["J'ai 11 ans.",'Ich bin',11],["J'ai 12 ans.",'Ich bin',12],["J'ai 13 ans.",'Ich bin',13],['Mon frère a 16 ans.','Mein Bruder ist',16],['Ma sœur a 17 ans.','Meine Schwester ist',17],
+  ['Mon père a 45 ans.','Mein Vater ist',45],['Ma mère a 41 ans.','Meine Mutter ist',41],['Mon grand-père a 76 ans.','Mein Großvater ist',76],['Ma grand-mère a 73 ans.','Meine Großmutter ist',73]])
+  T2('num','age',fr,`${s} ${de(n)}.`,{acc:[`${s} ${de(n)} Jahre alt.`],why:numWhy(n)});
+
+const PL_FR={spielen:['nous jouons aux échecs','ils jouent aux échecs'],schwimmen:['nous nageons','elles nagent'],wohnen:['nous habitons à Berlin','ils habitent à Berlin'],kommen:["nous venons d'Autriche","elles viennent d'Autriche"],
+  tanzen:['nous dansons','ils dansent'],singen:['nous chantons','elles chantent'],malen:['nous dessinons','ils dessinent'],'hören':['nous écoutons de la musique','elles écoutent de la musique'],machen:['nous faisons des photos','ils font des photos'],
+  wandern:['nous faisons de la randonnée','elles font de la randonnée'],lesen:['nous lisons','ils lisent'],fahren:['nous faisons du ski','elles font du ski']};
+for(const v of PLV){const fr=PL_FR[v.inf];if(!fr)continue;
+  ['wir','sie'].forEach((p,i)=>T2('plur','f',fr[i],`${p} ${v.inf}${v.obj?' '+v.obj:''}`,{s:1,ask:L2ASK.f,why:plurWhy(v,p)}));}
+T2('plur','mag',"j'aime",'ich mag',{s:1,why:'mögen : ich <b>mag</b>, du magst, er mag.'});
+T2('plur','mag','tu aimes','du magst',{s:1,why:'mögen : du <b>magst</b>.'});
+T2('plur','mag','il aime','er mag',{s:1,why:'mögen : er <b>mag</b> (sans t !).'});
+T2('plur','mag','nous aimons','wir mögen',{s:1,why:'mögen : wir <b>mögen</b>, avec ö.'});
+T2('plur','mag','ils aiment','sie mögen',{s:1,why:'mögen : sie <b>mögen</b>, avec ö.'});
+T2('plur','mag','nous sommes','wir sind',{s:1,why:'sein : wir <b>sind</b>, sie sind.'});
+T2('plur','mag','ils sont','sie sind',{s:1,why:'sein : wir sind, sie <b>sind</b>.'});
+T2('plur','p','Nous sommes sportifs.','Wir sind sportlich.');
+T2('plur','p','Ils sont sportifs.','Sie sind sportlich.');
+T2('plur','p',"J'aime le sport.",'Ich mag Sport.',{why:'Pas d\'article devant Sport : <b>Ich mag Sport.</b>'});
+T2('plur','p','Tu aimes le sport ?','Magst du Sport?',{why:'Question : le verbe en premier. <b>Magst du Sport?</b>'});
+T2('plur','p','Il aime le sport.','Er mag Sport.');
+T2('plur','p','Nous aimons le sport.','Wir mögen Sport.');
+T2('plur','p','Ils aiment le sport.','Sie mögen Sport.');
+T2('plur','p','Mes parents sont sportifs.','Meine Eltern sind sportlich.');
+T2('plur','p','Mon frère et ma sœur jouent aux échecs.','Mein Bruder und meine Schwester spielen Schach.');
+T2('plur','p','Mes frères et sœurs aiment la musique.','Meine Geschwister mögen Musik.');
+
+for(const f of PATCH)T2('patch','mot',`${f.emo} ${pfull(f)}`,`${f.art} ${f.k}`,{s:1,tip:f.hook});
+T2('patch','haben',"j'ai",'ich habe',{s:1,why:'haben : ich <b>habe</b>.'});
+T2('patch','haben','tu as','du hast',{s:1,why:'haben : du <b>hast</b>.'});
+T2('patch','haben','il a','er hat',{s:1,why:'haben : er <b>hat</b> (irrégulier).'});
+T2('patch','haben','nous avons','wir haben',{s:1});
+T2('patch','haben','ils ont','sie haben',{s:1});
+T2('patch','p',"J'ai un demi-frère.",'Ich habe einen Halbbruder.',{why:'der Halbbruder → <b>einen</b> Halbbruder.'});
+T2('patch','p',"J'ai une demi-sœur.",'Ich habe eine Halbschwester.');
+T2('patch','p',"Je n'ai pas de demi-frère.",'Ich habe keinen Halbbruder.');
+T2('patch','p',"Mon beau-père s'appelle Paul.",'Mein Stiefvater heißt Paul.');
+T2('patch','p',"Ma belle-mère s'appelle Anna.",'Meine Stiefmutter heißt Anna.');
+T2('patch','p',"Ma demi-sœur s'appelle Lena.",'Meine Halbschwester heißt Lena.');
+T2('patch','p','Nous sommes une famille recomposée.','Wir sind eine Patchworkfamilie.');
+T2('patch','p','Salut, je suis le beau-père !','Hallo, ich bin der Stiefvater!');
+T2('patch','p','Il a une demi-sœur.','Er hat eine Halbschwester.');
+
+const TIER_UN={Haustier:'un animal domestique',Hund:'un chien',Katze:'un chat',Meerschweinchen:"un cochon d'Inde",Kaninchen:'un lapin',Hamster:'un hamster',Wellensittich:'une perruche'};
+const TIER_DE={Haustier:"d'animal domestique",Hund:'de chien',Katze:'de chat',Meerschweinchen:"de cochon d'Inde",Kaninchen:'de lapin',Hamster:'de hamster',Wellensittich:'de perruche'};
+for(const f of TIER){
+  T2('tier','mot',`${f.emo} ${f.fr}`,`${f.art} ${f.k}`,{s:1,why:`${cap(f.fr)} = <b>${f.art} ${f.k}</b>, un mot ${tgen(f)}.`,tip:f.hook});
+  if(TIER_UN[f.k])T2('tier','hab',`J'ai ${TIER_UN[f.k]}. ${f.emo}`,`Ich habe ${tein(f)} ${f.k}.`,{why:`${f.art} ${f.k} → ich habe <b>${tein(f)}</b> ${f.k}. Après « ich habe », seul le masculin change : der → einen.`});
+  if(TIER_DE[f.k])T2('tier','kein',`Je n'ai pas ${TIER_DE[f.k]}. ${f.emo}`,`Ich habe ${tkein(f)} ${f.k}.`,{why:`${f.art} ${f.k} → ich habe <b>${tkein(f)}</b> ${f.k} (comme ${tein(f)}, avec un k devant).`});
+}
+T2('tier','p','As-tu un animal domestique ?','Hast du ein Haustier?',{why:'das Haustier est neutre : <b>ein</b> Haustier.'});
+T2('tier','p',"Non, je n'ai pas d'animal domestique.",'Nein, ich habe kein Haustier.');
+T2('tier','p',"Oui, j'ai un chien.",'Ja, ich habe einen Hund.');
+T2('tier','p','Mon frère a un chien.','Mein Bruder hat einen Hund.',{why:'haben : er <b>hat</b>. der Hund → einen Hund.'});
+T2('tier','p',"J'ai un lapin et un hamster.",'Ich habe ein Kaninchen und einen Hamster.');
+T2('tier','p',"J'ai un chat et une perruche.",'Ich habe eine Katze und einen Wellensittich.');
+
+/* Thema 3 : Essen und Trinken */
+const IMB_UN={Bratwurst:'une saucisse grillée',Currywurst:'une saucisse au curry',Schaschlik:'une brochette',Kartoffelsalat:'une salade de pommes de terre',Apfelsaft:'un jus de pomme',Apfelschorle:'un jus de pomme pétillant',Wasser:'une eau','Portion Pommes':'une portion de frites'};
+for(const f of IMB){
+  T2('imbiss','mot',`${f.emo} ${f.fr}`,`${f.art} ${f.k}`,{s:1,why:`${cap(f.fr)} = <b>${f.art} ${f.k}</b>, un mot ${igen(f)}.`,tip:f.hook});
+  if(!IMB_UN[f.k])continue;
+  T2('imbiss','will',`Je voudrais ${IMB_UN[f.k]}. ${f.emo}`,`Ich möchte ${iacc(f)} ${f.k}.`,{acc:[`Ich hätte gern ${iacc(f)} ${f.k}.`,`Ich hätte gerne ${iacc(f)} ${f.k}.`],why:`${f.art} ${f.k} → ich möchte <b>${iacc(f)}</b> ${f.k}. Après « ich möchte » : der → einen, die → eine, das → ein.`});
+  T2('imbiss','kost',`Combien coûte ${IMB_UN[f.k]} ? ${f.emo}`,`Wie viel kostet ${inom(f)} ${f.k}?`,{acc:[`Was kostet ${inom(f)} ${f.k}?`],why:`Ici, ${f.k} est le sujet (ce n'est pas un COD) : on garde <b>${inom(f)}</b> ${f.k}. Et « wie viel » s'écrit en deux mots.`});
+}
+T2('imbiss','mot','😋 la faim','der Hunger',{s:1});
+T2('imbiss','mot','🥤 la soif','der Durst',{s:1});
+T2('imbiss','p',"J'ai faim.",'Ich habe Hunger.',{why:'Comme en français, on utilise avoir : <b>Ich habe Hunger.</b>'});
+T2('imbiss','p',"J'ai soif.",'Ich habe Durst.');
+T2('imbiss','p',"Je n'ai pas faim.",'Ich habe keinen Hunger.',{why:'der Hunger → <b>keinen</b> Hunger.'});
+T2('imbiss','p',"Je n'ai pas soif.",'Ich habe keinen Durst.',{why:'der Durst → <b>keinen</b> Durst.'});
+T2('imbiss','p','As-tu soif ?','Hast du Durst?');
+T2('imbiss','p','As-tu faim ?','Hast du Hunger?');
+T2('imbiss','p','Combien ça coûte ?','Wie viel kostet das?',{acc:['Was kostet das?'],why:'« wie viel » s\'écrit en deux mots.'});
+
+T2('eis','q','Que voudrais-tu ?','Was möchtest du?');
+T2('eis','p','Je voudrais une glace (poliment).','Ich hätte gern ein Eis.',{acc:['Ich hätte gerne ein Eis.','Ich möchte ein Eis.'],why:'<b>Ich hätte gern…</b> = je voudrais bien… das Eis est neutre → <b>ein</b> Eis.'});
+T2('eis','q','En pot ou en cornet ?','Im Becher oder in der Waffel?');
+T2('eis','q','Combien de boules ?','Wie viele Kugeln?',{why:'<b>Wie viele</b> (on peut les compter) + Kugel<b>n</b> au pluriel.'});
+T2('eis','q','Quel parfum ?','Welche Sorte?');
+T2('eis','p',"Vanille, chocolat et yaourt, s'il vous plaît.",'Vanille, Schokolade und Joghurt, bitte.');
+T2('eis','p',"C'est bon marché !",'Das ist billig!');
+T2('eis','p',"C'est cher !",'Das ist teuer!');
+T2('eis','q',"C'est tout ?",'Ist das alles?');
+T2('eis','q','Et pour boire ?','Und zum Trinken?',{why:'Ici, Trinken prend une majuscule : <b>zum Trinken</b>.'});
+T2('eis','p','Tiens, voilà !','Hier bitte!',{acc:['Hier, bitte!']});
+T2('eis','p','Oui, merci !','Ja, danke!');
+T2('eis','p','Merci, au revoir !','Danke, tschüss!',{acc:['Danke, tschüs!']});
+T2('eis','p',"En cornet, s'il vous plaît.",'In der Waffel, bitte.');
+T2('eis','p',"En pot, s'il vous plaît.",'Im Becher, bitte.');
+T2('eis','mot','🍨 la boule','die Kugel',{s:1});
+T2('eis','mot','🥤 le pot','der Becher',{s:1});
+T2('eis','mot','🧇 le cornet','die Waffel',{s:1});
+T2('eis','mot','🍦 la glace','das Eis',{s:1});
+for(let n=1;n<=5;n++)T2('eis','kug',`${'🍨'.repeat(n)} ${n} boule${n>1?'s':''}, s'il vous plaît.`,`${n===1?'Eine Kugel':cap(de(n))+' Kugeln'}, bitte.`,{why:n===1?'une boule = <b>eine Kugel</b>.':'Au pluriel : die Kugel → die Kugel<b>n</b>.'});
+for(let n=2;n<=12;n++)T2('eis','preis',`Ça fait ${n} euros.`,`Das macht ${de(n)} Euro.`,{why:`${n} = <b>${de(n)}</b>. Et pas de s à Euro : ${de(n)} <b>Euro</b>.`});
+
+for(const W of Object.keys(L2T))GEN[W+'.t']=k=>l2Q(W,k);
+
+/* ---------- choisir les 10 questions d'une mission : un peu de chaque catégorie ---------- */
+function l2Pick(w,n,exclude){
+  exclude=exclude||[];
+  if(w==='exam2'){
+    const out=[],ws=shuffle(WGROUP.exam2);let i=0;
+    while(out.length<n&&i<ws.length*4){out.push(...l2Pick(ws[i%ws.length],1,[...exclude,...out]));i++;}
+    return shuffle(out).slice(0,n);
+  }
+  const t=L2T[w];if(!t)return [];
+  const by={};
+  for(const k of L2K[w]){const id=`${w}.t.${k}`;if(exclude.includes(id))continue;(by[t[k].c]=by[t[k].c]||[]).push(id);}
+  const groups=shuffle(Object.values(by)).map(shuffle),out=[];
+  while(out.length<n&&groups.some(g=>g.length))for(const g of groups){if(out.length>=n)break;if(g.length)out.push(g.shift());}
+  return shuffle(out);
+}
+/* le Blitz du niveau 2 : seulement des réponses courtes, un monde au hasard à chaque fois */
+function l2BlitzId(){
+  if(!l2BlitzId.ws){l2BlitzId.ws={};for(const W of Object.keys(L2T)){const ids=L2K[W].filter(k=>L2T[W][k].s).map(k=>`${W}.t.${k}`);if(ids.length)l2BlitzId.ws[W]=ids;}}
+  const ws=Object.keys(l2BlitzId.ws);let id,guard=0;
+  do{id=pick(l2BlitzId.ws[pick(ws)]);}while(run.recent.includes(id)&&guard++<30);
+  run.recent.push(id);if(run.recent.length>20)run.recent.shift();
+  return id;
+}
+
+/* ---------- la correction au niveau 2 : l'orthographe exacte ----------
+   Accepté sans remarque : la réponse exacte (le point final ne compte pas), ou une majuscule au début d'un mot qui commence par une minuscule (« Der Vater »).
+   Accepté avec un rappel : une virgule oubliée, une phrase commencée sans majuscule.
+   Faux (et donc un fantôme) : une majuscule oubliée sur un nom, ss à la place de ß, un tréma oublié, l'article oublié ou faux, ein / einen…, l'ordre des mots, une faute de frappe. */
+const L2SHY=new RegExp('['+String.fromCharCode(173)+']','g'),L2NBSP=new RegExp('['+String.fromCharCode(160,8239)+']','g');
+const l2c=s=>String(s==null?'':s).replace(/[’‘`´]/g,"'").replace(L2SHY,'').replace(L2NBSP,' ').replace(/\s+/g,' ').replace(/ ([,.!?;:])/g,'$1').trim();
+const l2b=s=>l2c(s).replace(/[.,!?;:¿¡«»"()…]/g,' ').replace(/\s+/g,' ').trim();
+const l2ne=s=>s.replace(/[.!?…]+$/,'').trim();
+const l2lc=s=>s.toLowerCase();
+const l2lower=s=>{const c=s.charAt(0);return c!==c.toUpperCase();};
+const l2lcf=s=>s.charAt(0).toLowerCase()+s.slice(1);
+const l2uml=s=>s.replace(/ä/g,'a').replace(/ö/g,'o').replace(/ü/g,'u');
+const l2ae=s=>s.replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue');
+const L2EIN=['ein','eine','einen','kein','keine','keinen','mein','meine','meinen'];
+const L2NEAR=['maj','ss','uml','art','artw','einen','order','typo'];
+function lev(a,b){
+  if(a===b)return 0;const m=a.length,n=b.length;if(!m)return n;if(!n)return m;
+  let p=[];for(let j=0;j<=n;j++)p.push(j);
+  for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c;}
+  return p[n];
+}
+function l2near(gb,ab){
+  const lg=l2lc(gb),la=l2lc(ab);
+  if(lg===la)return 'maj';
+  if(/ß/.test(la)&&(la.replace(/ß/g,'ss')===lg||la.replace(/ß/g,'b')===lg||la.replace(/ß/g,'s')===lg))return 'ss';
+  if(/[äöü]/.test(la)&&(l2uml(la)===l2uml(lg)||l2ae(la)===lg))return 'uml';
+  const m=la.match(/^(der|die|das) (.+)$/),n=lg.match(/^(der|die|das) (.+)$/);
+  if(m&&m[2]===lg)return 'art';
+  if(m&&n&&m[1]!==n[1]&&m[2]===n[2])return 'artw';
+  const ta=la.split(' '),tg=lg.split(' ');
+  if(ta.length===tg.length){const d=[];ta.forEach((x,i)=>{if(x!==tg[i])d.push(i);});if(d.length===1&&L2EIN.includes(ta[d[0]])&&L2EIN.includes(tg[d[0]]))return 'einen';}
+  if(ta.length>1&&ta.slice().sort().join(' ')===tg.slice().sort().join(' '))return 'order';
+  if(la.length>=4&&lev(la,lg)<=(la.length>=12?2:1))return 'typo';
+  return '';
+}
+function checkStrict(given,q){
+  const g=l2c(given),gb=l2b(given);if(!gb)return{ok:false,empty:true};
+  const acc=q.accept.map(l2c);
+  for(const a of acc){const ga=l2ne(g),aa=l2ne(a);if(ga===aa||(l2lower(aa)&&ga===cap(aa)))return{ok:true,exact:true,best:a};}
+  for(const a of acc){const ab=l2b(a);
+    if(gb===ab||(l2lower(ab)&&gb===cap(ab)))return{ok:true,exact:false,best:a};
+    if(/[.!?]$/.test(a)&&!l2lower(ab)&&gb===l2lcf(ab))return{ok:true,exact:false,best:a};
+  }
+  /* la faute la plus « petite », et à égalité la réponse acceptée la plus proche de ce qui a été tapé */
+  let near='',best=acc[0],bp=99,bd=1e9;
+  for(const a of acc){const c=l2near(gb,l2b(a)),pc=c?L2NEAR.indexOf(c):99,d=lev(g,a);
+    if(pc<bp||(pc===bp&&d<bd)){near=c;best=a;bp=pc;bd=d;}}
+  return{ok:false,near:near||undefined,best};
+}
+/* la réponse corrigée : ce qui est en trop est barré, ce qui manque est ajouté en vert */
+function l2diff(given,exp){
+  const g=l2c(given),a=l2c(exp);
+  if(!g||g.length>120||a.length>120)return '';
+  const n=g.length,m=a.length,L=[];
+  for(let i=0;i<=n;i++)L.push(new Array(m+1).fill(0));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)L[i][j]=g[i]===a[j]?L[i+1][j+1]+1:Math.max(L[i+1][j],L[i][j+1]);
+  if(L[0][0]<Math.max(2,Math.ceil(m*0.5)))return '';
+  let i=0,j=0,out='',del='',ins='';
+  const tag=(s,t)=>s===' '?`<${t} class="sp"> </${t}>`:`<${t}>${esc(s)}</${t}>`;
+  const flush=()=>{if(del)out+=tag(del,'del');if(ins)out+=tag(ins,'ins');del='';ins='';};
+  while(i<n||j<m){
+    if(i<n&&j<m&&g[i]===a[j]){flush();out+=esc(g[i]);i++;j++;}
+    else if(j<m&&(i>=n||L[i][j+1]>=L[i+1][j])){ins+=a[j];j++;}
+    else{del+=g[i];i++;}
+  }
+  flush();return out;
+}
+const L2NOTE={
+  maj:'Presque ! C\'est une histoire de majuscules : en allemand, tous les noms commencent par une majuscule (der Hund, die Schweiz), mais pas les verbes ni les adjectifs.',
+  ss:'Presque ! Ici, il faut un ß (la touche ß est sous la case).',
+  uml:'Presque ! Il manque le tréma : ä, ö ou ü (les touches sont sous la case).',
+  art:'Presque ! N\'oublie pas l\'article : der, die ou das.',
+  artw:'Presque ! Le mot est juste, mais pas l\'article.',
+  einen:'Presque ! Attention à ein, eine, einen (ou kein, keine, keinen) : ça dépend du mot (der, die ou das).',
+  order:'Presque ! Les mots sont justes, mais pas dans le bon ordre. Rappel : le verbe se met en 2e position.',
+  typo:'Presque ! Il y a une petite faute d\'orthographe.'
+};
+function l2Note(ok,info,ans){
+  if(info.skip)return 'Pas grave ! Lis bien la réponse : le fantôme te la redemandera.';
+  const t=info.typed||'';
+  if(ok&&info.exact!==false)return '';
+  /* le point final n'est pas obligatoire : on ne le montre pas comme une faute */
+  const tgt=/[.!?…]$/.test(l2c(t))?ans:l2ne(l2c(ans));
+  const d=t&&info.near!=='order'?l2diff(t,tgt):'';
+  if(ok)return `Accepté ! Mais au contrôle, fais attention à la majuscule et à la ponctuation :<br><span class="l2diff">${d||fmtDe(ans)}</span>`;
+  let s=L2NOTE[info.near]||'';
+  if(t)s+=(s?'<br>':'')+(d?`Ta réponse corrigée : <span class="l2diff">${d}</span>`:`Ta réponse : « ${esc(t)} »`);
+  return s;
+}
+
+/* ---------- le choix du niveau, en haut des missions ---------- */
+function l2Bar(){
+  const on=l2On();
+  return `<section class="lvlbox" id="lvlbox" aria-label="Choisis ton niveau">
+    <div class="lvlbar">
+      <button class="lvlb ${on?'':'on'}" data-act="lvl" data-l="1" aria-pressed="${!on}"><b>Niveau 1</b><small>Je choisis la réponse, je construis la phrase</small></button>
+      <button class="lvlb ${on?'on':''}" data-act="lvl" data-l="2" aria-pressed="${on}"><b>Niveau 2 <span class="neu">NEU</span></b><small>J'écris tout en allemand, tout seul</small></button>
+    </div>
+    <p class="lvlnote">${on?'✍️ <b>Niveau 2</b> : tu lis le français et tu écris toi-même la réponse en allemand, avec la bonne orthographe : les majuscules des noms, ä, ö, ü et ß. Chaque erreur devient un fantôme 👻 qui revient jusqu\'à ce que tu l\'écrives sans faute.':'Tu connais bien une mission ? Passe au <b>niveau 2</b> : il n\'y a plus de réponses à choisir, tu écris tout en allemand.'}</p>
+  </section>`;
+}
+BADGES.splice(BADGES.findIndex(b=>b.id==='daily1'),0,
+  {id:'n2start',emo:'🖊️',name:'Ich schreibe!',desc:'Finir ta première mission de niveau 2',test:s=>Object.keys(s.stars||{}).some(w=>WORLDS[w]&&WORLDS[w].l2)},
+  {id:'n2pro',emo:'📜',name:'Rechtschreib-Profi',desc:'3 étoiles à 5 missions de niveau 2',test:s=>Object.entries(s.stars||{}).filter(([w,n])=>WORLDS[w]&&WORLDS[w].l2&&n>=3).length>=5});
+
+
 /* ---------- le pop-up des nouveautés, une seule fois ---------- */
-const NEWS_ID='2026-10-carte-boutique';
+const NEWS_ID='2026-11-niveau-2';
 
 /* =========================================================
    Carte d'aventure + boutique avec l'avatar
@@ -1592,6 +2030,7 @@ KEEP_KEYS.push('shop','mapDone','mapInit','adminAt','nick','pwTemp','avent','cod
 
 function kindOf(id){
   if(STATIC[id])return STATIC[id].kind;
+  if(/^[a-z]+2\./.test(id))return 'type';
   const k=id.split('.').slice(0,2).join('.');
   return {'fam.type':'type','num.type':'type','num.dig':'type','num.build':'build','num.listen':'listen','pr.listen':'listen','konj.t':'type','plur.t':'type','patch.type':'type','tier.type':'type','imbiss.type':'type','dict.w':'type'}[k]||'mcq';
 }
@@ -1655,6 +2094,7 @@ function combine(a,b){
   for(const [w,n] of Object.entries(b.stars||{}))o.stars[w]=Math.max(o.stars[w]||0,n||0);
   for(const [id,g] of Object.entries(b.ghosts||{})){const c=o.ghosts[id];o.ghosts[id]=c?Object.assign({},c,{fails:Math.max(c.fails||1,g.fails||1),hp:Math.min(c.hp||2,g.hp||2),stage:Math.min(gStage(c),gStage(g)),due:Math.min(c.due||0,g.due||0)}):g;}
   o.best.blitz=Math.max(o.best.blitz||0,(b.best&&b.best.blitz)||0);
+  o.best.blitz2=Math.max(o.best.blitz2||0,(b.best&&b.best.blitz2)||0);
   const m=[o.best.memory,b.best&&b.best.memory].filter(x=>x>0);o.best.memory=m.length?Math.min(...m):0;
   for(const k of Object.keys(o.stats))o.stats[k]=(o.stats[k]||0)+((b.stats&&b.stats[k])||0);
   o.seenIntro=!!(a.seenIntro||b.seenIntro);
@@ -2034,13 +2474,14 @@ function renderHome(){
   const pct=nx?Math.round(100*(state.xp-r.xp)/(nx.xp-r.xp)):100;
   const gh=dueGhostIds(),ghAll=ghostIds();
   const acc=state.stats.answered?Math.round(100*state.stats.correct/state.stats.answered):0;
+  const L2=l2On(),lw=w=>L2&&WORLDS[w+'2']?w+'2':w;
   const worldTile=w=>{const W=WORLDS[w];const g=gh.filter(id=>inWorld(state.ghosts[id].world,w)).length;
     return `<button class="wt" data-act="world" data-w="${w}" style="--c:${W.col}">
-      <span class="band"><span class="emo">${W.emo}</span>${W.neu?'<span class="neu">NEU</span>':''}${g?`<span class="gh">👻 ${g}</span>`:''}</span>
+      <span class="band"><span class="emo">${W.emo}</span>${W.neu?'<span class="neu">NEU</span>':''}${W.l2?'<span class="n2">✍️ Niveau 2</span>':''}${g?`<span class="gh">👻 ${g}</span>`:''}</span>
       <span class="body"><span class="h">${nb(esc(W.name))}</span><span class="d">${nb(esc(W.sub))}</span>${starsHtml(state.stars[w]||0)}</span></button>`;};
   SCR.home.innerHTML=`
   <header class="logo">
-    <div class="logo-top"><span class="tag">Allemand, Thema 1 et 2</span>
+    <div class="logo-top"><span class="tag">Allemand, Thema 1 à 3</span>
       <div class="tr">${accChip()}<button class="icon-btn" data-act="sound" aria-pressed="${state.settings.sound}" aria-label="${state.settings.sound?'Couper les sons':'Activer les sons'}"><span class="emo">${state.settings.sound?'🔊':'🔇'}</span></button></div></div>
     <h1 class="title">Opération<br>Bretzel <span class="pretzel emo">🥨</span></h1>
     <p class="pitch">Chaque erreur devient un fantôme <span class="emo">👻</span>. Il revient te hanter le lendemain, 3 jours après et une semaine après, jusqu'à ce que tu le battes.</p>
@@ -2071,17 +2512,20 @@ function renderHome(){
     ${guestPanel()}
     ${ghostPanel(gh,ghAll)}
   </div>
-  ${THEMES.map((t,ti)=>`<h2 class="h2">${nb(esc(t.title))}</h2><p class="h2sub">${esc(t.sub)}</p><div class="worlds">${t.worlds.map(worldTile).join('')}${bossTile(ti)}</div>`).join('')}
+  ${l2Bar()}
+  ${THEMES.map((t,ti)=>`<h2 class="h2">${nb(esc(t.title))}</h2><p class="h2sub">${esc(t.sub)}</p><div class="worlds">${t.worlds.map(w=>worldTile(lw(w))).join('')}${bossTile(ti,L2)}</div>`).join('')}
   <h2 class="h2">Pour tout réviser</h2>
   <div class="worlds">
-    ${worldTile('exam')}
+    ${worldTile(lw('exam'))}
     ${worldTile('dict')}
-    ${worldTile('pr')}
-    <button class="wt" data-act="blitz" style="--c:var(--t-blitz)"><span class="band"><span class="emo">⚡</span></span>
+    ${L2?'':worldTile('pr')}
+    ${L2?`<button class="wt" data-act="blitz" data-l2="1" style="--c:var(--t-blitz)"><span class="band"><span class="emo">⚡</span><span class="n2">✍️ Niveau 2</span></span>
+      <span class="body"><span class="h">Blitz 90 s</span><span class="d">Écris un max de mots en allemand en 90 secondes.</span><span class="best">Record : ${state.best.blitz2||0}</span></span></button>`:`<button class="wt" data-act="blitz" style="--c:var(--t-blitz)"><span class="band"><span class="emo">⚡</span></span>
       <span class="body"><span class="h">Blitz 60 s</span><span class="d">Un max de bonnes réponses en une minute.</span><span class="best">Record : ${state.best.blitz}</span></span></button>
     <button class="wt" data-act="memory" style="--c:var(--t-mem)"><span class="band"><span class="emo">🃏</span></span>
-      <span class="body"><span class="h">Memory</span><span class="d">Retrouve les paires allemand / français.</span><span class="best">${state.best.memory?`Record : ${state.best.memory} coups`:'Pas encore de record'}</span></span></button>
+      <span class="body"><span class="h">Memory</span><span class="d">Retrouve les paires allemand / français.</span><span class="best">${state.best.memory?`Record : ${state.best.memory} coups`:'Pas encore de record'}</span></span></button>`}
   </div>
+  ${L2?'<p class="l2more">La Prononciation et le Memory se jouent au niveau 1.</p>':''}
   <footer class="foot">
     <div class="toggles">
       <button class="tog" data-act="sound" aria-pressed="${state.settings.sound}">🔊 Sons</button>
@@ -2140,7 +2584,7 @@ function renderAuth(){
   const su=authMode==='signup';
   SCR.auth.innerHTML=`
   <header class="logo">
-    <div class="logo-top"><span class="tag">Allemand, Thema 1 et 2</span>${authFrom==='home'?'<button class="icon-btn" data-act="home" aria-label="Retour au QG">✕</button>':''}</div>
+    <div class="logo-top"><span class="tag">Allemand, Thema 1 à 3</span>${authFrom==='home'?'<button class="icon-btn" data-act="home" aria-label="Retour au QG">✕</button>':''}</div>
     <h1 class="title">Opération<br>Bretzel <span class="pretzel emo">🥨</span></h1>
     <p class="pitch">${su?'Crée ton identifiant : ta progression sera sauvegardée en ligne et tu la retrouveras sur tous tes appareils.':'Connecte-toi pour retrouver ta progression, tes étoiles et tes fantômes, sur n\'importe quel appareil.'}</p>
   </header>
@@ -2433,6 +2877,7 @@ function poolFor(w){
   return ids;
 }
 function pickWorld(w,n,exclude){
+  if(WORLDS[w]&&WORLDS[w].l2)return l2Pick(w,n,exclude);
   const ok=id=>!exclude.includes(id);
   if(w==='num'){
     const trap=shuffle([16,17,20,21,30,60,70,52,48,99,31,66,77,71,13,19]);
@@ -2546,7 +2991,7 @@ function topbar(){
   const blitz=run.mode==='blitz';
   return `<div class="topbar">
     <button class="icon-btn" data-act="quit" aria-label="Quitter la mission">✕</button>
-    ${blitz?`<span class="timer" id="timer">60</span><span class="pill" id="bscore">⚡ 0</span>`:`<div class="prog" id="prog" aria-hidden="true">${progHtml()}</div>`}
+    ${blitz?`<span class="timer" id="timer">${run.l2?90:60}</span><span class="pill" id="bscore">⚡ 0</span>`:`<div class="prog" id="prog" aria-hidden="true">${progHtml()}</div>`}
     <span class="combo" id="combo" ${run.combo>=2?'':'hidden'}>🔥 x${run.combo}</span>
   </div>
   <div id="quitbox"></div>`;
@@ -2570,11 +3015,12 @@ function renderQ(){
   }else if(q.kind==='tf'){
     body=`<div class="opts two tf" id="opts"><button class="opt" data-act="tf" data-v="1"><span class="k">1</span><span class="t">Vrai</span></button><button class="opt" data-act="tf" data-v="0"><span class="k">2</span><span class="t">Faux</span></button></div>`;
   }else if(q.kind==='type'){
+    const st=!!q.strict;
     body=`<form class="typer" id="typer" autocomplete="off">
       <label class="sr" for="ans" style="position:absolute;left:-9999px">Ta réponse</label>
-      <input id="ans" name="ans" ${q.numeric?'inputmode="numeric" pattern="[0-9]*"':''} autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${q.numeric?'Ex. : 25':'Ta réponse…'}">
-      ${q.numeric?'':`<div class="keys">${['ä','ö','ü','ß'].map(c=>`<button type="button" class="key" data-act="key" data-c="${c}">${c}</button>`).join('')}</div>`}
-      <button class="btn dark full" type="submit" id="go">Valider</button></form>`;
+      <input id="ans" name="ans" ${q.numeric?'inputmode="numeric" pattern="[0-9]*"':''}${st&&String(q.accept[0]).length>22?' class="long"':''} autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${q.numeric?'Ex. : 25':st?'Écris en allemand…':'Ta réponse…'}">
+      ${q.numeric?'':`<div class="keys">${(st?['ä','ö','ü','ß','Ä','Ö','Ü']:['ä','ö','ü','ß']).map(c=>`<button type="button" class="key" data-act="key" data-c="${c}">${c}</button>`).join('')}</div>`}
+      <button class="btn dark full" type="submit" id="go">Valider</button>${st?'<button type="button" class="link l2skip" data-act="l2skip">Je ne sais pas 🤷</button>':''}</form>`;
   }else if(q.kind==='build'){
     body=`<div class="line ${q.stack?'stack':''}" id="line" aria-label="Ta réponse"></div><div class="preview" id="preview"></div>
       <div class="bank ${q.stack?'stack':''}" id="bank">${q.tiles.map((t,i)=>`<button class="tile" data-act="tile" data-i="${i}">${fmt(t,'de')}</button>`).join('')}</div>
@@ -2583,7 +3029,7 @@ function renderQ(){
   const listenUI=q.listen?`<div class="listen"><button class="btn" data-act="listen"><span class="emo">🔊</span> Écouter</button><button class="btn white" data-act="listen-slow"><span class="emo">🐢</span> Lentement</button></div>`:'';
   SCR.play.innerHTML=`${topbar()}
   <article class="qcard" style="--c:${W.col}">
-    <div class="qtop"><span class="wchip">${W.emo} ${nb(esc(W.name))}</span>${kindLabel?`<span class="wchip" style="--c:var(--paper)">${kindLabel}</span>`:''}${badge}</div>
+    <div class="qtop"><span class="wchip">${W.emo} ${nb(esc(W.name))}${W.l2?' · niveau 2':''}</span>${kindLabel?`<span class="wchip" style="--c:var(--paper)">${kindLabel}</span>`:''}${badge}</div>
     <p class="ask">${nb(esc(q.ask||''))}</p>
     ${q.listen?listenUI:`<div class="bigrow"><p class="${bigCls}">${bigInner}</p>${bigSay}</div>`}
     ${body}
@@ -2651,12 +3097,15 @@ const CHEERS=[['Genau !','exactement','🎯'],['Super !','super','🥨'],['Sehr 
 const OOPS=[['Hoppla !','oups','😅'],['Schade !','dommage','🙈'],['Oh nein !','oh non','😱'],['Fast !','presque','🤏']];
 function showSheet(ok,gain,q,info,ghostLine,extra){
   const h=ok?pick(CHEERS):(info.near?OOPS[3]:pick(OOPS.slice(0,3)));
-  const ans=answerText(q);
+  const ans=q.strict&&info.best?info.best:answerText(q);
   let note='';
+  if(q.strict)note=l2Note(ok,info,ans);
+  else{
   if(ok&&info.exact===false)note=`Accepté ! Mais au contrôle, écris : <b>${fmtDe(ans)}</b>`;
   if(!ok&&info.near==='uml')note='Presque ! Il manque juste le tréma (ä, ö, ü).';
   if(!ok&&info.near==='art')note='Presque ! Il manque l\'article : der ou die.';
   if(!ok&&info.given)note=(note?note+'<br>':'')+`Ta réponse : « ${esc(info.given)} »`;
+  }
   const sayTxt=q.say||'';
   const sheet=$('#sheet');
   sheet.innerHTML=`<div class="sheet-in ${ok?'good':'bad'}">
@@ -2762,7 +3211,7 @@ function streakPanel(){
         <div class="sk-d">${v.done?'Défi du jour réussi ! Reviens demain pour garder ta flamme.':v.days?'Fais le défi du jour (5 questions) pour garder ta flamme !':'Fais le défi du jour (5 questions) pour allumer ta flamme !'}</div></div>
       <span class="sk-best">Record<br><b>${v.best}</b></span></div>
     <div class="week" aria-hidden="true">${v.week.map(d=>`<span class="${d.on?'on':''}${d.today?' today':''}"><i>${d.l}</i>${d.on?'<span class="emo">🔥</span>':'·'}</span>`).join('')}</div>
-    <button class="btn ${v.done?'white':''} full" data-act="daily">${v.done?'Rejouer le défi (sans bonus)':`Défi du jour : +${v.nextBonus} XP`}</button>
+    <button class="btn ${v.done?'white':''} full" data-act="daily">${v.done?'Rejouer le défi (sans bonus)':`Défi du jour${l2On()?' (niveau 2)':''} : +${v.nextBonus} XP`}</button>
   </section>`;
 }
 function startDaily(){
@@ -2770,8 +3219,9 @@ function startDaily(){
   const ids=dueGhostIds().slice(0,2);
   const plan=[RECENT_W[0],pick(RECENT_W.slice(1)),pick(all.filter(w=>!RECENT_W.includes(w)))];
   if(Voice.ok)plan.push('dict');
-  for(const w of plan){if(ids.length>=5)break;ids.push(...pickWorld(w,1,ids));}
-  let guard=0;while(ids.length<5&&guard++<30)ids.push(...pickWorld(pick(all),1,ids));
+  const lw=w=>l2On()&&WORLDS[w+'2']?w+'2':w;
+  for(const w of plan){if(ids.length>=5)break;ids.push(...pickWorld(lw(w),1,ids));}
+  let guard=0;while(ids.length<5&&guard++<30)ids.push(...pickWorld(lw(pick(all)),1,ids));
   run=newRun('daily',null,toItems(shuffle([...new Set(ids)].slice(0,5))));
   if(!run.queue.length){run=null;renderHome();return;}
   show('play');renderQ();
@@ -2801,21 +3251,22 @@ const newBadgesHtml=list=>list&&list.length?`<section class="panel newbadge"><h3
 
 /* ---------- Boss de fin de Thema ---------- */
 const heartsHtml=()=>'❤️'.repeat(run.boss.lives)+'🖤'.repeat(run.boss.maxLives-run.boss.lives);
-function bossTile(ti){
-  const k='t'+(ti+1),B=BOSSES[k];if(!B)return '';const s=state.boss[k]||{};
-  return `<button class="wt bosst" data-act="boss" data-b="${k}" style="--c:#3A1F4F">
-    <span class="band"><span class="emo">${B.emo}</span><span class="bpv">${B.hp} PV</span></span>
-    <span class="body"><span class="h">Boss : ${nb(esc(B.name))}</span><span class="d">${s.wins?`Vaincu ${s.wins} fois 🏆 Rejoue pour gagner encore des XP.`:`Le boss du ${nb(esc(THEMES[B.theme].title.split(' : ')[0]))} : bats-le avec les questions de tout le Thema. Tu as 3 vies.`}</span></span></button>`;
+function bossTile(ti,l2){
+  const k='t'+(ti+1),B=BOSSES[k];if(!B)return '';const s=state.boss[l2?k+'n2':k]||{};
+  return `<button class="wt bosst" data-act="boss" data-b="${k}"${l2?' data-l2="1"':''} style="--c:#3A1F4F">
+    <span class="band"><span class="emo">${B.emo}</span>${l2?'<span class="n2">✍️ Niveau 2</span>':''}<span class="bpv">${B.hp} PV</span></span>
+    <span class="body"><span class="h">Boss : ${nb(esc(B.name))}</span><span class="d">${s.wins?`Vaincu ${s.wins} fois 🏆 Rejoue pour gagner encore des XP.`:l2?`Niveau 2 : bats-le en écrivant toutes tes réponses en allemand. Tu as ${L2LIVES} vies.`:`Le boss du ${nb(esc(THEMES[B.theme].title.split(' : ')[0]))} : bats-le avec les questions de tout le Thema. Tu as 3 vies.`}</span></span></button>`;
 }
-function startBoss(k){
+function startBoss(k,l2){
   const B=BOSSES[k];if(!B)return;
-  run=newRun('boss',null,[]);run.boss={k,hp:B.hp,max:B.hp,lives:3,maxLives:3};
+  const lv=l2?L2LIVES:3;
+  run=newRun('boss',null,[]);run.boss={k,hp:B.hp,max:B.hp,lives:lv,maxLives:lv,l2:!!l2};
   bossRefill();
   if(!run.queue.length){run=null;renderHome();return;}
   show('play');renderQ();
 }
 function bossRefill(){
-  const B=BOSSES[run.boss.k],ws=THEMES[B.theme].worlds,seen=run.queue.map(it=>it.id);
+  const B=BOSSES[run.boss.k],ws=THEMES[B.theme].worlds.map(w=>run.boss.l2&&WORLDS[w+'2']?w+'2':w),seen=run.queue.map(it=>it.id);
   const ids=dueGhostIds().filter(id=>ws.includes(state.ghosts[id].world)&&!seen.includes(id)).slice(0,3);
   for(const w of shuffle(ws))ids.push(...pickWorld(w,3,[...seen,...ids]));
   run.queue.push(...toItems(shuffle([...new Set(ids)])));
@@ -2850,7 +3301,7 @@ function bossHit(ok){
 }
 function bossEnd(){
   const b=run.boss,B=BOSSES[b.k],win=b.hp<=0;
-  const s=state.boss[b.k]=Object.assign({wins:0,tries:0},state.boss[b.k]);s.tries++;
+  const sk=b.l2?b.k+'n2':b.k,s=state.boss[sk]=Object.assign({wins:0,tries:0},state.boss[sk]);s.tries++;
   let bonus=0;if(win){bonus=s.wins?40:100;s.wins++;state.stats.boss=(state.stats.boss||0)+1;}
   bonus=gainXp(bonus);state.stats.rounds++;
   const rNow=rankIdx(state.xp);if(rNow>run.rank0){run.rankUp=rNow;}
@@ -2867,7 +3318,7 @@ function bossEnd(){
     ${newBadgesHtml(newB)}
     <div class="actions">
       ${run.fromMap?`<button class="btn full" data-act="map">Continuer le voyage <span class="emo">🗺️</span></button>`:''}
-      <button class="btn ${run.fromMap?'white ':''}full" data-act="boss" data-b="${b.k}">${win?'Rejouer le combat':'Revanche !'}</button>
+      <button class="btn ${run.fromMap?'white ':''}full" data-act="boss" data-b="${b.k}"${b.l2?' data-l2="1"':''}>${win?'Rejouer le combat':'Revanche !'}</button>
       ${gh?`<button class="btn dark full" data-act="ghosts">Chasser les fantômes (${gh}) <span class="emo">👻</span></button>`:''}
       <button class="btn white full" data-act="home">Retour au QG</button></div></div>`;
   show('result');if(win)confetti(90);
@@ -2880,13 +3331,12 @@ function newsHtml(){
     <span class="newstag">Nouvelle version</span>
     <h2 id="news-t">Quoi de neuf ? <span class="emo">🎁</span></h2>
     <ul class="newslist">
-      <li><span class="emo">🗺️</span><span><b>Carte d'aventure</b><span class="new">NEU</span> : voyage de ville en ville, de Berlin à Wien et Zürich. Chaque mission réussie débloque l'étape suivante, et un boss garde la fin de chaque Thema.</span></li>
-      <li><span class="emo">🛍️</span><span><b>Boutique et avatar</b><span class="new">NEU</span> : gagne des bretzels 🥨 en jouant et habille ton avatar (personnages, chapeaux, accessoires, fonds d'écran).${c?` Tu as déjà ${c} 🥨 à dépenser !`:''}</span></li>
-      <li><span class="emo">👻</span><span><b>Fantômes malins</b> : un mot raté revient le lendemain, puis 3 jours après, puis une semaine après. Bats-le à chaque retour !</span></li>
-      <li><span class="emo">✍️</span><span><b>Dictée</b> : écoute un mot en allemand et écris-le.</span></li>
-      <li><span class="emo">🔥</span><span><b>Série de jours</b> : fais le défi du jour (5 questions) tous les jours pour garder ta flamme et gagner des XP bonus.</span></li>
+      <li><span class="emo">✍️</span><span><b>Le niveau 2</b><span class="new">NEU</span> : sur le QG, juste avant les missions, choisis « Niveau 2 ». Tu lis le français et tu écris toute la réponse en allemand, sans aide, avec la bonne orthographe. Chaque erreur devient un fantôme 👻 qui revient jusqu'à ce que tu l'écrives sans faute.</span></li>
+      <li><span class="emo">⚡</span><span><b>Blitz, boss et défi du jour</b> existent aussi au niveau 2 : écris un max de mots en 90 secondes, ou bats les boss en écrivant tes réponses (tu as ${L2LIVES} vies).</span></li>
+      <li><span class="emo">🍦</span><span><b>Thema 3 : Essen und Trinken</b><span class="new">NEU</span> : commande à l'Imbiss et chez le marchand de glaces.</span></li>
+      <li><span class="emo">🗺️</span><span><b>Carte d'aventure</b> : voyage de ville en ville. Chaque mission réussie débloque l'étape suivante.</span></li>
+      <li><span class="emo">🛍️</span><span><b>Boutique et avatar</b> : gagne des bretzels 🥨 en jouant et habille ton avatar.${c?` Tu as ${c} 🥨 à dépenser !`:''}</span></li>
       <li><span class="emo">🏅</span><span><b>${BADGES.length} badges</b> à collectionner${n?` : tu en as déjà ${n} !`:'.'}</span></li>
-      <li><span class="emo">🐲</span><span><b>2 boss</b> t'attendent à la fin du Thema 1 et du Thema 2. Tu as 3 vies pour les battre !</span></li>
       <li class="soon"><span class="emo">🤝</span><span><b>Bientôt : les défis entre copains !</b> Envoie un code à un copain et comparez vos scores.</span></li>
     </ul>
     <button class="btn dark full" data-act="news-ok" id="news-ok">C'est parti !</button></div></div>`;
@@ -3255,6 +3705,7 @@ function blitzPool(){
   return st;
 }
 function blitzNextId(){
+  if(run.l2)return l2BlitzId();
   const r=Math.random();let id;
   if(r<.45)id=pick(blitzPool());
   else if(r<.6)id=`fam.${pick(['fr2de','de2fr','gen'])}.${pick(FAM).k}`;
@@ -3268,8 +3719,8 @@ function blitzNextId(){
   run.recent.push(id);if(run.recent.length>10)run.recent.shift();
   return id;
 }
-function startBlitz(){
-  run=newRun('blitz',null,[]);run.recent=[];run.score=0;run.end=Date.now()+60000;
+function startBlitz(l2){
+  run=newRun('blitz',null,[]);run.recent=[];run.score=0;run.l2=!!l2;run.end=Date.now()+(l2?90000:60000);
   show('play');blitzNext();
   run.timer=setInterval(()=>{
     const left=Math.max(0,Math.ceil((run.end-Date.now())/1000));const t=$('#timer');if(t)t.textContent=left;
@@ -3289,18 +3740,18 @@ function blitzAfter(ok,q){
   const cb=$('#combo');if(cb){cb.hidden=run.combo<2;cb.textContent=`🔥 x${run.combo}`;}
   const f=$('#flash');
   if(f)f.innerHTML=ok?`<div class="flash good">✅ ${pick(CHEERS)[0]}</div>`:`<div class="flash bad">❌ C'était : <b>${q.kind==='tf'?answerText(q):(q.optLang==='num'?esc(answerText(q)):fmtDe(answerText(q)))}</b></div>`;
-  setTimeout(()=>{if(run&&run.mode==='blitz'&&run.timer)blitzNext();},ok?450:1300);
+  setTimeout(()=>{if(run&&run.mode==='blitz'&&run.timer)blitzNext();},ok?450:(run.l2?2200:1300));
 }
 function blitzEnd(){
   if(!run||run.mode!=='blitz')return;
-  const best=state.best.blitz||0;const rec=run.score>best;if(rec)state.best.blitz=run.score;
-  let bonus=run.score*5;bonus=gainXp(bonus);state.stats.rounds++;
+  const bk=run.l2?'blitz2':'blitz',best=state.best[bk]||0;const rec=run.score>best;if(rec)state.best[bk]=run.score;
+  let bonus=run.score*(run.l2?8:5);bonus=gainXp(bonus);state.stats.rounds++;
   const rNow=rankIdx(state.xp);if(rNow>run.rank0){run.rankUp=rNow;}
   run.newBadges=checkBadges();
   save();Sync.flush();
   const gh=dueGhostIds().length;
   SCR.result.innerHTML=`<div class="res">
-    <div class="res-hero"><h2>${run.score>=15?'Blitzschnell !':'Zeit ist um !'}</h2><p class="tr">(= ${run.score>=15?'rapide comme l\'éclair':'le temps est écoulé'})</p>
+    <div class="res-hero"><h2>${run.score>=(run.l2?10:15)?'Blitzschnell !':'Zeit ist um !'}</h2><p class="tr">(= ${run.score>=(run.l2?10:15)?'rapide comme l\'éclair':'le temps est écoulé'})</p>
       <p class="bigstars" style="font-family:var(--f-display);color:var(--paper);text-shadow:var(--outline)">⚡ ${run.score}</p>
       <p class="quip">${rec?'🏆 Nouveau record !':`Record à battre : ${best}`}</p></div>
     <div class="stats"><div class="stat"><b>${run.score}</b><span>bonnes réponses</span></div><div class="stat"><b>+${run.xp}</b><span>XP gagnés</span></div><div class="stat"><b>x${run.maxCombo}</b><span>meilleur combo</span></div></div>
@@ -3308,7 +3759,7 @@ function blitzEnd(){
     ${coinLine(coins()-run.coins0)}
     ${newBadgesHtml(run.newBadges)}
     <div class="actions">
-      <button class="btn full" data-act="blitz">Rejouer le Blitz</button>
+      <button class="btn full" data-act="blitz"${run.l2?' data-l2="1"':''}>Rejouer le Blitz</button>
       ${gh?`<button class="btn dark full" data-act="ghosts">Chasser les fantômes (${gh}) <span class="emo">👻</span></button>`:''}
       <button class="btn white full" data-act="home">Retour au QG</button></div></div>`;
   show('result');if(rec||run.rankUp!=null)confetti();
@@ -3373,10 +3824,12 @@ const ACT={
   'reset-yes'(){resetAsk=false;const s=state.settings;state=fresh();state.settings=s;state.seenIntro=true;state.news=NEWS_ID;save();Sync.flush();renderHome();},
   world(a){startWorld(a.dataset.w);},
   ghosts(){startGhosts();},
-  blitz(){startBlitz();},
+  blitz(a){startBlitz(!!(a&&a.dataset&&a.dataset.l2==='1'));},
   memory(){startMemory();},
   daily(){startDaily();},
-  boss(a){startBoss(a.dataset.b);},
+  boss(a){startBoss(a.dataset.b,a.dataset.l2==='1');},
+  lvl(a){const y=window.scrollY;state.settings.lvl=a.dataset.l==='2'?2:1;save();renderHome();window.scrollTo(0,y);},
+  l2skip(){if(!run||run.answered)return;const inp=$('#ans');if(inp){inp.readOnly=true;inp.classList.add('ko');}const go=$('#go');if(go)go.disabled=true;$$('.key').forEach(k=>k.disabled=true);{const sk=$('.l2skip');if(sk)sk.hidden=true;}onAnswer(false,{skip:true});},
   'news-ok'(){closeNews();},
   map(){openMap();},
   shop(){show('shop');renderShop();},
@@ -3455,10 +3908,10 @@ document.addEventListener('submit',e=>{
   if(e.target.id==='codeform'){e.preventDefault();submitCode();return;}
   if(e.target.id!=='typer')return;e.preventDefault();
   if(!run||run.answered)return;const q=run.queue[run.i].q;const inp=$('#ans');const given=inp.value;
-  const r=checkTyped(given,q);
+  const r=q.strict?checkStrict(given,q):checkTyped(given,q);
   if(r.empty){inp.focus();return;}
-  inp.classList.add(r.ok?'ok':'ko');inp.readOnly=true;$('#go').disabled=true;$$('.key').forEach(k=>k.disabled=true);
-  onAnswer(r.ok,{exact:r.ok?r.exact:undefined,near:r.near,given:r.ok?'':given});
+  inp.classList.add(r.ok?'ok':'ko');inp.readOnly=true;$('#go').disabled=true;$$('.key').forEach(k=>k.disabled=true);{const sk=$('.l2skip');if(sk)sk.hidden=true;}
+  onAnswer(r.ok,{exact:r.ok?r.exact:undefined,near:r.near,given:r.ok?'':given,best:r.best,typed:given});
 });
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='f-pseudo'){authDraft=e.target.value;updatePseudoHint();}});
 document.addEventListener('keydown',e=>{
